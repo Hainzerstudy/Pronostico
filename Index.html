@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>IPK-5 | Indicador Pronóstico Kinésico</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f4f6f8;
+        padding: 20px;
+    }
+    .card {
+        background: white;
+        padding: 20px;
+        max-width: 600px;
+        margin: auto;
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+        text-align: center;
+    }
+    label {
+        font-weight: bold;
+        display: block;
+        margin-top: 15px;
+    }
+    select, button {
+        width: 100%;
+        padding: 8px;
+        margin-top: 5px;
+        font-size: 16px;
+    }
+    button {
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        margin-top: 20px;
+        cursor: pointer;
+    }
+    button:hover {
+        background: #0056b3;
+    }
+    .resultado {
+        margin-top: 20px;
+        padding: 15px;
+        border-radius: 8px;
+        font-size: 16px;
+        background: #e9ecef;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="card">
+    <h1>IPK-5</h1>
+    <p><b>Indicador Pronóstico Kinésico</b></p>
+
+    <!-- V1 -->
+    <label>1️⃣ Estabilidad hemodinámica / tolerancia al esfuerzo</label>
+    <select id="v1">
+        <option value="0">0 pts – Inestable / contraindicación</option>
+        <option value="5">5 pts – Estable en reposo</option>
+        <option value="10">10 pts – Estable y tolera esfuerzo</option>
+    </select>
+
+    <!-- V6 -->
+    <label>6️⃣ Estado cognitivo funcional</label>
+    <select id="v6">
+        <option value="0">0 pts – No colabora / delirium</option>
+        <option value="5">5 pts – Colabora funcionalmente</option>
+    </select>
+
+    <!-- V8 -->
+    <label>8️⃣ Comorbilidades relevantes</label>
+    <select id="v8">
+        <option value="0">0 pts – Descompensadas / limitantes</option>
+        <option value="5">5 pts – Parcialmente limitantes</option>
+        <option value="10">10 pts – Controladas / no limitantes</option>
+    </select>
+
+    <!-- V9 -->
+    <label>9️⃣ Precocidad de la intervención</label>
+    <select id="v9">
+        <option value="0">0 pts – Tardía</option>
+        <option value="5">5 pts – Intermedia</option>
+        <option value="10">10 pts – Precoz</option>
+    </select>
+
+    <!-- V10 -->
+    <label>🔟 Juicio Clínico Kinésico (0–20 pts)</label>
+    <select id="v10">
+        <option value="0">0–4 pts – Muy desfavorable</option>
+        <option value="5">5–8 pts – Desfavorable</option>
+        <option value="10">9–12 pts – Moderado</option>
+        <option value="15">13–16 pts – Favorable</option>
+        <option value="20">17–20 pts – Muy favorable</option>
+    </select>
+
+    <button onclick="calcularIPK()">Calcular IPK-5</button>
+
+    <div id="resultado" class="resultado"></div>
+</div>
+
+<script>
+function calcularIPK() {
+    let v1 = parseInt(document.getElementById("v1").value);
+
+    // Filtro de seguridad
+    if (v1 === 0) {
+        document.getElementById("resultado").innerHTML =
+            "<b>Categoría D (Provisional)</b><br>" +
+            "Paciente no apto actualmente.<br>" +
+            "⏱️ Tiempo: Reevaluar / Educación (5–10 min)";
+        return;
+    }
+
+    let v6 = parseInt(document.getElementById("v6").value);
+    let v8 = parseInt(document.getElementById("v8").value);
+    let v9 = parseInt(document.getElementById("v9").value);
+    let v10 = parseInt(document.getElementById("v10").value);
+
+    let total = v1 + v6 + v8 + v9 + v10;
+
+    let categoria = "";
+    let tiempo = "";
+
+    if (total >= 45) {
+        categoria = "🅰️ Categoría A – Muy favorable";
+        tiempo = "45–60 min";
+    } else if (total >= 30) {
+        categoria = "🅱️ Categoría B – Favorable";
+        tiempo = "30–40 min";
+    } else if (total >= 15) {
+        categoria = "🅲 Categoría C – Condicionado";
+        tiempo = "15–20 min";
+    } else {
+        categoria = "🅳 Categoría D – Desfavorable";
+        tiempo = "5–10 min / Educación";
+    }
+
+    document.getElementById("resultado").innerHTML =
+        "<b>Puntaje IPK-5:</b> " + total + " / 55<br>" +
+        "<b>Clasificación:</b> " + categoria + "<br>" +
+        "<b>⏱️ Tiempo kinésico sugerido:</b> " + tiempo;
+}
+</script>
+
+</body>
+</html>
