@@ -14,10 +14,10 @@ body {
 }
 
 .container {
-    max-width: 560px;
+    max-width: 600px;
     margin: auto;
     background: #0b0b0b;
-    padding: 20px;
+    padding: 22px;
     border-radius: 14px;
     box-shadow: 0 0 25px rgba(0,0,0,0.7);
 }
@@ -36,7 +36,13 @@ h2 {
 label {
     font-weight: bold;
     display: block;
-    margin-top: 14px;
+    margin-top: 16px;
+}
+
+small {
+    display: block;
+    color: #ccc;
+    margin-top: 4px;
 }
 
 select, button {
@@ -77,58 +83,66 @@ button {
 
 <!-- FILTRO -->
 <label>¿Paciente acepta intervención kinésica?</label>
+<small>Condición excluyente para asignar recursos terapéuticos.</small>
 <select id="acepta">
-    <option value="no">❌ Rechaza intervención</option>
-    <option value="si">✅ Acepta intervención</option>
+    <option value="no">❌ Rechaza intervención (no desea ser atendido)</option>
+    <option value="si">✅ Acepta intervención (consiente evaluación y tratamiento)</option>
 </select>
 
 <!-- EDAD -->
 <label>Grupo etario funcional</label>
+<small>Usado solo como modulador pronóstico, no como predictor funcional.</small>
 <select id="edad">
-    <option value="0">≥75 años (menor reserva fisiológica)</option>
-    <option value="5">&lt;75 años (mayor reserva fisiológica)</option>
+    <option value="0">≥75 años: mayor riesgo de pérdida de reserva fisiológica</option>
+    <option value="5">&lt;75 años: mayor reserva fisiológica potencial</option>
 </select>
 
 <!-- VARIABLES PRINCIPALES -->
 <label>Estabilidad hemodinámica / tolerancia al esfuerzo</label>
+<small>Evalúa seguridad clínica para iniciar o progresar rehabilitación.</small>
 <select id="v1">
-    <option value="0">Inestable / contraindicación</option>
-    <option value="5">Estable con límites claros</option>
-    <option value="10">Estable, buena tolerancia al esfuerzo</option>
+    <option value="0">Inestable: contraindicación para ejercicio terapéutico</option>
+    <option value="5">Estable con límites: requiere monitorización y cargas bajas</option>
+    <option value="10">Estable: tolera ejercicio sin eventos adversos</option>
 </select>
 
 <label>Reserva funcional basal</label>
+<small>Integra dependencia previa y grado de fragilidad.</small>
 <select id="v2">
-    <option value="0">Dependencia severa / fragilidad avanzada</option>
+    <option value="0">Dependencia severa / fragilidad avanzada previa</option>
     <option value="5">Dependencia parcial / fragilidad moderada</option>
-    <option value="10">Independiente / robusto</option>
+    <option value="10">Independiente en AVD / robusto previamente</option>
 </select>
 
 <label>Complejidad clínica / pronóstico basal</label>
+<small>Considera carga de comorbilidad y reversibilidad esperable.</small>
 <select id="v3">
-    <option value="0">Alta complejidad / baja reversibilidad</option>
-    <option value="5">Comorbilidades controladas</option>
-    <option value="10">Baja carga / buena reversibilidad</option>
+    <option value="0">Alta complejidad clínica / baja reversibilidad funcional</option>
+    <option value="5">Comorbilidades presentes pero controladas</option>
+    <option value="10">Baja carga mórbida / alta reversibilidad</option>
 </select>
 
 <label>Red de apoyo efectiva</label>
+<small>Impacta continuidad, adherencia y alta segura.</small>
 <select id="v4">
-    <option value="0">Sin red de apoyo</option>
-    <option value="3">Apoyo parcial / inestable</option>
-    <option value="5">Red sólida y disponible</option>
+    <option value="0">Sin red: paciente solo o abandono social</option>
+    <option value="3">Apoyo parcial o inestable</option>
+    <option value="5">Red sólida, disponible y comprometida</option>
 </select>
 
 <label>Adherencia / motivación esperable</label>
+<small>Estimación clínica del compromiso con el proceso rehabilitador.</small>
 <select id="v5">
-    <option value="0">Baja / pasiva</option>
-    <option value="3">Variable</option>
-    <option value="5">Alta motivación y compromiso</option>
+    <option value="0">Baja: pasividad, escasa participación</option>
+    <option value="3">Variable: compromiso intermitente</option>
+    <option value="5">Alta: motivado y participativo</option>
 </select>
 
 <!-- JUICIO CLÍNICO -->
-<h2>Juicio Clínico Kinésico</h2>
+<h2>Juicio Clínico Kinésico Integrado</h2>
 
 <label>Edad funcional percibida</label>
+<small>Cómo se comporta funcionalmente, independiente de edad cronológica.</small>
 <select id="j1">
     <option value="0">Muy envejecido funcionalmente</option>
     <option value="2">Edad funcional intermedia</option>
@@ -136,31 +150,35 @@ button {
 </select>
 
 <label>Motivación observable</label>
+<small>Conducta durante la evaluación y disposición al esfuerzo.</small>
 <select id="j2">
-    <option value="0">Nula / resistencia</option>
-    <option value="2">Intermitente</option>
+    <option value="0">Nula / resistencia activa</option>
+    <option value="2">Motivación intermitente</option>
     <option value="4">Alta y sostenida</option>
 </select>
 
 <label>Adherencia esperable</label>
+<small>Probabilidad clínica de cumplir indicaciones y continuidad.</small>
 <select id="j3">
     <option value="0">Baja probabilidad de adherencia</option>
     <option value="2">Adherencia parcial</option>
     <option value="4">Alta adherencia esperable</option>
 </select>
 
-<label>Apoyo cuidador</label>
+<label>Apoyo de cuidador</label>
+<small>Disponibilidad real para asistir, reforzar y supervisar.</small>
 <select id="j4">
     <option value="0">Ausente</option>
-    <option value="2">Irregular</option>
+    <option value="2">Irregular o limitado</option>
     <option value="4">Constante y comprometido</option>
 </select>
 
 <label>Reversibilidad funcional</label>
+<small>Posibilidad real de recuperación con intervención kinésica.</small>
 <select id="j5">
-    <option value="0">Escasa o nula</option>
-    <option value="2">Parcial</option>
-    <option value="4">Alta reversibilidad</option>
+    <option value="0">Escasa o nula reversibilidad</option>
+    <option value="2">Reversibilidad parcial</option>
+    <option value="4">Alta reversibilidad funcional</option>
 </select>
 
 <button onclick="calcular()">Calcular IPK-R75</button>
@@ -174,7 +192,7 @@ function calcular() {
     if (acepta.value === "no") {
         resultado.innerHTML =
         "❌ <b>Paciente rechaza intervención.</b><br><br>" +
-        "👉 Educación breve, registro y cierre kinésico.";
+        "👉 Se recomienda educación breve, registro y cierre kinésico.";
         return;
     }
 
@@ -218,10 +236,10 @@ function calcular() {
      <div class="advice">
      <b>Consejos clínicos:</b>
      <ul>
-       <li>No todo paciente requiere intervención intensiva.</li>
-       <li>La falta de adherencia no es un fracaso terapéutico.</li>
+       <li>La eficiencia terapéutica es un recurso limitado.</li>
+       <li>No toda negativa requiere insistencia clínica.</li>
        <li>Educar también es intervenir.</li>
-       <li>Prioriza impacto funcional sobre volumen de atenciones.</li>
+       <li>Reevalúa solo si el contexto clínico cambia.</li>
      </ul>
      </div>`;
 }
