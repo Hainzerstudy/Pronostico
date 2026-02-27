@@ -3,125 +3,169 @@
 <head>
 <meta charset="UTF-8">
 <title>IPK-5 | Indicador Pronóstico Kinésico</title>
+
 <style>
-    body {
-        font-family: Arial, sans-serif;
-        background: #f4f6f8;
-        padding: 20px;
-    }
-    .card {
-        background: white;
-        padding: 20px;
-        max-width: 600px;
-        margin: auto;
-        border-radius: 10px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
-    h1 {
-        text-align: center;
-    }
-    label {
-        font-weight: bold;
-        display: block;
-        margin-top: 15px;
-    }
-    select, button {
-        width: 100%;
-        padding: 8px;
-        margin-top: 5px;
-        font-size: 16px;
-    }
-    button {
-        background: #007bff;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        margin-top: 20px;
-        cursor: pointer;
-    }
-    button:hover {
-        background: #0056b3;
-    }
-    .resultado {
-        margin-top: 20px;
-        padding: 15px;
-        border-radius: 8px;
-        font-size: 16px;
-        background: #e9ecef;
-    }
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+    padding: 20px;
+}
+.card {
+    background: white;
+    padding: 20px;
+    max-width: 650px;
+    margin: auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+h1 {
+    text-align: center;
+}
+label {
+    font-weight: bold;
+    display: block;
+    margin-top: 14px;
+}
+select, button {
+    width: 100%;
+    padding: 8px;
+    margin-top: 6px;
+    font-size: 16px;
+}
+button {
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    margin-top: 20px;
+    cursor: pointer;
+}
+button:hover {
+    background: #0056b3;
+}
+.resultado {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 8px;
+    background: #e9ecef;
+    font-size: 16px;
+}
 </style>
 </head>
 
 <body>
 
 <div class="card">
-    <h1>IPK-5</h1>
-    <p><b>Indicador Pronóstico Kinésico</b></p>
+<h1>IPK-5</h1>
+<p><b>Indicador Pronóstico Kinésico</b></p>
 
-    <!-- V1 -->
-    <label>1️⃣ Estabilidad hemodinámica / tolerancia al esfuerzo</label>
-    <select id="v1">
-        <option value="0">0 pts – Inestable / contraindicación</option>
-        <option value="5">5 pts – Estable en reposo</option>
-        <option value="10">10 pts – Estable y tolera esfuerzo</option>
-    </select>
+<!-- V1 -->
+<label>1️⃣ Estabilidad hemodinámica / tolerancia al esfuerzo</label>
+<select id="v1">
+    <option value="0">0 pts – Inestable / contraindicación</option>
+    <option value="5">5 pts – Estable en reposo</option>
+    <option value="10">10 pts – Estable y tolera esfuerzo</option>
+</select>
 
-    <!-- V6 -->
-    <label>6️⃣ Estado cognitivo funcional</label>
-    <select id="v6">
-        <option value="0">0 pts – No colabora / delirium</option>
-        <option value="5">5 pts – Colabora funcionalmente</option>
-    </select>
+<!-- V6 -->
+<label>6️⃣ Estado cognitivo funcional</label>
+<select id="v6">
+    <option value="0">0 pts – No colabora / delirium</option>
+    <option value="5">5 pts – Colabora funcionalmente</option>
+</select>
 
-    <!-- V8 -->
-    <label>8️⃣ Comorbilidades relevantes</label>
-    <select id="v8">
-        <option value="0">0 pts – Descompensadas / limitantes</option>
-        <option value="5">5 pts – Parcialmente limitantes</option>
-        <option value="10">10 pts – Controladas / no limitantes</option>
-    </select>
+<!-- V8 -->
+<label>8️⃣ Comorbilidades relevantes</label>
+<select id="v8">
+    <option value="0">0 pts – Descompensadas / limitantes</option>
+    <option value="5">5 pts – Parcialmente limitantes</option>
+    <option value="10">10 pts – Controladas / no limitantes</option>
+</select>
 
-    <!-- V9 -->
-    <label>9️⃣ Precocidad de la intervención</label>
-    <select id="v9">
-        <option value="0">0 pts – Tardía</option>
-        <option value="5">5 pts – Intermedia</option>
-        <option value="10">10 pts – Precoz</option>
-    </select>
+<!-- V9 -->
+<label>9️⃣ Precocidad de la intervención</label>
+<select id="v9">
+    <option value="0">0 pts – Tardía</option>
+    <option value="5">5 pts – Intermedia</option>
+    <option value="10">10 pts – Precoz</option>
+</select>
 
-    <!-- V10 -->
-    <label>🔟 Juicio Clínico Kinésico (0–20 pts)</label>
-    <select id="v10">
-        <option value="0">0–4 pts – Muy desfavorable</option>
-        <option value="5">5–8 pts – Desfavorable</option>
-        <option value="10">9–12 pts – Moderado</option>
-        <option value="15">13–16 pts – Favorable</option>
-        <option value="20">17–20 pts – Muy favorable</option>
-    </select>
+<!-- V10 -->
+<label>🔟 Juicio Clínico Kinésico</label>
 
-    <button onclick="calcularIPK()">Calcular IPK-5</button>
+<label>Edad funcional</label>
+<select id="edadFuncional">
+    <option value="0">0 – Muy deteriorada</option>
+    <option value="1">1 – Deterioro severo</option>
+    <option value="2">2 – Deterioro moderado</option>
+    <option value="3">3 – Leve deterioro</option>
+    <option value="4">4 – Conservada</option>
+</select>
 
-    <div id="resultado" class="resultado"></div>
+<label>Motivación</label>
+<select id="motivacion">
+    <option value="0">0 – Nula</option>
+    <option value="1">1 – Muy baja</option>
+    <option value="2">2 – Intermitente</option>
+    <option value="3">3 – Adecuada</option>
+    <option value="4">4 – Alta</option>
+</select>
+
+<label>Adherencia esperable</label>
+<select id="adherencia">
+    <option value="0">0 – Muy improbable</option>
+    <option value="1">1 – Baja</option>
+    <option value="2">2 – Variable</option>
+    <option value="3">3 – Buena</option>
+    <option value="4">4 – Muy buena</option>
+</select>
+
+<label>Apoyo familiar / cuidador</label>
+<select id="apoyo">
+    <option value="0">0 – Ausente</option>
+    <option value="1">1 – Insuficiente</option>
+    <option value="2">2 – Parcial</option>
+    <option value="3">3 – Adecuado</option>
+    <option value="4">4 – Óptimo</option>
+</select>
+
+<label>Reversibilidad del cuadro</label>
+<select id="reversibilidad">
+    <option value="0">0 – No reversible</option>
+    <option value="1">1 – Muy limitada</option>
+    <option value="2">2 – Parcial</option>
+    <option value="3">3 – Alta</option>
+    <option value="4">4 – Muy alta</option>
+</select>
+
+<button onclick="calcularIPK()">Calcular IPK-5</button>
+
+<div id="resultado" class="resultado"></div>
 </div>
 
 <script>
 function calcularIPK() {
     let v1 = parseInt(document.getElementById("v1").value);
 
-    // Filtro de seguridad
     if (v1 === 0) {
         document.getElementById("resultado").innerHTML =
-            "<b>Categoría D (Provisional)</b><br>" +
-            "Paciente no apto actualmente.<br>" +
-            "⏱️ Tiempo: Reevaluar / Educación (5–10 min)";
+        "<b>Categoría D (Provisional)</b><br>" +
+        "Paciente no apto actualmente.<br>" +
+        "⏱️ Tiempo: Reevaluar / Educación (5–10 min)";
         return;
     }
 
     let v6 = parseInt(document.getElementById("v6").value);
     let v8 = parseInt(document.getElementById("v8").value);
     let v9 = parseInt(document.getElementById("v9").value);
-    let v10 = parseInt(document.getElementById("v10").value);
 
+    let edadFuncional = parseInt(document.getElementById("edadFuncional").value);
+    let motivacion = parseInt(document.getElementById("motivacion").value);
+    let adherencia = parseInt(document.getElementById("adherencia").value);
+    let apoyo = parseInt(document.getElementById("apoyo").value);
+    let reversibilidad = parseInt(document.getElementById("reversibilidad").value);
+
+    let v10 = edadFuncional + motivacion + adherencia + apoyo + reversibilidad;
     let total = v1 + v6 + v8 + v9 + v10;
 
     let categoria = "";
