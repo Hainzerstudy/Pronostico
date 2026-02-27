@@ -2,281 +2,182 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>IPK-5 | Indicador Pronóstico Kinésico</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IPK-R75 | Indicador Pronóstico Kinésico</title>
 
 <style>
-:root{
-  --A:#2ecc71;
-  --B:#3498db;
-  --C:#f1c40f;
-  --D:#e74c3c;
+body {
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    color: #fff;
+    padding: 20px;
 }
 
-body{
-  margin:0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  background: linear-gradient(135deg,#1e3c72,#2a5298);
-  padding:16px;
+.container {
+    max-width: 520px;
+    margin: auto;
+    background: #0b0b0b;
+    padding: 20px;
+    border-radius: 14px;
+    box-shadow: 0 0 25px rgba(0,0,0,0.7);
 }
 
-.card{
-  background:#fff;
-  max-width:760px;
-  margin:auto;
-  border-radius:20px;
-  padding:22px;
-  box-shadow:0 10px 30px rgba(0,0,0,.25);
+h1 {
+    text-align: center;
+    color: #00ffd5;
 }
 
-h1{
-  text-align:center;
-  margin:0;
-}
-.subtitle{
-  text-align:center;
-  color:#555;
-  margin-bottom:20px;
+label {
+    font-weight: bold;
+    display: block;
+    margin-top: 14px;
 }
 
-label{
-  font-weight:600;
-  margin-top:14px;
-  display:block;
+select, button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 6px;
+    border-radius: 8px;
+    border: none;
+    font-size: 16px;
 }
 
-select{
-  width:100%;
-  padding:12px;
-  margin-top:6px;
-  font-size:15px;
-  border-radius:10px;
-  border:1px solid #ccc;
+button {
+    background: #00ffd5;
+    color: #000;
+    font-weight: bold;
+    margin-top: 20px;
 }
 
-.section{
-  margin-top:20px;
-  padding-top:12px;
-  border-top:2px dashed #ddd;
+.result {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 10px;
+    background: #1c1c1c;
 }
 
-button{
-  width:100%;
-  margin-top:24px;
-  padding:16px;
-  font-size:17px;
-  font-weight:bold;
-  background:linear-gradient(135deg,#16a085,#27ae60);
-  color:#fff;
-  border:none;
-  border-radius:14px;
-  cursor:pointer;
-}
-button:hover{
-  opacity:.9;
-}
-
-.resultado{
-  margin-top:26px;
-  padding:20px;
-  border-radius:18px;
-  color:#fff;
-}
-
-.A{background:linear-gradient(135deg,var(--A),#27ae60);}
-.B{background:linear-gradient(135deg,var(--B),#2980b9);}
-.C{background:linear-gradient(135deg,var(--C),#f39c12); color:#000;}
-.D{background:linear-gradient(135deg,var(--D),#c0392b);}
-
-.badge{
-  display:inline-block;
-  padding:6px 12px;
-  border-radius:999px;
-  background:rgba(0,0,0,.2);
-  font-weight:bold;
-  margin-bottom:10px;
-}
-
-ul{
-  margin:8px 0 0 18px;
-}
-
-small{
-  opacity:.9;
+.advice {
+    margin-top: 15px;
+    background: #123d4f;
+    padding: 12px;
+    border-radius: 8px;
 }
 </style>
 </head>
 
 <body>
+<div class="container">
+<h1>IPK-R75</h1>
 
-<div class="card">
-<h1>IPK-5</h1>
-<div class="subtitle">Indicador Pronóstico Kinésico</div>
-
-<label>1️⃣ Estabilidad hemodinámica / tolerancia al esfuerzo</label>
-<select id="v1">
-  <option value="0">0 – Inestable / contraindicación</option>
-  <option value="5">5 – Estable en reposo</option>
-  <option value="10">10 – Estable y tolera esfuerzo</option>
+<label>¿Paciente acepta intervención?</label>
+<select id="acepta">
+    <option value="no">No</option>
+    <option value="si">Sí</option>
 </select>
 
-<label>6️⃣ Estado cognitivo funcional</label>
-<select id="v6">
-  <option value="0">0 – No colabora / delirium</option>
-  <option value="5">5 – Colabora funcionalmente</option>
-</select>
-
-<label>8️⃣ Comorbilidades relevantes</label>
-<select id="v8">
-  <option value="0">0 – Descompensadas</option>
-  <option value="5">5 – Parcialmente limitantes</option>
-  <option value="10">10 – Controladas</option>
-</select>
-
-<label>9️⃣ Precocidad de la intervención</label>
-<select id="v9">
-  <option value="0">0 – Tardía</option>
-  <option value="5">5 – Intermedia</option>
-  <option value="10">10 – Precoz</option>
-</select>
-
-<div class="section">
-<strong>🔟 Juicio Clínico Kinésico</strong>
-
-<label>Edad funcional</label>
+<label>Grupo etario funcional</label>
 <select id="edad">
-  <option value="0">0 – Muy deteriorada</option>
-  <option value="1">1 – Deterioro severo</option>
-  <option value="2">2 – Deterioro moderado</option>
-  <option value="3">3 – Leve deterioro</option>
-  <option value="4">4 – Conservada</option>
+    <option value="0">≥75 años</option>
+    <option value="5">&lt;75 años</option>
 </select>
 
-<label>Motivación</label>
-<select id="motivacion">
-  <option value="0">0 – Nula</option>
-  <option value="1">1 – Muy baja</option>
-  <option value="2">2 – Intermitente</option>
-  <option value="3">3 – Adecuada</option>
-  <option value="4">4 – Alta</option>
+<label>Estabilidad hemodinámica</label>
+<select id="v1">
+    <option value="0">0</option>
+    <option value="5">5</option>
+    <option value="10">10</option>
 </select>
 
-<label>Adherencia esperable</label>
-<select id="adherencia">
-  <option value="0">0 – Muy improbable</option>
-  <option value="1">1 – Baja</option>
-  <option value="2">2 – Variable</option>
-  <option value="3">3 – Buena</option>
-  <option value="4">4 – Muy buena</option>
+<label>Reserva funcional basal</label>
+<select id="v2">
+    <option value="0">0</option>
+    <option value="5">5</option>
+    <option value="10">10</option>
 </select>
 
-<label>Apoyo familiar / cuidador</label>
-<select id="apoyo">
-  <option value="0">0 – Ausente</option>
-  <option value="1">1 – Insuficiente</option>
-  <option value="2">2 – Parcial</option>
-  <option value="3">3 – Adecuado</option>
-  <option value="4">4 – Óptimo</option>
+<label>Complejidad clínica / pronóstico</label>
+<select id="v3">
+    <option value="0">0</option>
+    <option value="5">5</option>
+    <option value="10">10</option>
 </select>
 
-<label>Reversibilidad del cuadro</label>
-<select id="reversibilidad">
-  <option value="0">0 – No reversible</option>
-  <option value="1">1 – Muy limitada</option>
-  <option value="2">2 – Parcial</option>
-  <option value="3">3 – Alta</option>
-  <option value="4">4 – Muy alta</option>
+<label>Red de apoyo</label>
+<select id="v4">
+    <option value="0">0</option>
+    <option value="3">3</option>
+    <option value="5">5</option>
 </select>
-</div>
 
-<button onclick="calcular()">Calcular IPK-5</button>
+<label>Adherencia / motivación</label>
+<select id="v5">
+    <option value="0">0</option>
+    <option value="3">3</option>
+    <option value="5">5</option>
+</select>
 
-<div id="resultado"></div>
+<label>Juicio clínico kinésico</label>
+<select id="v6">
+    <option value="0">0</option>
+    <option value="10">10</option>
+    <option value="20">20</option>
+</select>
+
+<button onclick="calcular()">Calcular IPK-R75</button>
+
+<div class="result" id="resultado"></div>
 </div>
 
 <script>
-function calcular(){
-  const v1=+v1El.value;
-  if(v1===0){
-    resultado.innerHTML=`
-    <div class="resultado D">
-      <div class="badge">Categoría D (provisional)</div>
-      <p>Paciente no apto actualmente.</p>
-      <ul>
-        <li>Priorizar estabilidad clínica</li>
-        <li>Educación al paciente y cuidador</li>
-        <li>Prevención de complicaciones</li>
-        <li>Reevaluar periódicamente</li>
-      </ul>
-    </div>`;
-    return;
-  }
+function calcular() {
 
-  const v6=+v6El.value, v8=+v8El.value, v9=+v9El.value;
-  const edad=+edadEl.value, mot=+motivacionEl.value,
-        adh=+adherenciaEl.value, apo=+apoyoEl.value, rev=+reversibilidadEl.value;
+    if (acepta.value === "no") {
+        resultado.innerHTML =
+        "❌ Paciente rechaza intervención.<br><br>" +
+        "👉 Educación breve, registro y cierre kinésico.";
+        return;
+    }
 
-  const v10=edad+mot+adh+apo+rev;
-  const total=v1+v6+v8+v9+v10;
+    let total =
+        Number(edad.value) +
+        Number(v1.value) +
+        Number(v2.value) +
+        Number(v3.value) +
+        Number(v4.value) +
+        Number(v5.value) +
+        Number(v6.value);
 
-  let cat, clase, tiempo, consejos;
+    let categoria = "";
+    let tiempo = "";
 
-  if(total>=45){
-    clase="A"; cat="🅰️ Categoría A – Muy favorable"; tiempo="45–60 min";
-    consejos=[
-      "Entrenamiento progresivo de alta intensidad",
-      "Objetivos funcionales ambiciosos",
-      "Monitoreo de carga y respuesta fisiológica",
-      "Reevaluación funcional frecuente"
-    ];
-  }else if(total>=30){
-    clase="B"; cat="🅱️ Categoría B – Favorable"; tiempo="30–40 min";
-    consejos=[
-      "Trabajo funcional dirigido",
-      "Progresión gradual de la carga",
-      "Refuerzo de adherencia terapéutica",
-      "Educación activa del paciente"
-    ];
-  }else if(total>=15){
-    clase="C"; cat="🅲 Categoría C – Condicionado"; tiempo="15–20 min";
-    consejos=[
-      "Intervenciones focalizadas",
-      "Objetivos realistas y alcanzables",
-      "Alta educación al cuidador",
-      "Reevaluaciones cortas y frecuentes"
-    ];
-  }else{
-    clase="D"; cat="🅳 Categoría D – Desfavorable"; tiempo="5–10 min / educación";
-    consejos=[
-      "Prevención del deterioro funcional",
-      "Manejo del confort y posicionamiento",
-      "Educación a familia/cuidador",
-      "Plan de reevaluación programada"
-    ];
-  }
+    if (total >= 52) {
+        categoria = "🅰️ Muy favorable";
+        tiempo = "45–60 min";
+    } else if (total >= 36) {
+        categoria = "🅱️ Favorable";
+        tiempo = "30–40 min";
+    } else if (total >= 20) {
+        categoria = "🅲 Condicionado";
+        tiempo = "15–20 min";
+    } else {
+        categoria = "🅳 Desfavorable";
+        tiempo = "Educación / reevaluación";
+    }
 
-  resultado.innerHTML=`
-  <div class="resultado ${clase}">
-    <div class="badge">${cat}</div>
-    <p><b>Puntaje:</b> ${total}/55<br>
-       <b>Tiempo sugerido:</b> ${tiempo}</p>
-    <b>🧠 Consejos clínicos:</b>
-    <ul>${consejos.map(c=>`<li>${c}</li>`).join("")}</ul>
-    <small>V10: Edad ${edad} · Motivación ${mot} · Adherencia ${adh} · Apoyo ${apo} · Reversibilidad ${rev}</small>
-  </div>`;
+    resultado.innerHTML =
+    `<b>Puntaje total:</b> ${total} / 65<br>
+     <b>Categoría:</b> ${categoria}<br>
+     <b>Tiempo sugerido:</b> ${tiempo}
+     <div class="advice">
+     <b>Consejos clínicos:</b>
+     <ul>
+       <li>Prioriza eficiencia terapéutica sobre volumen.</li>
+       <li>No medicalices la falta de adherencia.</li>
+       <li>La educación breve también es intervención.</li>
+       <li>Reevalúa solo si cambia el estado clínico.</li>
+     </ul>
+     </div>`;
 }
-
-const v1El=document.getElementById("v1");
-const v6El=document.getElementById("v6");
-const v8El=document.getElementById("v8");
-const v9El=document.getElementById("v9");
-const edadEl=document.getElementById("edad");
-const motivacionEl=document.getElementById("motivacion");
-const adherenciaEl=document.getElementById("adherencia");
-const apoyoEl=document.getElementById("apoyo");
-const reversibilidadEl=document.getElementById("reversibilidad");
-const resultado=document.getElementById("resultado");
 </script>
-
 </body>
 </html>
