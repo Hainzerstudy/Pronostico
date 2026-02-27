@@ -14,7 +14,7 @@ body {
 }
 
 .container {
-    max-width: 520px;
+    max-width: 560px;
     margin: auto;
     background: #0b0b0b;
     padding: 20px;
@@ -25,6 +25,12 @@ body {
 h1 {
     text-align: center;
     color: #00ffd5;
+}
+
+h2 {
+    margin-top: 25px;
+    color: #00eaff;
+    font-size: 18px;
 }
 
 label {
@@ -39,18 +45,18 @@ select, button {
     margin-top: 6px;
     border-radius: 8px;
     border: none;
-    font-size: 16px;
+    font-size: 15px;
 }
 
 button {
     background: #00ffd5;
     color: #000;
     font-weight: bold;
-    margin-top: 20px;
+    margin-top: 25px;
 }
 
 .result {
-    margin-top: 20px;
+    margin-top: 25px;
     padding: 15px;
     border-radius: 10px;
     background: #1c1c1c;
@@ -69,58 +75,92 @@ button {
 <div class="container">
 <h1>IPK-R75</h1>
 
-<label>¿Paciente acepta intervención?</label>
+<!-- FILTRO -->
+<label>¿Paciente acepta intervención kinésica?</label>
 <select id="acepta">
-    <option value="no">No</option>
-    <option value="si">Sí</option>
+    <option value="no">❌ Rechaza intervención</option>
+    <option value="si">✅ Acepta intervención</option>
 </select>
 
+<!-- EDAD -->
 <label>Grupo etario funcional</label>
 <select id="edad">
-    <option value="0">≥75 años</option>
-    <option value="5">&lt;75 años</option>
+    <option value="0">≥75 años (menor reserva fisiológica)</option>
+    <option value="5">&lt;75 años (mayor reserva fisiológica)</option>
 </select>
 
-<label>Estabilidad hemodinámica</label>
+<!-- VARIABLES PRINCIPALES -->
+<label>Estabilidad hemodinámica / tolerancia al esfuerzo</label>
 <select id="v1">
-    <option value="0">0</option>
-    <option value="5">5</option>
-    <option value="10">10</option>
+    <option value="0">Inestable / contraindicación</option>
+    <option value="5">Estable con límites claros</option>
+    <option value="10">Estable, buena tolerancia al esfuerzo</option>
 </select>
 
 <label>Reserva funcional basal</label>
 <select id="v2">
-    <option value="0">0</option>
-    <option value="5">5</option>
-    <option value="10">10</option>
+    <option value="0">Dependencia severa / fragilidad avanzada</option>
+    <option value="5">Dependencia parcial / fragilidad moderada</option>
+    <option value="10">Independiente / robusto</option>
 </select>
 
-<label>Complejidad clínica / pronóstico</label>
+<label>Complejidad clínica / pronóstico basal</label>
 <select id="v3">
-    <option value="0">0</option>
-    <option value="5">5</option>
-    <option value="10">10</option>
+    <option value="0">Alta complejidad / baja reversibilidad</option>
+    <option value="5">Comorbilidades controladas</option>
+    <option value="10">Baja carga / buena reversibilidad</option>
 </select>
 
-<label>Red de apoyo</label>
+<label>Red de apoyo efectiva</label>
 <select id="v4">
-    <option value="0">0</option>
-    <option value="3">3</option>
-    <option value="5">5</option>
+    <option value="0">Sin red de apoyo</option>
+    <option value="3">Apoyo parcial / inestable</option>
+    <option value="5">Red sólida y disponible</option>
 </select>
 
-<label>Adherencia / motivación</label>
+<label>Adherencia / motivación esperable</label>
 <select id="v5">
-    <option value="0">0</option>
-    <option value="3">3</option>
-    <option value="5">5</option>
+    <option value="0">Baja / pasiva</option>
+    <option value="3">Variable</option>
+    <option value="5">Alta motivación y compromiso</option>
 </select>
 
-<label>Juicio clínico kinésico</label>
-<select id="v6">
-    <option value="0">0</option>
-    <option value="10">10</option>
-    <option value="20">20</option>
+<!-- JUICIO CLÍNICO -->
+<h2>Juicio Clínico Kinésico</h2>
+
+<label>Edad funcional percibida</label>
+<select id="j1">
+    <option value="0">Muy envejecido funcionalmente</option>
+    <option value="2">Edad funcional intermedia</option>
+    <option value="4">Funcionalmente joven</option>
+</select>
+
+<label>Motivación observable</label>
+<select id="j2">
+    <option value="0">Nula / resistencia</option>
+    <option value="2">Intermitente</option>
+    <option value="4">Alta y sostenida</option>
+</select>
+
+<label>Adherencia esperable</label>
+<select id="j3">
+    <option value="0">Baja probabilidad de adherencia</option>
+    <option value="2">Adherencia parcial</option>
+    <option value="4">Alta adherencia esperable</option>
+</select>
+
+<label>Apoyo cuidador</label>
+<select id="j4">
+    <option value="0">Ausente</option>
+    <option value="2">Irregular</option>
+    <option value="4">Constante y comprometido</option>
+</select>
+
+<label>Reversibilidad funcional</label>
+<select id="j5">
+    <option value="0">Escasa o nula</option>
+    <option value="2">Parcial</option>
+    <option value="4">Alta reversibilidad</option>
 </select>
 
 <button onclick="calcular()">Calcular IPK-R75</button>
@@ -133,10 +173,17 @@ function calcular() {
 
     if (acepta.value === "no") {
         resultado.innerHTML =
-        "❌ Paciente rechaza intervención.<br><br>" +
+        "❌ <b>Paciente rechaza intervención.</b><br><br>" +
         "👉 Educación breve, registro y cierre kinésico.";
         return;
     }
+
+    let juicio =
+        Number(j1.value) +
+        Number(j2.value) +
+        Number(j3.value) +
+        Number(j4.value) +
+        Number(j5.value);
 
     let total =
         Number(edad.value) +
@@ -145,7 +192,7 @@ function calcular() {
         Number(v3.value) +
         Number(v4.value) +
         Number(v5.value) +
-        Number(v6.value);
+        juicio;
 
     let categoria = "";
     let tiempo = "";
@@ -171,10 +218,10 @@ function calcular() {
      <div class="advice">
      <b>Consejos clínicos:</b>
      <ul>
-       <li>Prioriza eficiencia terapéutica sobre volumen.</li>
-       <li>No medicalices la falta de adherencia.</li>
-       <li>La educación breve también es intervención.</li>
-       <li>Reevalúa solo si cambia el estado clínico.</li>
+       <li>No todo paciente requiere intervención intensiva.</li>
+       <li>La falta de adherencia no es un fracaso terapéutico.</li>
+       <li>Educar también es intervenir.</li>
+       <li>Prioriza impacto funcional sobre volumen de atenciones.</li>
      </ul>
      </div>`;
 }
