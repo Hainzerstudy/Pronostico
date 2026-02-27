@@ -6,74 +6,103 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body {
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-    background: #eef2f6;
-    padding: 16px;
+:root{
+  --A:#2ecc71;
+  --B:#3498db;
+  --C:#f1c40f;
+  --D:#e74c3c;
 }
-.card {
-    background: #ffffff;
-    max-width: 720px;
-    margin: auto;
-    padding: 22px;
-    border-radius: 16px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
-}
-h1 {
-    text-align: center;
-    margin-bottom: 4px;
-}
-.subtitle {
-    text-align: center;
-    color: #555;
-    margin-bottom: 20px;
-}
-label {
-    font-weight: 600;
-    margin-top: 14px;
-    display: block;
-}
-select {
-    width: 100%;
-    padding: 10px;
-    margin-top: 6px;
-    font-size: 15px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-}
-button {
-    width: 100%;
-    margin-top: 22px;
-    padding: 14px;
-    font-size: 16px;
-    font-weight: bold;
-    background: #0066cc;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-}
-button:hover {
-    background: #004999;
-}
-.resultado {
-    margin-top: 24px;
-    padding: 18px;
-    border-radius: 14px;
-    font-size: 15px;
-}
-.A { background: #d4edda; }
-.B { background: #d1ecf1; }
-.C { background: #fff3cd; }
-.D { background: #f8d7da; }
 
-small {
-    color: #555;
+body{
+  margin:0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: linear-gradient(135deg,#1e3c72,#2a5298);
+  padding:16px;
 }
-.section {
-    margin-top: 20px;
-    padding-top: 10px;
-    border-top: 1px solid #ddd;
+
+.card{
+  background:#fff;
+  max-width:760px;
+  margin:auto;
+  border-radius:20px;
+  padding:22px;
+  box-shadow:0 10px 30px rgba(0,0,0,.25);
+}
+
+h1{
+  text-align:center;
+  margin:0;
+}
+.subtitle{
+  text-align:center;
+  color:#555;
+  margin-bottom:20px;
+}
+
+label{
+  font-weight:600;
+  margin-top:14px;
+  display:block;
+}
+
+select{
+  width:100%;
+  padding:12px;
+  margin-top:6px;
+  font-size:15px;
+  border-radius:10px;
+  border:1px solid #ccc;
+}
+
+.section{
+  margin-top:20px;
+  padding-top:12px;
+  border-top:2px dashed #ddd;
+}
+
+button{
+  width:100%;
+  margin-top:24px;
+  padding:16px;
+  font-size:17px;
+  font-weight:bold;
+  background:linear-gradient(135deg,#16a085,#27ae60);
+  color:#fff;
+  border:none;
+  border-radius:14px;
+  cursor:pointer;
+}
+button:hover{
+  opacity:.9;
+}
+
+.resultado{
+  margin-top:26px;
+  padding:20px;
+  border-radius:18px;
+  color:#fff;
+}
+
+.A{background:linear-gradient(135deg,var(--A),#27ae60);}
+.B{background:linear-gradient(135deg,var(--B),#2980b9);}
+.C{background:linear-gradient(135deg,var(--C),#f39c12); color:#000;}
+.D{background:linear-gradient(135deg,var(--D),#c0392b);}
+
+.badge{
+  display:inline-block;
+  padding:6px 12px;
+  border-radius:999px;
+  background:rgba(0,0,0,.2);
+  font-weight:bold;
+  margin-bottom:10px;
+}
+
+ul{
+  margin:8px 0 0 18px;
+}
+
+small{
+  opacity:.9;
 }
 </style>
 </head>
@@ -86,145 +115,167 @@ small {
 
 <label>1️⃣ Estabilidad hemodinámica / tolerancia al esfuerzo</label>
 <select id="v1">
-    <option value="0">0 – Inestable / contraindicación</option>
-    <option value="5">5 – Estable en reposo</option>
-    <option value="10">10 – Estable y tolera esfuerzo</option>
+  <option value="0">0 – Inestable / contraindicación</option>
+  <option value="5">5 – Estable en reposo</option>
+  <option value="10">10 – Estable y tolera esfuerzo</option>
 </select>
 
 <label>6️⃣ Estado cognitivo funcional</label>
 <select id="v6">
-    <option value="0">0 – No colabora / delirium</option>
-    <option value="5">5 – Colabora funcionalmente</option>
+  <option value="0">0 – No colabora / delirium</option>
+  <option value="5">5 – Colabora funcionalmente</option>
 </select>
 
 <label>8️⃣ Comorbilidades relevantes</label>
 <select id="v8">
-    <option value="0">0 – Descompensadas</option>
-    <option value="5">5 – Parcialmente limitantes</option>
-    <option value="10">10 – Controladas</option>
+  <option value="0">0 – Descompensadas</option>
+  <option value="5">5 – Parcialmente limitantes</option>
+  <option value="10">10 – Controladas</option>
 </select>
 
 <label>9️⃣ Precocidad de la intervención</label>
 <select id="v9">
-    <option value="0">0 – Tardía</option>
-    <option value="5">5 – Intermedia</option>
-    <option value="10">10 – Precoz</option>
+  <option value="0">0 – Tardía</option>
+  <option value="5">5 – Intermedia</option>
+  <option value="10">10 – Precoz</option>
 </select>
 
 <div class="section">
 <strong>🔟 Juicio Clínico Kinésico</strong>
 
 <label>Edad funcional</label>
-<select id="edadFuncional">
-    <option value="0">0 – Muy deteriorada</option>
-    <option value="1">1 – Deterioro severo</option>
-    <option value="2">2 – Deterioro moderado</option>
-    <option value="3">3 – Leve deterioro</option>
-    <option value="4">4 – Conservada</option>
+<select id="edad">
+  <option value="0">0 – Muy deteriorada</option>
+  <option value="1">1 – Deterioro severo</option>
+  <option value="2">2 – Deterioro moderado</option>
+  <option value="3">3 – Leve deterioro</option>
+  <option value="4">4 – Conservada</option>
 </select>
 
 <label>Motivación</label>
 <select id="motivacion">
-    <option value="0">0 – Nula</option>
-    <option value="1">1 – Muy baja</option>
-    <option value="2">2 – Intermitente</option>
-    <option value="3">3 – Adecuada</option>
-    <option value="4">4 – Alta</option>
+  <option value="0">0 – Nula</option>
+  <option value="1">1 – Muy baja</option>
+  <option value="2">2 – Intermitente</option>
+  <option value="3">3 – Adecuada</option>
+  <option value="4">4 – Alta</option>
 </select>
 
 <label>Adherencia esperable</label>
 <select id="adherencia">
-    <option value="0">0 – Muy improbable</option>
-    <option value="1">1 – Baja</option>
-    <option value="2">2 – Variable</option>
-    <option value="3">3 – Buena</option>
-    <option value="4">4 – Muy buena</option>
+  <option value="0">0 – Muy improbable</option>
+  <option value="1">1 – Baja</option>
+  <option value="2">2 – Variable</option>
+  <option value="3">3 – Buena</option>
+  <option value="4">4 – Muy buena</option>
 </select>
 
 <label>Apoyo familiar / cuidador</label>
 <select id="apoyo">
-    <option value="0">0 – Ausente</option>
-    <option value="1">1 – Insuficiente</option>
-    <option value="2">2 – Parcial</option>
-    <option value="3">3 – Adecuado</option>
-    <option value="4">4 – Óptimo</option>
+  <option value="0">0 – Ausente</option>
+  <option value="1">1 – Insuficiente</option>
+  <option value="2">2 – Parcial</option>
+  <option value="3">3 – Adecuado</option>
+  <option value="4">4 – Óptimo</option>
 </select>
 
 <label>Reversibilidad del cuadro</label>
 <select id="reversibilidad">
-    <option value="0">0 – No reversible</option>
-    <option value="1">1 – Muy limitada</option>
-    <option value="2">2 – Parcial</option>
-    <option value="3">3 – Alta</option>
-    <option value="4">4 – Muy alta</option>
+  <option value="0">0 – No reversible</option>
+  <option value="1">1 – Muy limitada</option>
+  <option value="2">2 – Parcial</option>
+  <option value="3">3 – Alta</option>
+  <option value="4">4 – Muy alta</option>
 </select>
 </div>
 
-<button onclick="calcularIPK()">Calcular IPK-5</button>
+<button onclick="calcular()">Calcular IPK-5</button>
 
 <div id="resultado"></div>
 </div>
 
 <script>
-function calcularIPK() {
-    let v1 = +v1El.value;
-    if (v1 === 0) {
-        resultado.innerHTML = `
-        <div class="resultado D">
-        <b>Categoría D (provisional)</b><br>
-        Paciente no apto actualmente.<br>
-        <small>Consejo: priorizar estabilidad clínica, educación y reevaluación.</small>
-        </div>`;
-        return;
-    }
-
-    let v6 = +v6El.value, v8 = +v8El.value, v9 = +v9El.value;
-    let edad = +edadFuncional.value, mot = +motivacion.value,
-        adh = +adherencia.value, apo = +apoyo.value, rev = +reversibilidad.value;
-
-    let v10 = edad + mot + adh + apo + rev;
-    let total = v1 + v6 + v8 + v9 + v10;
-
-    let cat, tiempo, consejo, clase;
-
-    if (total >= 45) {
-        cat = "🅰️ Categoría A – Muy favorable";
-        tiempo = "45–60 min";
-        consejo = "Entrenamiento progresivo, objetivos ambiciosos, reevaluación funcional frecuente.";
-        clase = "A";
-    } else if (total >= 30) {
-        cat = "🅱️ Categoría B – Favorable";
-        tiempo = "30–40 min";
-        consejo = "Trabajo funcional dirigido, reforzar adherencia y progresión gradual.";
-        clase = "B";
-    } else if (total >= 15) {
-        cat = "🅲 Categoría C – Condicionado";
-        tiempo = "15–20 min";
-        consejo = "Intervenciones focalizadas, educación, definir objetivos realistas.";
-        clase = "C";
-    } else {
-        cat = "🅳 Categoría D – Desfavorable";
-        tiempo = "5–10 min / educación";
-        consejo = "Prevención de deterioro, educación al cuidador y reevaluación periódica.";
-        clase = "D";
-    }
-
-    resultado.innerHTML = `
-    <div class="resultado ${clase}">
-    <b>Puntaje IPK-5:</b> ${total} / 55<br>
-    <b>Clasificación:</b> ${cat}<br>
-    <b>⏱️ Tiempo sugerido:</b> ${tiempo}<br><br>
-    <b>🧠 Consejo clínico:</b><br>${consejo}<br><br>
-    <small><b>Desglose Juicio Clínico (V10):</b>
-    Edad ${edad} · Motivación ${mot} · Adherencia ${adh} · Apoyo ${apo} · Reversibilidad ${rev}</small>
+function calcular(){
+  const v1=+v1El.value;
+  if(v1===0){
+    resultado.innerHTML=`
+    <div class="resultado D">
+      <div class="badge">Categoría D (provisional)</div>
+      <p>Paciente no apto actualmente.</p>
+      <ul>
+        <li>Priorizar estabilidad clínica</li>
+        <li>Educación al paciente y cuidador</li>
+        <li>Prevención de complicaciones</li>
+        <li>Reevaluar periódicamente</li>
+      </ul>
     </div>`;
+    return;
+  }
+
+  const v6=+v6El.value, v8=+v8El.value, v9=+v9El.value;
+  const edad=+edadEl.value, mot=+motivacionEl.value,
+        adh=+adherenciaEl.value, apo=+apoyoEl.value, rev=+reversibilidadEl.value;
+
+  const v10=edad+mot+adh+apo+rev;
+  const total=v1+v6+v8+v9+v10;
+
+  let cat, clase, tiempo, consejos;
+
+  if(total>=45){
+    clase="A"; cat="🅰️ Categoría A – Muy favorable"; tiempo="45–60 min";
+    consejos=[
+      "Entrenamiento progresivo de alta intensidad",
+      "Objetivos funcionales ambiciosos",
+      "Monitoreo de carga y respuesta fisiológica",
+      "Reevaluación funcional frecuente"
+    ];
+  }else if(total>=30){
+    clase="B"; cat="🅱️ Categoría B – Favorable"; tiempo="30–40 min";
+    consejos=[
+      "Trabajo funcional dirigido",
+      "Progresión gradual de la carga",
+      "Refuerzo de adherencia terapéutica",
+      "Educación activa del paciente"
+    ];
+  }else if(total>=15){
+    clase="C"; cat="🅲 Categoría C – Condicionado"; tiempo="15–20 min";
+    consejos=[
+      "Intervenciones focalizadas",
+      "Objetivos realistas y alcanzables",
+      "Alta educación al cuidador",
+      "Reevaluaciones cortas y frecuentes"
+    ];
+  }else{
+    clase="D"; cat="🅳 Categoría D – Desfavorable"; tiempo="5–10 min / educación";
+    consejos=[
+      "Prevención del deterioro funcional",
+      "Manejo del confort y posicionamiento",
+      "Educación a familia/cuidador",
+      "Plan de reevaluación programada"
+    ];
+  }
+
+  resultado.innerHTML=`
+  <div class="resultado ${clase}">
+    <div class="badge">${cat}</div>
+    <p><b>Puntaje:</b> ${total}/55<br>
+       <b>Tiempo sugerido:</b> ${tiempo}</p>
+    <b>🧠 Consejos clínicos:</b>
+    <ul>${consejos.map(c=>`<li>${c}</li>`).join("")}</ul>
+    <small>V10: Edad ${edad} · Motivación ${mot} · Adherencia ${adh} · Apoyo ${apo} · Reversibilidad ${rev}</small>
+  </div>`;
 }
 
-const v1El = document.getElementById("v1");
-const v6El = document.getElementById("v6");
-const v8El = document.getElementById("v8");
-const v9El = document.getElementById("v9");
-const resultado = document.getElementById("resultado");
+const v1El=document.getElementById("v1");
+const v6El=document.getElementById("v6");
+const v8El=document.getElementById("v8");
+const v9El=document.getElementById("v9");
+const edadEl=document.getElementById("edad");
+const motivacionEl=document.getElementById("motivacion");
+const adherenciaEl=document.getElementById("adherencia");
+const apoyoEl=document.getElementById("apoyo");
+const reversibilidadEl=document.getElementById("reversibilidad");
+const resultado=document.getElementById("resultado");
 </script>
 
 </body>
