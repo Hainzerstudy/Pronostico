@@ -3,246 +3,1008 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IPK-R75 | Indicador Pronóstico Kinésico</title>
+<title>IPK-R65 Hospitalario - Firebase</title>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <style>
+* {
+    box-sizing: border-box;
+}
+
 body {
-    font-family: Arial, sans-serif;
-    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-    color: #fff;
+    font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+    background: #0b1220;
+    color: #e6f1ff;
+    margin: 0;
     padding: 20px;
 }
 
 .container {
-    max-width: 600px;
+    max-width: 1300px;
     margin: auto;
-    background: #0b0b0b;
-    padding: 22px;
-    border-radius: 14px;
-    box-shadow: 0 0 25px rgba(0,0,0,0.7);
+    background: #111a2e;
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: 0 12px 35px rgba(0,0,0,0.6);
 }
 
 h1 {
     text-align: center;
     color: #00ffd5;
+    margin-bottom: 10px;
+    font-size: 1.8rem;
 }
 
-h2 {
-    margin-top: 25px;
-    color: #00eaff;
-    font-size: 18px;
+.sub {
+    text-align: center;
+    color: #8aa2e0;
+    margin-bottom: 25px;
+    font-size: 0.9rem;
+}
+
+.section {
+    background: #0f1b33;
+    padding: 18px;
+    border-radius: 16px;
+    margin-bottom: 20px;
+    border: 1px solid #1f2d4a;
+}
+
+.section h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #00ffd5;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 label {
-    font-weight: bold;
     display: block;
-    margin-top: 16px;
+    margin-top: 14px;
+    font-weight: 700;
+    color: #c2d6ff;
+    font-size: 0.95rem;
 }
 
-small {
-    display: block;
-    color: #ccc;
-    margin-top: 4px;
-}
-
-select, button {
+select, input {
     width: 100%;
-    padding: 10px;
+    padding: 12px;
     margin-top: 6px;
-    border-radius: 8px;
-    border: none;
-    font-size: 15px;
+    border-radius: 12px;
+    border: 1px solid #2b3c5f;
+    background: #0b1220;
+    color: #e6f1ff;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+select:hover, input:hover {
+    border-color: #00ffd5;
 }
 
 button {
-    background: #00ffd5;
-    color: #000;
+    width: 100%;
+    padding: 12px;
+    margin-top: 12px;
+    border-radius: 40px;
+    border: none;
     font-weight: bold;
-    margin-top: 25px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: transform 0.1s, opacity 0.2s;
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+.primary {
+    background: linear-gradient(90deg, #00ffd5, #00a3ff);
+    color: #001018;
+    box-shadow: 0 4px 12px rgba(0,255,213,0.2);
+}
+
+.secondary {
+    background: #1c2a4a;
+    color: #e6f1ff;
+    border: 1px solid #2b3c5f;
+}
+
+.success {
+    background: linear-gradient(90deg, #00d97a, #00a86b);
+    color: #001018;
+}
+
+.warning {
+    background: linear-gradient(90deg, #ffb74d, #ff9800);
+    color: #1a1a2e;
+}
+
+.danger {
+    background: linear-gradient(90deg, #ff5722, #d84315);
+    color: #fff;
 }
 
 .result {
-    margin-top: 25px;
-    padding: 15px;
-    border-radius: 10px;
-    background: #1c1c1c;
+    margin-top: 15px;
+    padding: 18px;
+    background: #0a1122;
+    border-left: 5px solid #00ffd5;
+    border-radius: 14px;
+    font-weight: 500;
 }
 
-.advice {
+.card {
+    background: #0b1220;
+    padding: 14px;
+    border-radius: 14px;
+    margin-bottom: 12px;
+    border: 1px solid #253454;
+}
+
+.historial-title {
+    font-size: 1.4rem;
+    margin-top: 20px;
+    color: #00ffd5;
+    border-bottom: 1px solid #253454;
+    padding-bottom: 8px;
+}
+
+.warning-badge {
+    background: #ffb74d;
+    color: #1a1a2e;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: bold;
+    margin-left: 8px;
+}
+
+.flex-buttons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+.flex-buttons button {
+    flex: 1;
+    min-width: 120px;
+}
+
+.observation-note {
+    background: #1a2744;
+    padding: 10px;
+    border-radius: 10px;
+    margin-top: 12px;
+    font-size: 0.85rem;
+    border-left: 3px solid #ffb74d;
+}
+
+.consejos-container {
+    background: #0a1a2f;
+    border-radius: 14px;
+    padding: 15px;
     margin-top: 15px;
-    background: #123d4f;
+    border: 1px solid #2a3a60;
+}
+
+.consejos-container h4 {
+    color: #00ffd5;
+    margin: 0 0 12px 0;
+    font-size: 1rem;
+}
+
+.consejo-item {
+    background: #0f1b33;
+    margin: 8px 0;
     padding: 12px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    border-left: 3px solid #00ffd5;
+}
+
+.consejo-titulo {
+    font-weight: bold;
+    color: #00ffd5;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.consejo-descripcion {
+    font-size: 0.85rem;
+    color: #c2d6ff;
+    line-height: 1.4;
+}
+
+.consejo-ejercicios {
+    font-size: 0.82rem;
+    color: #a9c1ff;
+    background: #0b1220;
+    padding: 8px 10px;
     border-radius: 8px;
+    margin-top: 5px;
+    border-left: 2px solid #ffb74d;
+}
+
+.sync-status {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    margin-left: 10px;
+}
+
+.sync-ok {
+    background: #00d97a;
+    color: #001018;
+}
+
+.sync-error {
+    background: #ff5722;
+    color: #fff;
+}
+
+.sync-pending {
+    background: #ffb74d;
+    color: #1a1a2e;
+}
+
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(0,255,213,0.3);
+    border-radius: 50%;
+    border-top-color: #00ffd5;
+    animation: spin 0.8s linear infinite;
+    margin-right: 8px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.firebase-status {
+    background: #0a1a2f;
+    padding: 10px 15px;
+    border-radius: 10px;
+    margin-top: 10px;
+    border: 1px solid #1f2d4a;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.firebase-status .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.dot-online {
+    background: #00d97a;
+    box-shadow: 0 0 10px rgba(0,217,122,0.5);
+}
+
+.dot-offline {
+    background: #ff5722;
+    box-shadow: 0 0 10px rgba(255,87,34,0.5);
+}
+
+.remote-controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.remote-controls button {
+    flex: 1;
+    min-width: 150px;
+}
+
+.stats-badge {
+    background: #1f2d4a;
+    padding: 2px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    color: #8aa2e0;
 }
 </style>
 </head>
 
 <body>
+
 <div class="container">
-<h1>IPK-R75</h1>
+<h1>🏥 IPK-R65 Hospitalario</h1>
+<div class="sub">Escala de predicción kinésica | Descriptores completos + Consejos con ejercicios específicos</div>
 
-<!-- FILTRO -->
-<label>¿Paciente acepta intervención kinésica?</label>
-<small>Condición excluyente para asignar recursos terapéuticos.</small>
+<!-- Firebase Status -->
+<div class="firebase-status" id="firebaseStatus">
+    <span class="dot dot-offline" id="firebaseDot"></span>
+    <span id="firebaseText">Conectando a Firebase...</span>
+    <span class="stats-badge" id="remoteStats">📊 0 registros en la nube</span>
+</div>
+
+<!-- PACIENTE -->
+<div class="section">
+<h3>🧑‍⚕️ Identificación del paciente</h3>
+<input id="paciente" placeholder="Ej: HSJ-042 / Nombre o código" autocomplete="off">
+<div class="option-desc">📌 Ingrese ID, iniciales o número de historia clínica</div>
+</div>
+
+<!-- VARIABLES CLÍNICAS OBJETIVAS -->
+<div class="section">
+<h3>📊 Variables clínicas basales</h3>
+
+<label>🔻 Estabilidad hemodinámica</label>
+<select id="hemo">
+<option value="no">❌ No estable — Inestabilidad de signos vitales (TA, FC, FR alterados), requiere monitoreo continuo, no movilizar</option>
+<option value="si">✅ Estable — TA, FC, FR dentro de parámetros seguros para el reposo y la movilización progresiva</option>
+</select>
+
+<label>🤝 Capacidad de consentir / Colaboración <span class="warning-badge">Informativo, no bloquea</span></label>
 <select id="acepta">
-    <option value="no">❌ Rechaza intervención (no desea ser atendido)</option>
-    <option value="si">✅ Acepta intervención (consiente evaluación y tratamiento)</option>
+<option value="si">👍 Sí puede consentir — Comprende la información, acepta voluntariamente participar en el plan kinésico</option>
+<option value="no_puede">🧠 No puede consentir — Deterioro cognitivo severo, sedación profunda, trastorno de conciencia (se evalúa con cuidador/familiar)</option>
+<option value="no">🚫 No acepta — Rechaza activamente la intervención kinésica por decisión propia informada</option>
 </select>
 
-<!-- EDAD -->
-<label>Grupo etario funcional</label>
-<small>Usado solo como modulador pronóstico, no como predictor funcional.</small>
+<label>📅 Edad funcional (riesgo biológico)</label>
 <select id="edad">
-    <option value="0">≥75 años: mayor riesgo de pérdida de reserva fisiológica</option>
-    <option value="5">&lt;75 años: mayor reserva fisiológica potencial</option>
+<option value="0">👴 ≥65 años — Mayor fragilidad asociada, mayor riesgo de sarcopenia, comorbilidades y menor reserva funcional</option>
+<option value="5">🧑 &lt;65 años — Menor riesgo etario, generalmente mejor reserva fisiológica y capacidad de recuperación</option>
 </select>
 
-<!-- VARIABLES PRINCIPALES -->
-<label>Estabilidad hemodinámica / tolerancia al esfuerzo</label>
-<small>Evalúa seguridad clínica para iniciar o progresar rehabilitación.</small>
+<label>💪 Reserva funcional (previo a enfermedad aguda)</label>
 <select id="v1">
-    <option value="0">Inestable: contraindicación para ejercicio terapéutico</option>
-    <option value="5">Estable con límites: requiere monitorización y cargas bajas</option>
-    <option value="10">Estable: tolera ejercicio sin eventos adversos</option>
+<option value="0">🦽 Severa — Dependiente para actividades básicas de la vida diaria (ABVD), postrado en cama o silla de ruedas, requiere asistencia total</option>
+<option value="6">🚶 Parcial — Requiere ayuda para algunas actividades como baño, vestimenta o transferencias, deambula con asistencia</option>
+<option value="12">🏃 Independiente — Se moviliza sin asistencia, realiza ABVD solo, vida activa previa a la hospitalización</option>
 </select>
 
-<label>Reserva funcional basal</label>
-<small>Integra dependencia previa y grado de fragilidad.</small>
+<label>⚙️ Complejidad clínica (comorbilidades/gravedad)</label>
 <select id="v2">
-    <option value="0">Dependencia severa / fragilidad avanzada previa</option>
-    <option value="5">Dependencia parcial / fragilidad moderada</option>
-    <option value="10">Independiente en AVD / robusto previamente</option>
+<option value="0">🔴 Alta — Múltiples patologías descompensadas (Ej: ICC+EPOC+IRC), alto riesgo de eventos adversos, manejo complejo</option>
+<option value="6">🟡 Media — Comorbilidades controladas con tratamiento, estabilidad clínica relativa, riesgo moderado</option>
+<option value="12">🟢 Baja — Patología única o sin repercusión sistémica importante, buen estado general basal</option>
 </select>
 
-<label>Complejidad clínica / pronóstico basal</label>
-<small>Considera carga de comorbilidad y reversibilidad esperable.</small>
+<label>👨‍👩‍👧 Red de apoyo (familiar/cuidador)</label>
 <select id="v3">
-    <option value="0">Alta complejidad clínica / baja reversibilidad funcional</option>
-    <option value="5">Comorbilidades presentes pero controladas</option>
-    <option value="10">Baja carga mórbida / alta reversibilidad</option>
+<option value="0">🏚️ Sin apoyo — Vive solo, sin cuidador formal o informal, dificultad para seguimiento ambulatorio</option>
+<option value="4">🤝 Parcial — Familiar o cuidador que ayuda de forma intermitente, pero con limitaciones de tiempo o capacitación</option>
+<option value="8">🏠 Fuerte — Cuidador presente y entrenado, soporte emocional y logístico continuo, vivienda adaptada</option>
 </select>
 
-<label>Red de apoyo efectiva</label>
-<small>Impacta continuidad, adherencia y alta segura.</small>
+<label>🎯 Motivación basal (disposición para rehabilitación)</label>
 <select id="v4">
-    <option value="0">Sin red: paciente solo o abandono social</option>
-    <option value="3">Apoyo parcial o inestable</option>
-    <option value="5">Red sólida, disponible y comprometida</option>
+<option value="0">😞 Baja — Poco o nulo interés en participar de actividades terapéuticas, actitud pasiva o negativa</option>
+<option value="4">🔄 Variable — A veces colabora, otras no, depende del estímulo o del momento del día</option>
+<option value="8">🔥 Alta — Participa activamente, busca información, muestra entusiasmo por mejorar su condición</option>
+<option value="0">🚫 No puede colaborar — Por déficit neurológico severo, sedación, alteración de conciencia o barrera cognitiva</option>
 </select>
-
-<label>Adherencia / motivación esperable</label>
-<small>Estimación clínica del compromiso con el proceso rehabilitador.</small>
-<select id="v5">
-    <option value="0">Baja: pasividad, escasa participación</option>
-    <option value="3">Variable: compromiso intermitente</option>
-    <option value="5">Alta: motivado y participativo</option>
-</select>
+</div>
 
 <!-- JUICIO CLÍNICO -->
-<h2>Juicio Clínico Kinésico Integrado</h2>
+<div class="section">
+<h3>🧠 Juicio kinésico (evaluador profesional)</h3>
 
-<label>Edad funcional percibida</label>
-<small>Cómo se comporta funcionalmente, independiente de edad cronológica.</small>
+<label>🧓 Edad funcional clínica (percepción del kinesiólogo)</label>
 <select id="j1">
-    <option value="0">Muy envejecido funcionalmente</option>
-    <option value="2">Edad funcional intermedia</option>
-    <option value="4">Funcionalmente joven</option>
+<option value="0">📉 Baja — El paciente se comporta como muy anciano/frágil, con limitaciones superiores a lo esperado por edad cronológica</option>
+<option value="3">📊 Media — Acorde a su edad cronológica, desempeño funcional esperable</option>
+<option value="6">📈 Alta — Vitalidad y desempeño funcional superior a lo esperado para su edad</option>
 </select>
 
-<label>Motivación observable</label>
-<small>Conducta durante la evaluación y disposición al esfuerzo.</small>
+<label>💡 Motivación observada en sesión (conducta durante evaluación)</label>
 <select id="j2">
-    <option value="0">Nula / resistencia activa</option>
-    <option value="2">Motivación intermitente</option>
-    <option value="4">Alta y sostenida</option>
+<option value="0">🪨 Nula — Total pasividad, sin iniciativa, no responde a estímulos verbales o táctiles</option>
+<option value="3">⚡ Parcial — Reacciona ante estímulos pero no busca activamente participar, requiere constante redirección</option>
+<option value="6">✨ Alta — Entusiasmo evidente, participa voluntariamente, realiza preguntas, busca superarse</option>
+<option value="0">❌ No puede colaborar — Alteración de conciencia, déficit cognitivo severo o condición que impide expresión de motivación</option>
 </select>
 
-<label>Adherencia esperable</label>
-<small>Probabilidad clínica de cumplir indicaciones y continuidad.</small>
+<label>🔄 Adherencia a indicaciones (capacidad de seguir órdenes)</label>
 <select id="j3">
-    <option value="0">Baja probabilidad de adherencia</option>
-    <option value="2">Adherencia parcial</option>
-    <option value="4">Alta adherencia esperable</option>
+<option value="0">⚠️ Baja — No sigue instrucciones, olvida ejercicios, requiere supervisión constante y repetitiva</option>
+<option value="3">📋 Media — Sigue instrucciones con ayuda o recordatorios visuales/verbales, requiere supervisión ocasional</option>
+<option value="6">🧠 Alta — Realiza correctamente los ejercicios sin supervisión, comprende y recuerda las indicaciones</option>
+<option value="0">🚫 No puede colaborar — Imposibilidad por condición clínica (afasia, demencia avanzada, sedación)</option>
 </select>
 
-<label>Apoyo de cuidador</label>
-<small>Disponibilidad real para asistir, reforzar y supervisar.</small>
+<label>🤲 Apoyo del cuidador (desde perspectiva kinésica)</label>
 <select id="j4">
-    <option value="0">Ausente</option>
-    <option value="2">Irregular o limitado</option>
-    <option value="4">Constante y comprometido</option>
+<option value="0">❌ Ausente — No hay cuidador identificado o no se involucra en el proceso terapéutico</option>
+<option value="3">🕒 Irregular — Apoyo esporádico, poco compromiso con las indicaciones, dificultad para continuidad en domicilio</option>
+<option value="6">✅ Constante — Cuidador presente y entrenado activamente, participa en sesiones, refuerza aprendizajes</option>
 </select>
 
-<label>Reversibilidad funcional</label>
-<small>Posibilidad real de recuperación con intervención kinésica.</small>
+<label>🏋️ Tolerancia al esfuerzo (respuesta durante actividad física)</label>
 <select id="j5">
-    <option value="0">Escasa o nula reversibilidad</option>
-    <option value="2">Reversibilidad parcial</option>
-    <option value="4">Alta reversibilidad funcional</option>
+<option value="0">🪫 Baja — Fatiga extrema, desaturación (SpO2 &lt;88%), disnea intensa, no completa series de ejercicios</option>
+<option value="3">⚖️ Moderada — Se fatiga pero completa ejercicios con pausas, ligera disnea, recuperación en &lt;5 min</option>
+<option value="6">⚡ Alta — Buen desempeño cardiorrespiratorio, sin desaturación, fatiga mínima, completa series sin dificultad</option>
+<option value="0">⛔ No puede colaborar — Paciente no puede realizar esfuerzo dirigido por inestabilidad, dolor severo o indicación médica</option>
 </select>
+</div>
 
-<button onclick="calcular()">Calcular IPK-R75</button>
+<!-- BOTONES -->
+<div class="section">
+<div class="flex-buttons">
+<button class="primary" onclick="evaluar()">📝 Evaluar y guardar</button>
+<button class="success" onclick="guardarFirebase()">☁️ Guardar en Firebase</button>
+<button class="warning" onclick="cargarFirebase()">📥 Cargar desde Firebase</button>
+<button class="secondary" onclick="verHistorial()">📋 Ver historial</button>
+<button class="secondary" onclick="exportarExcel()">📎 Exportar Excel</button>
+<button class="danger" onclick="limpiarHistorial()">🗑️ Limpiar todo</button>
+</div>
 
-<div class="result" id="resultado"></div>
+<div class="remote-controls">
+    <button onclick="syncWithFirebase()" style="background:#2a3a60;color:#e6f1ff;border:1px solid #3a4a70;">🔄 Sincronizar</button>
+    <button onclick="cargarFirebase()" style="background:#1c2a4a;color:#e6f1ff;border:1px solid #2b3c5f;">📥 Recargar desde nube</button>
+</div>
+</div>
+
+<div class="result" id="res">
+💡 Complete los datos clínicos y presione "Evaluar".
+</div>
+<div id="historial"></div>
+
 </div>
 
 <script>
-function calcular() {
+// ========== CONFIGURACIÓN FIREBASE ==========
+const firebaseConfig = {
+    apiKey: "AIzaSyDJbtRuEwWVAsC1Nz6LbeF5a99LcUfAz4g",
+    authDomain: "irat-5-evaluaciones.firebaseapp.com",
+    databaseURL: "https://irat-5-evaluaciones-default-rtdb.firebaseio.com",
+    projectId: "irat-5-evaluaciones",
+    storageBucket: "irat-5-evaluaciones.firebasestorage.app",
+    messagingSenderId: "487279274410",
+    appId: "1:487279274410:web:146e9c35a0bf795c5423d3",
+    measurementId: "G-WSXJY5QHJS"
+};
 
+// Inicializar Firebase
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+
+// ========== ALMACENAMIENTO LOCAL ==========
+let historialEvaluaciones = [];
+let firebaseConnected = false;
+let remoteRecordCount = 0;
+
+function cargarHistorialLocal() {
+    const guardado = localStorage.getItem('ipk_r65_consejos_ejercicios');
+    if (guardado) {
+        try {
+            historialEvaluaciones = JSON.parse(guardado);
+        } catch (e) {
+            historialEvaluaciones = [];
+        }
+    }
+}
+
+function guardarHistorialLocal() {
+    localStorage.setItem('ipk_r65_consejos_ejercicios', JSON.stringify(historialEvaluaciones));
+}
+
+// ========== CLASIFICACIÓN ==========
+function clasificarPaciente(total) {
+    if (total >= 50) {
+        return { categoria: "🟢 ALTO BENEFICIO", color: "#00ffd5" };
+    } else if (total >= 35) {
+        return { categoria: "🟡 INTERMEDIO", color: "#ffd966" };
+    } else if (total >= 20) {
+        return { categoria: "🔴 PREVENTIVO/FRÁGIL", color: "#ffaa66" };
+    } else {
+        return { categoria: "⚫ BAJO GLOBAL", color: "#cc99ff" };
+    }
+}
+
+// ========== GENERADOR DE 6 CONSEJOS ==========
+function generar6Consejos(total, soporte, noPuedeConsentir, noColaboraCount, perfil) {
+    const consejos = [];
+    
+    if (total >= 50) {
+        consejos.push({
+            titulo: "🏆 ALTA INTENSIDAD - Paciente con alto potencial",
+            ayuda: "Motivar al paciente con metas desafiantes pero alcanzables. Usar refuerzos positivos y gráficos de progreso. Celebrar cada logro.",
+            ejercicios: "Ejercicios: Entrenamiento intervalado de alta intensidad (HIIT) 2-3 min × 4 series. Circuito funcional: sentadillas, step, levantamiento de brazos con resistencia (bandas elásticas), marcha en el lugar 10 min. Frecuencia: 5-7 sesiones/semana."
+        });
+    } else if (total >= 35) {
+        consejos.push({
+            titulo: "📈 INTENSIDAD MODERADA - Buen candidato a rehabilitación",
+            ayuda: "Establecer contrato terapéutico con metas semanales. Usar agenda de ejercicios. Involucrar a familiar para refuerzo domiciliario.",
+            ejercicios: "Ejercicios: Fortalecimiento de miembros inferiores (puente, elevación de pierna, mini-sentadilla con soporte). Miembros superiores (lifting de pesas 1-2kg, flexiones de pared). Marcha asistida 15-20 min. Frecuencia: 3-4 sesiones/semana."
+        });
+    } else if (total >= 20) {
+        consejos.push({
+            titulo: "🛡️ INTENSIDAD BAJA - Enfoque preventivo",
+            ayuda: "Priorizar la seguridad y la confianza. Sesiones cortas pero frecuentes. Explicar cada ejercicio paso a paso. Celebrar pequeños logros.",
+            ejercicios: "Ejercicios: Movilizaciones pasivas y activas asistidas de grandes articulaciones (hombro, cadera, rodilla). Ejercicios respiratorios (respiración diafragmática). Transferencias asistidas (sentado a parado con apoyo). Frecuencia: 2-3 sesiones/semana, sesiones de 15-20 min."
+        });
+    } else {
+        consejos.push({
+            titulo: "🔍 INTENSIDAD MUY BAJA - Paciente complejo",
+            ayuda: "Enfoque multidisciplinario. Coordinar con médico tratante, terapia ocupacional y trabajo social. Sesiones muy cortas (5-10 min) para evitar sobrecarga.",
+            ejercicios: "Ejercicios: Movilizaciones pasivas suaves en decúbito. Ejercicios isométricos (contracción sin movimiento). Posicionamiento terapéutico para prevenir contracturas y úlceras por presión. Objetivo: mantener rango articular básico."
+        });
+    }
+    
+    if (soporte >= 12) {
+        consejos.push({
+            titulo: "👨‍👩‍👧‍👦 RED DE APOYO SÓLIDA - Aprovechar recurso familiar",
+            ayuda: "Capacitar al cuidador principal en técnicas de asistencia y transferencias seguras. Entregar material educativo escrito. Establecer comunicación diaria con el equipo.",
+            ejercicios: "Ejercicios para entrenar con cuidador: Transferencias cama-silla paso a paso, ejercicios de rango de movimiento asistidos, caminata con supervisión, uso correcto de ayudas técnicas (andador, bastón)."
+        });
+    } else if (soporte >= 7) {
+        consejos.push({
+            titulo: "🤝 FORTALECER RED DE APOYO - Gestionar recursos",
+            ayuda: "Coordinar con trabajo social para identificar programas de apoyo comunitario, centros de día o cuidadores rotativos. Entregar guías de ejercicios sencillos.",
+            ejercicios: "Ejercicios que el cuidador puede supervisar: Series cortas de ejercicios de pie y sentado (3-5 repeticiones), registro diario de actividad, caminata corta dentro del hogar (5-10 min)."
+        });
+    } else {
+        consejos.push({
+            titulo: "🏠 SOPORTE INSUFICIENTE - Gestión prioritaria",
+            ayuda: "Derivación URGENTE a asistente social. Evaluar internación transitoria, teleasistencia diaria o programa de hospital domiciliario. Documentar riesgo de abandono terapéutico.",
+            ejercicios: "Ejercicios autoadministrados con guía por video o folleto ilustrado: Estiramientos basicos en cama, ejercicios respiratorios, movilizaciones de miembros superiores e inferiores en sedestación. Priorizar seguridad."
+        });
+    }
+    
+    if (noPuedeConsentir) {
+        consejos.push({
+            titulo: "🧠 PACIENTE SIN CAPACIDAD DE CONSENTIR - Estrategia con cuidador",
+            ayuda: "Designar un familiar como 'proxy decisor'. Usar comunicación no verbal para evaluar confort. Sesiones cortas (10-15 min) para evitar sobreestimulación.",
+            ejercicios: "Ejercicios pasivos: Movilizaciones suaves de hombros (flexión, abducción), codos (flexo-extensión), muñecas, cadera (flexión con rodilla flexionada), tobillos (flexo-extensión). 5-8 repeticiones por articulación, 2 series."
+        });
+    } else {
+        consejos.push({
+            titulo: "💬 PACIENTE CON CAPACIDAD DE DECIDIR - Estrategia motivacional",
+            ayuda: "Realizar entrevista motivacional: preguntar sobre metas personales, miedos y expectativas. Establecer metas SMART (específicas, medibles, alcanzables, relevantes, con tiempo).",
+            ejercicios: "Ejercicios con feedback del paciente: Permitir elegir orden de ejercicios, autorregular intensidad según escala de Borg (objetivo 3-4/10), autoevaluación post-sesión. Uso de apps de seguimiento si disponible."
+        });
+    }
+    
+    if (perfil.motivacionBaja) {
+        consejos.push({
+            titulo: "🎯 BAJA MOTIVACIÓN - Estrategias conductuales",
+            ayuda: "Usar economía de fichas (acumular puntos por ejercicio completado). Gamificación: competencia consigo mismo, medir pasos/repeticiones. Reforzadores sociales (elogio frecuente).",
+            ejercicios: "Ejercicios lúdicos: Lanzamiento de pelota suave, juegos de equilibrio (pararse en un pie con apoyo), circuito corto con estaciones de colores, música durante ejercicios rítmicos. Premiar con descanso activo."
+        });
+    } else if (perfil.motivacionAlta) {
+        consejos.push({
+            titulo: "🔥 ALTA MOTIVACIÓN - Aprovechar entusiasmo",
+            ayuda: "Desafiar con metas progresivas. Entregar responsabilidad: auto-registro de ejercicios domiciliarios. Programar seguimiento con aplicaciones móviles si está disponible.",
+            ejercicios: "Ejercicios avanzados: Subir y bajar escaleras (con baranda), levantarse del suelo sin ayuda, marcha en circuito con obstáculos, entrenamiento de fuerza con bandas de alta resistencia (color rojo/azul)."
+        });
+    } else {
+        consejos.push({
+            titulo: "⚖️ MOTIVACIÓN VARIABLE - Flexibilidad terapéutica",
+            ayuda: "Tener plan A, B y C según estado del día. Preguntar al inicio de cada sesión '¿Cómo se siente hoy para trabajar?'. Ofrecer opciones de ejercicios.",
+            ejercicios: "Menú de ejercicios modulares: Módulo suave (movilizaciones, estiramientos), módulo intermedio (fuerza básica), módulo intenso (circuito funcional). El paciente elige 2 de 3 módulos por sesión."
+        });
+    }
+    
+    if (perfil.adherenciaBaja || perfil.toleranciaBaja) {
+        consejos.push({
+            titulo: "⏱️ BAJA ADHERENCIA/TOLERANCIA - Sesiones fraccionadas",
+            ayuda: "Distribuir actividad en micro-sesiones de 5-10 minutos, 4-5 veces al día. Monitorizar signos de fatiga (disnea, frecuencia cardíaca). Usar escala de Borg modificada (0-10).",
+            ejercicios: "Ejercicios en sedestación o decúbito: Flexiones de tobillo (bomba venosa), elevaciones alternas de talones, flexión de rodillas deslizando pie, respiraciones profundas (5-10 repeticiones). Descanso 2 min entre series."
+        });
+    } else if (perfil.adherenciaAlta && perfil.toleranciaAlta) {
+        consejos.push({
+            titulo: "💪 ALTO RENDIMIENTO - Avanzar funcionalidad",
+            ayuda: "Evaluar para alta a programa ambulatorio o comunitario. Realizar test funcionales (Timed Up and Go, SPPB, test de 6 minutos). Objetivo: independencia funcional total.",
+            ejercicios: "Ejercicios avanzados: Subir 2 pisos por escaleras, levantarse del suelo en < 5 segundos, caminata continua 30 minutos, levantamiento de pesas 3-5 kg (miembros superiores), sentadillas libres, estocadas."
+        });
+    } else {
+        consejos.push({
+            titulo: "📋 ADHERENCIA MODERADA - Estrategia mixta",
+            ayuda: "Supervisión intermitente: sesión supervisada 1 vez/semana, resto autoadministrado con telemonitoreo (llamada o mensaje). Usar checklist de cumplimiento.",
+            ejercicios: "Ejercicios progresivos: Semana 1-2: 10 repeticiones × 2 series. Semana 3-4: 12 repeticiones × 3 series. Semana 5-6: añadir resistencia con bandas o peso. Reevaluar cargas cada 10 sesiones."
+        });
+    }
+    
+    if (total >= 50) {
+        consejos.push({
+            titulo: "🎯 PLAN DE ALTA FUNCIONAL - Objetivo independencia",
+            ayuda: "Programar alta a kinesiología ambulatoria en 4-6 semanas. Evaluar cada 2 semanas. Derivar a actividad física comunitaria (gimnasio, taller de ejercicio).",
+            ejercicios: "Ejercicios de mantenimiento: Caminata 30-45 min diarios, entrenamiento de fuerza 2-3 veces/semana (sentadillas, flexiones, plancha adaptada), ejercicios de equilibrio (parada en un pie, talón-punta)."
+        });
+    } else if (total >= 35) {
+        consejos.push({
+            titulo: "📅 PLAN A 8 SEMANAS - Seguimiento estructurado",
+            ayuda: "Reevaluación intermedia a las 4 semanas con test funcional. Coordinar con terapia ocupacional si hay déficit de actividades instrumentales (cocinar, manejar dinero).",
+            ejercicios: "Ejercicios progresivos mensuales: Mes 1: fortalecimiento básico. Mes 2: entrenamiento funcional. Mes 3: integración a ejercicio comunitario. Revaluar cargas cada 4 semanas."
+        });
+    } else {
+        consejos.push({
+            titulo: "🔄 SEGUIMIENTO ESTRECHO - Paciente complejo",
+            ayuda: "Revaluación cada 2-3 semanas. Considerar interconsulta a geriatría, neurología o medicina física. Evaluar necesidad de dispositivos de ayuda (silla de ruedas, grúa, cama hospitalaria).",
+            ejercicios: "Objetivos realistas: Mantener rango articular, prevenir úlceras por presión (cambios posturales cada 2 horas), ejercicios respiratorios para prevenir neumonía. Progresión muy lenta (evaluar cada 2-3 semanas)."
+        });
+    }
+    
+    while (consejos.length < 6) {
+        consejos.push({
+            titulo: "📌 TELEMONITOREO Y SEGUIMIENTO",
+            ayuda: "Programar llamada semanal para reforzar adherencia, resolver dudas y detectar complicaciones tempranas (caídas, dolor, fatiga excesiva).",
+            ejercicios: "Ejercicios de recordatorio: Enviar por WhatsApp video corto (1-2 min) de ejercicios clave. Solicitar auto-registro semanal de frecuencia e intensidad."
+        });
+    }
+    
+    return consejos.slice(0, 6);
+}
+
+// ========== EVALUAR ==========
+function evaluar() {
+    const resDiv = document.getElementById("res");
+
+    if (hemo.value === "no") {
+        resDiv.innerHTML = "⛔ PACIENTE NO ESTABLE HEMODINÁMICAMENTE. No se puede evaluar hasta estabilización.";
+        return;
+    }
     if (acepta.value === "no") {
-        resultado.innerHTML =
-        "❌ <b>Paciente rechaza intervención.</b><br><br>" +
-        "👉 Se recomienda educación breve, registro y cierre kinésico.";
+        resDiv.innerHTML = "❌ El paciente RECHAZA ACTIVAMENTE la intervención. Suspender evaluación.";
         return;
     }
 
-    let juicio =
-        Number(j1.value) +
-        Number(j2.value) +
-        Number(j3.value) +
-        Number(j4.value) +
-        Number(j5.value);
+    const noPuedeConsentir = (acepta.value === "no_puede");
 
-    let total =
-        Number(edad.value) +
-        Number(v1.value) +
-        Number(v2.value) +
-        Number(v3.value) +
-        Number(v4.value) +
-        Number(v5.value) +
-        juicio;
+    let total = (parseInt(edad.value)||0) + (parseInt(v1.value)||0) + (parseInt(v2.value)||0) + 
+               (parseInt(v3.value)||0) + (parseInt(v4.value)||0) + (parseInt(j1.value)||0) + 
+               (parseInt(j2.value)||0) + (parseInt(j3.value)||0) + (parseInt(j4.value)||0) + 
+               (parseInt(j5.value)||0);
+    
+    let soporte = (parseInt(v3.value)||0) + (parseInt(j4.value)||0) + (parseInt(v4.value)||0);
 
-    let categoria = "";
-    let tiempo = "";
-
-    if (total >= 52) {
-        categoria = "🅰️ Muy favorable";
-        tiempo = "45–60 min";
-    } else if (total >= 36) {
-        categoria = "🅱️ Favorable";
-        tiempo = "30–40 min";
-    } else if (total >= 20) {
-        categoria = "🅲 Condicionado";
-        tiempo = "15–20 min";
-    } else {
-        categoria = "🅳 Desfavorable";
-        tiempo = "Educación / reevaluación";
+    let noColaboraCount = 0;
+    const selectoresNoColaboracion = [v4, j2, j3, j5];
+    for (let i = 0; i < selectoresNoColaboracion.length; i++) {
+        const selectedText = selectoresNoColaboracion[i].options[selectoresNoColaboracion[i].selectedIndex]?.text;
+        if (selectedText && selectedText.includes("No puede colaborar")) {
+            noColaboraCount++;
+        }
     }
 
-    resultado.innerHTML =
-    `<b>Puntaje total:</b> ${total} / 65<br>
-     <b>Categoría:</b> ${categoria}<br>
-     <b>Tiempo sugerido:</b> ${tiempo}
-     <div class="advice">
-     <b>Consejos clínicos:</b>
-     <ul>
-       <li>La eficiencia terapéutica es un recurso limitado.</li>
-       <li>No toda negativa requiere insistencia clínica.</li>
-       <li>Educar también es intervenir.</li>
-       <li>Reevalúa solo si el contexto clínico cambia.</li>
-     </ul>
-     </div>`;
+    const perfil = {
+        motivacionBaja: (parseInt(v4.value)||0) === 0 && !document.querySelector('#v4 option:checked')?.text.includes("No puede colaborar"),
+        motivacionAlta: (parseInt(v4.value)||0) >= 4,
+        adherenciaBaja: (parseInt(j3.value)||0) === 0,
+        adherenciaAlta: (parseInt(j3.value)||0) >= 6,
+        toleranciaBaja: (parseInt(j5.value)||0) === 0,
+        toleranciaAlta: (parseInt(j5.value)||0) >= 6
+    };
+
+    const clasificacion = clasificarPaciente(total);
+    const consejos = generar6Consejos(total, soporte, noPuedeConsentir, noColaboraCount, perfil);
+
+    let observaciones = "";
+    if (noPuedeConsentir) observaciones += "🧠 Paciente NO PUEDE CONSENTIR. Evaluación mediante cuidador. ";
+    if (noColaboraCount >= 2) observaciones += `📌 ${noColaboraCount} ítem(s) con "No puede colaborar".`;
+
+    const data = {
+        id: Date.now().toString(36) + Math.random().toString(36).substring(2, 6),
+        paciente: paciente.value.trim() || "Anónimo",
+        fecha: new Date().toISOString(),
+        total: total,
+        categoria: clasificacion.categoria,
+        soporte: soporte,
+        noPuedeConsentir: noPuedeConsentir,
+        itemsSinColaboracion: noColaboraCount,
+        observaciones: observaciones,
+        consejos: consejos
+    };
+    
+    historialEvaluaciones.unshift(data);
+    guardarHistorialLocal();
+
+    // Guardar automáticamente en Firebase si está conectado
+    if (firebaseConnected) {
+        guardarFirebaseAuto(data);
+    }
+
+    mostrarResultado(data, clasificacion);
 }
+
+function mostrarResultado(data, clasificacion) {
+    const resDiv = document.getElementById("res");
+    
+    let htmlResultado = `<strong style="color:${clasificacion.color}">${clasificacion.categoria}</strong><br>`;
+    htmlResultado += `🎯 <strong>Puntaje IPK-R65:</strong> ${data.total} puntos (escala 0-100)<br>`;
+    htmlResultado += `🤝 <strong>Puntaje de soporte psicosocial:</strong> ${data.soporte} pts<br>`;
+    htmlResultado += `<small>🕒 ${new Date(data.fecha).toLocaleString()}</small>`;
+    
+    if (data.observaciones) {
+        htmlResultado += `<div class="observation-note">📋 ${data.observaciones}</div>`;
+    }
+    
+    htmlResultado += `<div class="consejos-container">`;
+    htmlResultado += `<h4>💡 6 RECOMENDACIONES PERSONALIZADAS</h4>`;
+    data.consejos.forEach((consejo, idx) => {
+        htmlResultado += `<div class="consejo-item">
+                            <div class="consejo-titulo">
+                                <span>${idx + 1}️⃣</span>
+                                <span>${consejo.titulo}</span>
+                            </div>
+                            <div class="consejo-descripcion">
+                                <strong>🤝 Cómo ayudar:</strong> ${consejo.ayuda}
+                            </div>
+                            <div class="consejo-ejercicios">
+                                <strong>🏋️ Ejercicios y rehabilitación:</strong> ${consejo.ejercicios}
+                            </div>
+                          </div>`;
+    });
+    htmlResultado += `</div>`;
+    
+    resDiv.innerHTML = htmlResultado;
+    verHistorial();
+}
+
+// ========== FIREBASE - GUARDAR ==========
+async function guardarFirebase() {
+    const statusDiv = document.getElementById('firebaseStatus');
+    const statusText = document.getElementById('firebaseText');
+    
+    if (!firebaseConnected) {
+        statusText.innerHTML = '⚠️ No conectado a Firebase. Intenta recargar la página.';
+        return;
+    }
+    
+    if (historialEvaluaciones.length === 0) {
+        statusText.innerHTML = '⚠️ No hay datos para guardar. Realiza una evaluación primero.';
+        return;
+    }
+    
+    statusText.innerHTML = '⏳ Guardando en Firebase...';
+    
+    try {
+        const dataToSave = {
+            timestamp: new Date().toISOString(),
+            totalRegistros: historialEvaluaciones.length,
+            ultimaActualizacion: new Date().toLocaleString(),
+            evaluaciones: historialEvaluaciones
+        };
+        
+        await database.ref('ipk_r65_datos').set(dataToSave);
+        
+        remoteRecordCount = historialEvaluaciones.length;
+        document.getElementById('remoteStats').textContent = `📊 ${remoteRecordCount} registros en la nube`;
+        statusText.innerHTML = '✅ Datos guardados en Firebase exitosamente!';
+        
+    } catch (error) {
+        console.error('Error al guardar en Firebase:', error);
+        statusText.innerHTML = `❌ Error al guardar: ${error.message}`;
+    }
+}
+
+// Guardado automático después de evaluar
+function guardarFirebaseAuto(data) {
+    if (!firebaseConnected) return;
+    
+    // Guardar solo si hay datos
+    if (historialEvaluaciones.length === 0) return;
+    
+    try {
+        const dataToSave = {
+            timestamp: new Date().toISOString(),
+            totalRegistros: historialEvaluaciones.length,
+            ultimaActualizacion: new Date().toLocaleString(),
+            evaluaciones: historialEvaluaciones
+        };
+        
+        database.ref('ipk_r65_datos').set(dataToSave);
+        remoteRecordCount = historialEvaluaciones.length;
+        document.getElementById('remoteStats').textContent = `📊 ${remoteRecordCount} registros en la nube`;
+        document.getElementById('firebaseText').innerHTML = '✅ Auto-guardado en Firebase';
+        
+        setTimeout(() => {
+            document.getElementById('firebaseText').innerHTML = '🟢 Conectado a Firebase';
+        }, 2000);
+        
+    } catch (error) {
+        console.error('Error en auto-guardado:', error);
+    }
+}
+
+// ========== FIREBASE - CARGAR ==========
+async function cargarFirebase() {
+    const statusDiv = document.getElementById('firebaseStatus');
+    const statusText = document.getElementById('firebaseText');
+    
+    if (!firebaseConnected) {
+        statusText.innerHTML = '⚠️ No conectado a Firebase. Intenta recargar la página.';
+        return;
+    }
+    
+    statusText.innerHTML = '⏳ Cargando desde Firebase...';
+    
+    try {
+        const snapshot = await database.ref('ipk_r65_datos').once('value');
+        const data = snapshot.val();
+        
+        if (data && data.evaluaciones && data.evaluaciones.length > 0) {
+            historialEvaluaciones = data.evaluaciones;
+            guardarHistorialLocal();
+            verHistorial();
+            
+            remoteRecordCount = historialEvaluaciones.length;
+            document.getElementById('remoteStats').textContent = `📊 ${remoteRecordCount} registros en la nube`;
+            statusText.innerHTML = `✅ ${historialEvaluaciones.length} evaluaciones cargadas desde Firebase!`;
+            
+            // Mostrar en el resultado
+            document.getElementById('res').innerHTML = `📥 ${historialEvaluaciones.length} evaluaciones cargadas desde la nube. Última actualización: ${data.ultimaActualizacion || 'N/A'}`;
+        } else {
+            statusText.innerHTML = '📭 No hay datos guardados en Firebase.';
+            document.getElementById('res').innerHTML = '📭 No hay datos guardados en Firebase.';
+        }
+        
+    } catch (error) {
+        console.error('Error al cargar desde Firebase:', error);
+        statusText.innerHTML = `❌ Error al cargar: ${error.message}`;
+    }
+}
+
+// ========== SINCRONIZAR ==========
+async function syncWithFirebase() {
+    await cargarFirebase();
+    await guardarFirebase();
+    document.getElementById('firebaseText').innerHTML = '🔄 Sincronización completa!';
+    setTimeout(() => {
+        document.getElementById('firebaseText').innerHTML = '🟢 Conectado a Firebase';
+    }, 2000);
+}
+
+// ========== VER HISTORIAL ==========
+function verHistorial() {
+    const historialDiv = document.getElementById("historial");
+    if (historialEvaluaciones.length === 0) {
+        historialDiv.innerHTML = "<div class='card'>📭 Sin evaluaciones previas.</div>";
+        return;
+    }
+
+    let html = "<h3 class='historial-title'>📜 Historial clínico</h3>";
+    historialEvaluaciones.forEach((h, index) => {
+        const fechaStr = new Date(h.fecha).toLocaleString();
+        let badges = "";
+        if (h.noPuedeConsentir) badges += "<span style='background:#ff9800;padding:2px 8px;border-radius:16px;font-size:11px;margin-right:6px;'>⚠️ No puede consentir</span>";
+        if (h.itemsSinColaboracion > 0) badges += `<span style='background:#ff5722;padding:2px 8px;border-radius:16px;font-size:11px;'>🚫 ${h.itemsSinColaboracion} sin colaboración</span>`;
+        
+        html += `
+        <div class="card">
+            <div><b>🧾 ${escapeHtml(h.paciente)}</b> ${badges}</div>
+            <div>📆 ${fechaStr}</div>
+            <div><strong>Puntaje: ${h.total}</strong> | ${h.categoria}</div>
+            <div>🤝 Soporte: ${h.soporte} pts</div>
+            <div style="font-size:0.75rem;color:#8aa2e0;margin-top:4px;">ID: ${h.id || 'N/A'}</div>
+        </div>`;
+    });
+    historialDiv.innerHTML = html;
+}
+
+// ========== EXPORTAR EXCEL ==========
+function exportarExcel() {
+    if (historialEvaluaciones.length === 0) {
+        alert("No hay datos para exportar.");
+        return;
+    }
+
+    const dataExcel = historialEvaluaciones.map(h => ({
+        "ID": h.id || 'N/A',
+        "Paciente": h.paciente,
+        "Fecha": new Date(h.fecha).toLocaleString(),
+        "Puntaje total": h.total,
+        "Categoría": h.categoria,
+        "Soporte psicosocial": h.soporte,
+        "No puede consentir": h.noPuedeConsentir ? "Sí" : "No",
+        "Observaciones": h.observaciones || "",
+        "Consejo_1_Titulo": h.consejos?.[0]?.titulo || "",
+        "Consejo_1_Ayuda": h.consejos?.[0]?.ayuda || "",
+        "Consejo_1_Ejercicios": h.consejos?.[0]?.ejercicios || "",
+        "Consejo_2_Titulo": h.consejos?.[1]?.titulo || "",
+        "Consejo_2_Ayuda": h.consejos?.[1]?.ayuda || "",
+        "Consejo_2_Ejercicios": h.consejos?.[1]?.ejercicios || "",
+        "Consejo_3_Titulo": h.consejos?.[2]?.titulo || "",
+        "Consejo_3_Ayuda": h.consejos?.[2]?.ayuda || "",
+        "Consejo_3_Ejercicios": h.consejos?.[2]?.ejercicios || "",
+        "Consejo_4_Titulo": h.consejos?.[3]?.titulo || "",
+        "Consejo_4_Ayuda": h.consejos?.[3]?.ayuda || "",
+        "Consejo_4_Ejercicios": h.consejos?.[3]?.ejercicios || "",
+        "Consejo_5_Titulo": h.consejos?.[4]?.titulo || "",
+        "Consejo_5_Ayuda": h.consejos?.[4]?.ayuda || "",
+        "Consejo_5_Ejercicios": h.consejos?.[4]?.ejercicios || "",
+        "Consejo_6_Titulo": h.consejos?.[5]?.titulo || "",
+        "Consejo_6_Ayuda": h.consejos?.[5]?.ayuda || "",
+        "Consejo_6_Ejercicios": h.consejos?.[5]?.ejercicios || ""
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(dataExcel);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "IPK_R65");
+    XLSX.writeFile(wb, `IPK_R65_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.xlsx`);
+}
+
+function limpiarHistorial() {
+    if (confirm("¿Eliminar TODO el historial?")) {
+        historialEvaluaciones = [];
+        guardarHistorialLocal();
+        document.getElementById("historial").innerHTML = "";
+        document.getElementById("res").innerHTML = "🧹 Historial eliminado.";
+        
+        // También limpiar Firebase si está conectado
+        if (firebaseConnected) {
+            database.ref('ipk_r65_datos').remove().then(() => {
+                document.getElementById('firebaseText').innerHTML = '🧹 Datos eliminados de Firebase';
+                document.getElementById('remoteStats').textContent = '📊 0 registros en la nube';
+            }).catch(err => {
+                console.error('Error al limpiar Firebase:', err);
+            });
+        }
+    }
+}
+
+function escapeHtml(str) {
+    if (!str) return "";
+    return str.replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+    });
+}
+
+// ========== CONEXIÓN FIREBASE ==========
+function setupFirebaseConnection() {
+    const dot = document.getElementById('firebaseDot');
+    const text = document.getElementById('firebaseText');
+    
+    // Escuchar cambios en la conexión
+    const connectedRef = database.ref('.info/connected');
+    connectedRef.on('value', (snap) => {
+        if (snap.val() === true) {
+            firebaseConnected = true;
+            dot.className = 'dot dot-online';
+            text.innerHTML = '🟢 Conectado a Firebase';
+            
+            // Cargar datos automáticamente
+            database.ref('ipk_r65_datos').once('value').then(snapshot => {
+                const data = snapshot.val();
+                if (data && data.evaluaciones) {
+                    remoteRecordCount = data.evaluaciones.length;
+                    document.getElementById('remoteStats').textContent = `📊 ${remoteRecordCount} registros en la nube`;
+                }
+            }).catch(err => {
+                console.error('Error al cargar datos iniciales:', err);
+            });
+            
+        } else {
+            firebaseConnected = false;
+            dot.className = 'dot dot-offline';
+            text.innerHTML = '🔴 Desconectado de Firebase';
+        }
+    });
+}
+
+// ========== INICIALIZACIÓN ==========
+cargarHistorialLocal();
+setupFirebaseConnection();
+
+window.addEventListener("DOMContentLoaded", () => {
+    verHistorial();
+});
 </script>
 </body>
 </html>
