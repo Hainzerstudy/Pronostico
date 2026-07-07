@@ -147,6 +147,41 @@ button:active {
     border: 1px solid #253454;
 }
 
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.card-header:hover {
+    opacity: 0.8;
+}
+
+.card-header .toggle-icon {
+    font-size: 1.2rem;
+    transition: transform 0.3s;
+    color: #00ffd5;
+}
+
+.card-header .toggle-icon.rotated {
+    transform: rotate(180deg);
+}
+
+.card-body {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #1f2d4a;
+    display: none;
+}
+
+.card-body.open {
+    display: block;
+}
+
 .historial-title {
     font-size: 1.4rem;
     margin-top: 20px;
@@ -325,6 +360,114 @@ button:active {
     border-radius: 4px;
     color: #00ffd5;
     font-family: monospace;
+}
+
+.puntaje-detalle {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 20px;
+    font-size: 0.82rem;
+    color: #a9c1ff;
+    background: #0a1122;
+    padding: 8px 12px;
+    border-radius: 8px;
+    margin-top: 6px;
+}
+
+.puntaje-detalle .item {
+    display: flex;
+    justify-content: space-between;
+    padding: 2px 0;
+    border-bottom: 1px solid #1a2744;
+}
+
+.puntaje-detalle .item:last-child {
+    border-bottom: none;
+}
+
+.puntaje-detalle .valor {
+    color: #00ffd5;
+    font-weight: bold;
+}
+
+.badge-puntaje {
+    background: #1a2744;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    color: #8aa2e0;
+}
+
+.consejos-dropdown {
+    margin-top: 10px;
+}
+
+.consejos-dropdown .dropdown-header {
+    background: #0f1b33;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #1f2d4a;
+    user-select: none;
+    font-size: 0.85rem;
+    color: #8aa2e0;
+}
+
+.consejos-dropdown .dropdown-header:hover {
+    border-color: #00ffd5;
+}
+
+.consejos-dropdown .dropdown-header .arrow {
+    transition: transform 0.3s;
+}
+
+.consejos-dropdown .dropdown-header .arrow.open {
+    transform: rotate(180deg);
+}
+
+.consejos-dropdown .dropdown-content {
+    display: none;
+    margin-top: 8px;
+    padding: 8px;
+    background: #0a1122;
+    border-radius: 8px;
+    border: 1px solid #1a2744;
+}
+
+.consejos-dropdown .dropdown-content.open {
+    display: block;
+}
+
+.consejos-dropdown .consejo-mini {
+    padding: 6px 8px;
+    margin: 4px 0;
+    border-left: 2px solid #00ffd5;
+    font-size: 0.8rem;
+    color: #c2d6ff;
+}
+
+.consejos-dropdown .consejo-mini .label {
+    color: #8aa2e0;
+    font-weight: bold;
+}
+
+.consejos-dropdown .consejo-mini .ejercicios {
+    color: #a9c1ff;
+    font-size: 0.75rem;
+    margin-top: 3px;
+    padding-left: 8px;
+    border-left: 1px solid #1a2744;
+}
+
+.accordion-icon {
+    transition: transform 0.3s;
+}
+
+.accordion-icon.rotated {
+    transform: rotate(180deg);
 }
 </style>
 </head>
@@ -666,6 +809,22 @@ function generar6Consejos(total, soporte, noPuedeConsentir, noColaboraCount, per
     return consejos.slice(0, 6);
 }
 
+// ========== OBTENER PUNTAJES POR ÍTEM ==========
+function obtenerPuntajesItems() {
+    return {
+        'Edad funcional': parseInt(edad.value) || 0,
+        'Reserva funcional': parseInt(v1.value) || 0,
+        'Complejidad clínica': parseInt(v2.value) || 0,
+        'Red de apoyo': parseInt(v3.value) || 0,
+        'Motivación basal': parseInt(v4.value) || 0,
+        'Edad funcional clínica': parseInt(j1.value) || 0,
+        'Motivación observada': parseInt(j2.value) || 0,
+        'Adherencia': parseInt(j3.value) || 0,
+        'Apoyo del cuidador': parseInt(j4.value) || 0,
+        'Tolerancia al esfuerzo': parseInt(j5.value) || 0
+    };
+}
+
 // ========== EVALUAR ==========
 function evaluar() {
     const resDiv = document.getElementById("res");
@@ -680,12 +839,9 @@ function evaluar() {
     }
 
     const noPuedeConsentir = (acepta.value === "no_puede");
+    const puntajes = obtenerPuntajesItems();
 
-    let total = (parseInt(edad.value)||0) + (parseInt(v1.value)||0) + (parseInt(v2.value)||0) + 
-               (parseInt(v3.value)||0) + (parseInt(v4.value)||0) + (parseInt(j1.value)||0) + 
-               (parseInt(j2.value)||0) + (parseInt(j3.value)||0) + (parseInt(j4.value)||0) + 
-               (parseInt(j5.value)||0);
-    
+    let total = Object.values(puntajes).reduce((a, b) => a + b, 0);
     let soporte = (parseInt(v3.value)||0) + (parseInt(j4.value)||0) + (parseInt(v4.value)||0);
 
     let noColaboraCount = 0;
@@ -723,13 +879,13 @@ function evaluar() {
         noPuedeConsentir: noPuedeConsentir,
         itemsSinColaboracion: noColaboraCount,
         observaciones: observaciones,
+        puntajes: puntajes,
         consejos: consejos
     };
     
     historialEvaluaciones.unshift(data);
     guardarHistorialLocal();
 
-    // Guardar automáticamente en Firebase si está conectado
     if (firebaseConnected) {
         guardarFirebaseAuto(data);
     }
@@ -744,6 +900,13 @@ function mostrarResultado(data, clasificacion) {
     htmlResultado += `🎯 <strong>Puntaje IPK-R65:</strong> ${data.total} puntos (escala 0-100)<br>`;
     htmlResultado += `🤝 <strong>Puntaje de soporte psicosocial:</strong> ${data.soporte} pts<br>`;
     htmlResultado += `<small>🕒 ${new Date(data.fecha).toLocaleString()}</small>`;
+    
+    // Detalle de puntajes
+    htmlResultado += `<div class="puntaje-detalle">`;
+    for (const [key, value] of Object.entries(data.puntajes)) {
+        htmlResultado += `<div class="item"><span>${key}</span><span class="valor">${value} pts</span></div>`;
+    }
+    htmlResultado += `</div>`;
     
     if (data.observaciones) {
         htmlResultado += `<div class="observation-note">📋 ${data.observaciones}</div>`;
@@ -810,7 +973,6 @@ async function guardarFirebase() {
     }
 }
 
-// Guardado automático después de evaluar
 function guardarFirebaseAuto(data) {
     if (!firebaseConnected) return;
     if (historialEvaluaciones.length === 0) return;
@@ -883,9 +1045,7 @@ async function syncWithFirebase() {
     ocultarErrorFirebase();
     
     try {
-        // Primero cargar
         await cargarFirebase();
-        // Luego guardar (merge)
         await guardarFirebase();
         statusText.innerHTML = '🔄 Sincronización completa!';
         setTimeout(() => {
@@ -979,6 +1139,18 @@ function ocultarErrorFirebase() {
     }
 }
 
+// ========== TOGGLE PARA CONSEJOS EN HISTORIAL ==========
+function toggleConsejos(id) {
+    const content = document.getElementById('consejos-' + id);
+    const arrow = document.getElementById('arrow-' + id);
+    if (content) {
+        content.classList.toggle('open');
+        if (arrow) {
+            arrow.classList.toggle('open');
+        }
+    }
+}
+
 // ========== VER HISTORIAL ==========
 function verHistorial() {
     const historialDiv = document.getElementById("historial");
@@ -990,20 +1162,82 @@ function verHistorial() {
     let html = "<h3 class='historial-title'>📜 Historial clínico</h3>";
     historialEvaluaciones.forEach((h, index) => {
         const fechaStr = new Date(h.fecha).toLocaleString();
+        const idUnico = h.id || 'eval-' + index;
+        
         let badges = "";
         if (h.noPuedeConsentir) badges += "<span style='background:#ff9800;padding:2px 8px;border-radius:16px;font-size:11px;margin-right:6px;'>⚠️ No puede consentir</span>";
         if (h.itemsSinColaboracion > 0) badges += `<span style='background:#ff5722;padding:2px 8px;border-radius:16px;font-size:11px;'>🚫 ${h.itemsSinColaboracion} sin colaboración</span>`;
         
+        // Generar detalle de puntajes
+        let puntajesHtml = '';
+        if (h.puntajes) {
+            puntajesHtml = `<div class="puntaje-detalle">`;
+            for (const [key, value] of Object.entries(h.puntajes)) {
+                puntajesHtml += `<div class="item"><span>${key}</span><span class="valor">${value} pts</span></div>`;
+            }
+            puntajesHtml += `</div>`;
+        }
+        
+        // Generar consejos en dropdown
+        let consejosHtml = '';
+        if (h.consejos && h.consejos.length > 0) {
+            consejosHtml = `
+                <div class="consejos-dropdown">
+                    <div class="dropdown-header" onclick="toggleConsejos('${idUnico}')">
+                        <span>💡 Ver ${h.consejos.length} recomendaciones</span>
+                        <span class="arrow" id="arrow-${idUnico}">▼</span>
+                    </div>
+                    <div class="dropdown-content" id="consejos-${idUnico}">
+            `;
+            h.consejos.forEach((c, idx) => {
+                consejosHtml += `
+                    <div class="consejo-mini">
+                        <div><span class="label">${idx+1}. ${c.titulo}</span></div>
+                        <div style="font-size:0.8rem;color:#8aa2e0;margin-top:2px;">${c.ayuda}</div>
+                        <div class="ejercicios">🏋️ ${c.ejercicios}</div>
+                    </div>
+                `;
+            });
+            consejosHtml += `
+                    </div>
+                </div>
+            `;
+        }
+        
         html += `
         <div class="card">
-            <div><b>🧾 ${escapeHtml(h.paciente)}</b> ${badges}</div>
-            <div>📆 ${fechaStr}</div>
-            <div><strong>Puntaje: ${h.total}</strong> | ${h.categoria}</div>
-            <div>🤝 Soporte: ${h.soporte} pts</div>
-            <div style="font-size:0.75rem;color:#8aa2e0;margin-top:4px;">ID: ${h.id || 'N/A'}</div>
+            <div class="card-header" onclick="toggleCard(${index})">
+                <div>
+                    <b>🧾 ${escapeHtml(h.paciente)}</b> ${badges}
+                    <div style="font-size:0.8rem;color:#8aa2e0;margin-top:2px;">
+                        📆 ${fechaStr} · Puntaje: <strong style="color:#00ffd5;">${h.total}</strong> · ${h.categoria}
+                    </div>
+                </div>
+                <span class="accordion-icon" id="accordion-icon-${index}">▼</span>
+            </div>
+            <div class="card-body" id="card-body-${index}">
+                <div style="display:flex;gap:15px;flex-wrap:wrap;font-size:0.85rem;">
+                    <span>🤝 Soporte: ${h.soporte} pts</span>
+                    ${h.observaciones ? `<span style="color:#ffb74d;">📋 ${h.observaciones}</span>` : ''}
+                </div>
+                ${puntajesHtml}
+                ${consejosHtml}
+            </div>
         </div>`;
     });
     historialDiv.innerHTML = html;
+}
+
+// ========== TOGGLE PARA CARDS DEL HISTORIAL ==========
+function toggleCard(index) {
+    const body = document.getElementById('card-body-' + index);
+    const icon = document.getElementById('accordion-icon-' + index);
+    if (body) {
+        body.classList.toggle('open');
+        if (icon) {
+            icon.classList.toggle('rotated');
+        }
+    }
 }
 
 // ========== EXPORTAR EXCEL ==========
@@ -1013,34 +1247,36 @@ function exportarExcel() {
         return;
     }
 
-    const dataExcel = historialEvaluaciones.map(h => ({
-        "ID": h.id || 'N/A',
-        "Paciente": h.paciente,
-        "Fecha": new Date(h.fecha).toLocaleString(),
-        "Puntaje total": h.total,
-        "Categoría": h.categoria,
-        "Soporte psicosocial": h.soporte,
-        "No puede consentir": h.noPuedeConsentir ? "Sí" : "No",
-        "Observaciones": h.observaciones || "",
-        "Consejo_1_Titulo": h.consejos?.[0]?.titulo || "",
-        "Consejo_1_Ayuda": h.consejos?.[0]?.ayuda || "",
-        "Consejo_1_Ejercicios": h.consejos?.[0]?.ejercicios || "",
-        "Consejo_2_Titulo": h.consejos?.[1]?.titulo || "",
-        "Consejo_2_Ayuda": h.consejos?.[1]?.ayuda || "",
-        "Consejo_2_Ejercicios": h.consejos?.[1]?.ejercicios || "",
-        "Consejo_3_Titulo": h.consejos?.[2]?.titulo || "",
-        "Consejo_3_Ayuda": h.consejos?.[2]?.ayuda || "",
-        "Consejo_3_Ejercicios": h.consejos?.[2]?.ejercicios || "",
-        "Consejo_4_Titulo": h.consejos?.[3]?.titulo || "",
-        "Consejo_4_Ayuda": h.consejos?.[3]?.ayuda || "",
-        "Consejo_4_Ejercicios": h.consejos?.[3]?.ejercicios || "",
-        "Consejo_5_Titulo": h.consejos?.[4]?.titulo || "",
-        "Consejo_5_Ayuda": h.consejos?.[4]?.ayuda || "",
-        "Consejo_5_Ejercicios": h.consejos?.[4]?.ejercicios || "",
-        "Consejo_6_Titulo": h.consejos?.[5]?.titulo || "",
-        "Consejo_6_Ayuda": h.consejos?.[5]?.ayuda || "",
-        "Consejo_6_Ejercicios": h.consejos?.[5]?.ejercicios || ""
-    }));
+    const dataExcel = historialEvaluaciones.map(h => {
+        const row = {
+            "ID": h.id || 'N/A',
+            "Paciente": h.paciente,
+            "Fecha": new Date(h.fecha).toLocaleString(),
+            "Puntaje total": h.total,
+            "Categoría": h.categoria,
+            "Soporte psicosocial": h.soporte,
+            "No puede consentir": h.noPuedeConsentir ? "Sí" : "No",
+            "Observaciones": h.observaciones || ""
+        };
+        
+        // Agregar puntajes
+        if (h.puntajes) {
+            for (const [key, value] of Object.entries(h.puntajes)) {
+                row[key] = value;
+            }
+        }
+        
+        // Agregar consejos
+        if (h.consejos) {
+            h.consejos.forEach((c, idx) => {
+                row[`Consejo_${idx+1}_Titulo`] = c.titulo || '';
+                row[`Consejo_${idx+1}_Ayuda`] = c.ayuda || '';
+                row[`Consejo_${idx+1}_Ejercicios`] = c.ejercicios || '';
+            });
+        }
+        
+        return row;
+    });
 
     const ws = XLSX.utils.json_to_sheet(dataExcel);
     const wb = XLSX.utils.book_new();
@@ -1089,7 +1325,6 @@ function setupFirebaseConnection() {
             text.innerHTML = '🟢 Conectado a Firebase';
             ocultarErrorFirebase();
             
-            // Cargar datos automáticamente
             database.ref('ipk_r65_datos').once('value').then(snapshot => {
                 const data = snapshot.val();
                 if (data && data.evaluaciones) {
