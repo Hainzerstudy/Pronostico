@@ -3,15 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IPK-R65 Hospitalario - Firebase</title>
+<title>IPK-R65 Hospitalario - Conexión Universal</title>
 
 <!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <style>
-/* ... (mismo CSS que antes) ... */
 * {
     box-sizing: border-box;
 }
@@ -290,29 +290,15 @@ button:active {
     box-shadow: 0 0 10px rgba(255,87,34,0.5);
 }
 
-.dot-error {
-    background: #ff9800;
-    box-shadow: 0 0 10px rgba(255,152,0,0.5);
+.dot-auth {
+    background: #ffb74d;
+    box-shadow: 0 0 10px rgba(255,183,77,0.5);
     animation: pulse 1s infinite;
 }
 
 @keyframes pulse {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.3; }
-}
-
-.error-box {
-    background: #2a1520;
-    border: 1px solid #ff5722;
-    border-radius: 10px;
-    padding: 12px 15px;
-    margin-top: 10px;
-    color: #ff8a80;
-    font-size: 0.85rem;
-}
-
-.error-box strong {
-    color: #ff5722;
 }
 
 .remote-controls {
@@ -333,24 +319,6 @@ button:active {
     border-radius: 20px;
     font-size: 0.75rem;
     color: #8aa2e0;
-}
-
-.tutorial-box {
-    background: #1a2744;
-    border-left: 4px solid #ffb74d;
-    padding: 12px 15px;
-    border-radius: 8px;
-    margin-top: 10px;
-    font-size: 0.85rem;
-    color: #c2d6ff;
-}
-
-.tutorial-box code {
-    background: #0b1220;
-    padding: 2px 8px;
-    border-radius: 4px;
-    color: #00ffd5;
-    font-family: monospace;
 }
 
 .puntaje-detalle {
@@ -453,50 +421,13 @@ button:active {
     transform: rotate(180deg);
 }
 
-.reconnect-btn {
-    background: #2a3a60;
-    color: #e6f1ff;
-    border: 1px solid #3a4a70;
-    padding: 8px 16px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 0.8rem;
-    transition: all 0.3s;
-}
-
-.reconnect-btn:hover {
-    background: #3a4a70;
-    border-color: #00ffd5;
-}
-
-/* Estilos para el botón de diagnóstico */
-.diagnostic-box {
-    background: #0a1122;
-    border: 1px solid #1f2d4a;
-    border-radius: 10px;
-    padding: 12px 15px;
-    margin-top: 10px;
-    font-size: 0.8rem;
-    color: #8aa2e0;
-    max-height: 200px;
-    overflow-y: auto;
-    display: none;
-}
-
-.diagnostic-box.show {
-    display: block;
-}
-
-.diagnostic-box .ok {
-    color: #00d97a;
-}
-
-.diagnostic-box .error {
-    color: #ff5722;
-}
-
-.diagnostic-box .info {
-    color: #ffb74d;
+.user-info {
+    font-size: 0.75rem;
+    color: #4a6a8a;
+    padding: 4px 12px;
+    background: #0a1a2f;
+    border-radius: 12px;
+    border: 1px solid #1a2a4f;
 }
 </style>
 </head>
@@ -505,20 +436,14 @@ button:active {
 
 <div class="container">
 <h1>🏥 IPK-R65 Hospitalario</h1>
-<div class="sub">Escala de predicción kinésica | Descriptores completos + Consejos con ejercicios específicos</div>
+<div class="sub">Escala de predicción kinésica | Conexión universal - Funciona en cualquier dispositivo</div>
 
 <!-- Firebase Status -->
 <div class="firebase-status" id="firebaseStatus">
-    <span class="dot dot-offline" id="firebaseDot"></span>
+    <span class="dot dot-auth" id="firebaseDot"></span>
     <span id="firebaseText">Conectando a Firebase...</span>
     <span class="stats-badge" id="remoteStats">📊 0 registros en la nube</span>
-    <button class="reconnect-btn" onclick="forzarReconexion()">🔄 Reconectar</button>
-</div>
-
-<div class="tutorial-box" id="tutorialBox">
-    <strong>🔑 Configuración de seguridad:</strong> Si ves errores de permiso, ve a 
-    <strong>Firebase Console → Realtime Database → Reglas</strong> y establece:
-    <code>{ "rules": { ".read": true, ".write": true } }</code>
+    <span class="user-info" id="userInfo">👤 Autenticando...</span>
 </div>
 
 <!-- PACIENTE -->
@@ -637,18 +562,8 @@ button:active {
 
 <div class="remote-controls">
     <button onclick="syncWithFirebase()" style="background:#2a3a60;color:#e6f1ff;border:1px solid #3a4a70;">🔄 Sincronizar</button>
-    <button onclick="testFirebaseConnection()" style="background:#1c2a4a;color:#e6f1ff;border:1px solid #2b3c5f;">🔌 Probar conexión</button>
-    <button onclick="diagnosticarFirebase()" style="background:#3a1a2a;color:#ff8a80;border:1px solid #ff5722;">🔍 Diagnóstico</button>
-    <button onclick="mostrarAyudaFirebase()" style="background:#1a2a3a;color:#ffb74d;border:1px solid #ffb74d;">🔓 Solución de permisos</button>
-</div>
-
-<div id="firebaseError" style="display:none;" class="error-box">
-    <strong>⚠️ Error de permisos en Firebase:</strong>
-    <p id="errorDetail">No se puede acceder a los datos. Revisa las reglas de seguridad.</p>
-</div>
-
-<div id="diagnosticBox" class="diagnostic-box">
-    <!-- Aquí se mostrará el diagnóstico -->
+    <button onclick="forzarReconexion()" style="background:#1c2a4a;color:#e6f1ff;border:1px solid #2b3c5f;">🔌 Reconectar</button>
+    <button onclick="verUsuario()" style="background:#1a2a3a;color:#ffb74d;border:1px solid #ffb74d;">👤 Ver usuario</button>
 </div>
 </div>
 
@@ -668,20 +583,20 @@ const firebaseConfig = {
     projectId: "irat-5-evaluaciones",
     storageBucket: "irat-5-evaluaciones.firebasestorage.app",
     messagingSenderId: "487279274410",
-    appId: "1:487279274410:web:146e9c35a0bf795c5423d3",
-    measurementId: "G-WSXJY5QHJS"
+    appId: "1:487279274410:web:146e9c35a0bf795c5423d3"
 };
 
 // Inicializar Firebase
 firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
 const database = firebase.database();
 
 // ========== ALMACENAMIENTO LOCAL ==========
 let historialEvaluaciones = [];
 let firebaseConnected = false;
+let authenticated = false;
+let userId = null;
 let remoteRecordCount = 0;
-let reconnectAttempts = 0;
-const MAX_RECONNECT_ATTEMPTS = 5;
 
 function cargarHistorialLocal() {
     const guardado = localStorage.getItem('ipk_r65_consejos_ejercicios');
@@ -696,6 +611,91 @@ function cargarHistorialLocal() {
 
 function guardarHistorialLocal() {
     localStorage.setItem('ipk_r65_consejos_ejercicios', JSON.stringify(historialEvaluaciones));
+}
+
+// ========== AUTENTICACIÓN ANÓNIMA ==========
+function autenticarAnonimo() {
+    const dot = document.getElementById('firebaseDot');
+    const text = document.getElementById('firebaseText');
+    const userInfo = document.getElementById('userInfo');
+    
+    text.innerHTML = '🔑 Autenticando anónimamente...';
+    dot.className = 'dot dot-auth';
+    
+    auth.signInAnonymously()
+        .then((userCredential) => {
+            userId = userCredential.user.uid;
+            authenticated = true;
+            text.innerHTML = '✅ Autenticación exitosa';
+            userInfo.textContent = `👤 ID: ${userId.substring(0, 8)}...`;
+            dot.className = 'dot dot-online';
+            
+            // Conectar a la base de datos
+            conectarDatabase();
+        })
+        .catch((error) => {
+            console.error('Error de autenticación:', error);
+            text.innerHTML = '❌ Error de autenticación: ' + error.message;
+            dot.className = 'dot dot-offline';
+            authenticated = false;
+            
+            // Reintentar después de 3 segundos
+            setTimeout(autenticarAnonimo, 3000);
+        });
+}
+
+// ========== CONEXIÓN A LA BASE DE DATOS ==========
+function conectarDatabase() {
+    const dot = document.getElementById('firebaseDot');
+    const text = document.getElementById('firebaseText');
+    
+    const connectedRef = database.ref('.info/connected');
+    connectedRef.on('value', (snap) => {
+        if (snap.val() === true) {
+            firebaseConnected = true;
+            dot.className = 'dot dot-online';
+            text.innerHTML = '🟢 Conectado a Firebase';
+            
+            // Cargar datos automáticamente
+            cargarDatosIniciales();
+        } else {
+            firebaseConnected = false;
+            dot.className = 'dot dot-offline';
+            text.innerHTML = '🔴 Desconectado de Firebase';
+        }
+    });
+}
+
+// ========== CARGAR DATOS INICIALES ==========
+function cargarDatosIniciales() {
+    if (!firebaseConnected) return;
+    
+    database.ref('ipk_r65_datos').once('value')
+        .then(snapshot => {
+            const data = snapshot.val();
+            if (data && data.evaluaciones) {
+                historialEvaluaciones = data.evaluaciones;
+                guardarHistorialLocal();
+                remoteRecordCount = data.evaluaciones.length;
+                document.getElementById('remoteStats').textContent = `📊 ${remoteRecordCount} registros en la nube`;
+                verHistorial();
+            }
+        })
+        .catch(err => {
+            console.error('Error al cargar datos iniciales:', err);
+            // Si hay error de permisos, intentar crear el nodo
+            if (err.message && err.message.includes('permission_denied')) {
+                database.ref('ipk_r65_datos').set({
+                    timestamp: new Date().toISOString(),
+                    mensaje: 'Base de datos creada automáticamente',
+                    evaluaciones: []
+                }).then(() => {
+                    console.log('Base de datos creada');
+                }).catch(e => {
+                    console.error('Error al crear base de datos:', e);
+                });
+            }
+        });
 }
 
 // ========== CLASIFICACIÓN ==========
@@ -923,7 +923,7 @@ function evaluar() {
     historialEvaluaciones.unshift(data);
     guardarHistorialLocal();
 
-    if (firebaseConnected) {
+    if (firebaseConnected && authenticated) {
         guardarFirebaseAuto(data);
     }
 
@@ -974,9 +974,8 @@ function mostrarResultado(data, clasificacion) {
 async function guardarFirebase() {
     const statusText = document.getElementById('firebaseText');
     
-    if (!firebaseConnected) {
-        statusText.innerHTML = '⚠️ No conectado a Firebase. Intenta reconectar.';
-        mostrarErrorFirebase('No hay conexión con Firebase.');
+    if (!firebaseConnected || !authenticated) {
+        statusText.innerHTML = '⚠️ No autenticado. Espera la conexión...';
         return;
     }
     
@@ -986,13 +985,13 @@ async function guardarFirebase() {
     }
     
     statusText.innerHTML = '⏳ Guardando en Firebase...';
-    ocultarErrorFirebase();
     
     try {
         const dataToSave = {
             timestamp: new Date().toISOString(),
             totalRegistros: historialEvaluaciones.length,
             ultimaActualizacion: new Date().toLocaleString(),
+            userId: userId,
             evaluaciones: historialEvaluaciones
         };
         
@@ -1004,18 +1003,12 @@ async function guardarFirebase() {
         
     } catch (error) {
         console.error('Error al guardar en Firebase:', error);
-        statusText.innerHTML = `❌ Error al guardar: ${error.message}`;
-        mostrarErrorFirebase(error.message);
-        
-        // Si es error de permisos, mostrar ayuda
-        if (error.message && error.message.includes('permission_denied')) {
-            mostrarAyudaFirebase();
-        }
+        statusText.innerHTML = `❌ Error: ${error.message}`;
     }
 }
 
 function guardarFirebaseAuto(data) {
-    if (!firebaseConnected) return;
+    if (!firebaseConnected || !authenticated) return;
     if (historialEvaluaciones.length === 0) return;
     
     try {
@@ -1023,6 +1016,7 @@ function guardarFirebaseAuto(data) {
             timestamp: new Date().toISOString(),
             totalRegistros: historialEvaluaciones.length,
             ultimaActualizacion: new Date().toLocaleString(),
+            userId: userId,
             evaluaciones: historialEvaluaciones
         };
         
@@ -1044,14 +1038,12 @@ function guardarFirebaseAuto(data) {
 async function cargarFirebase() {
     const statusText = document.getElementById('firebaseText');
     
-    if (!firebaseConnected) {
-        statusText.innerHTML = '⚠️ No conectado a Firebase. Intenta reconectar.';
-        mostrarErrorFirebase('No hay conexión con Firebase.');
+    if (!firebaseConnected || !authenticated) {
+        statusText.innerHTML = '⚠️ No autenticado. Espera la conexión...';
         return;
     }
     
     statusText.innerHTML = '⏳ Cargando desde Firebase...';
-    ocultarErrorFirebase();
     
     try {
         const snapshot = await database.ref('ipk_r65_datos').once('value');
@@ -1064,22 +1056,17 @@ async function cargarFirebase() {
             
             remoteRecordCount = historialEvaluaciones.length;
             document.getElementById('remoteStats').textContent = `📊 ${remoteRecordCount} registros en la nube`;
-            statusText.innerHTML = `✅ ${historialEvaluaciones.length} evaluaciones cargadas desde Firebase!`;
+            statusText.innerHTML = `✅ ${historialEvaluaciones.length} evaluaciones cargadas!`;
             
-            document.getElementById('res').innerHTML = `📥 ${historialEvaluaciones.length} evaluaciones cargadas desde la nube. Última actualización: ${data.ultimaActualizacion || 'N/A'}`;
+            document.getElementById('res').innerHTML = `📥 ${historialEvaluaciones.length} evaluaciones cargadas desde la nube.`;
         } else {
             statusText.innerHTML = '📭 No hay datos guardados en Firebase.';
             document.getElementById('res').innerHTML = '📭 No hay datos guardados en Firebase.';
         }
         
     } catch (error) {
-        console.error('Error al cargar desde Firebase:', error);
-        statusText.innerHTML = `❌ Error al cargar: ${error.message}`;
-        mostrarErrorFirebase(error.message);
-        
-        if (error.message && error.message.includes('permission_denied')) {
-            mostrarAyudaFirebase();
-        }
+        console.error('Error al cargar:', error);
+        statusText.innerHTML = `❌ Error: ${error.message}`;
     }
 }
 
@@ -1087,188 +1074,53 @@ async function cargarFirebase() {
 async function syncWithFirebase() {
     const statusText = document.getElementById('firebaseText');
     statusText.innerHTML = '🔄 Sincronizando...';
-    ocultarErrorFirebase();
     
     try {
         await cargarFirebase();
         await guardarFirebase();
         statusText.innerHTML = '🔄 Sincronización completa!';
         setTimeout(() => {
-            statusText.innerHTML = firebaseConnected ? '🟢 Conectado a Firebase' : '🔴 Desconectado de Firebase';
+            statusText.innerHTML = '🟢 Conectado a Firebase';
         }, 2000);
     } catch (error) {
-        statusText.innerHTML = `❌ Error en sincronización: ${error.message}`;
-        mostrarErrorFirebase(error.message);
+        statusText.innerHTML = `❌ Error: ${error.message}`;
     }
 }
 
 // ========== FORZAR RECONEXIÓN ==========
 function forzarReconexion() {
     const statusText = document.getElementById('firebaseText');
-    statusText.innerHTML = '🔄 Reconectando a Firebase...';
+    statusText.innerHTML = '🔄 Reconectando...';
     
-    // Forzar reconexión usando el método de Firebase
-    database.ref('.info/connected').once('value', (snap) => {
-        if (snap.val() === true) {
-            firebaseConnected = true;
-            document.getElementById('firebaseDot').className = 'dot dot-online';
-            statusText.innerHTML = '✅ Reconectado a Firebase!';
-            // Intentar cargar datos
-            cargarFirebase();
-        } else {
-            firebaseConnected = false;
-            document.getElementById('firebaseDot').className = 'dot dot-offline';
-            statusText.innerHTML = '❌ No se pudo reconectar. Verifica tu conexión a internet.';
-            mostrarErrorFirebase('No se pudo establecer conexión con Firebase.');
-        }
-        setTimeout(() => {
-            if (firebaseConnected) {
-                statusText.innerHTML = '🟢 Conectado a Firebase';
+    // Forzar reconexión
+    database.ref('.info/connected').once('value')
+        .then(snap => {
+            if (snap.val() === true) {
+                statusText.innerHTML = '✅ Reconectado!';
+                firebaseConnected = true;
+                document.getElementById('firebaseDot').className = 'dot dot-online';
+            } else {
+                statusText.innerHTML = '❌ Sin conexión. Reintentando...';
+                autenticarAnonimo();
             }
-        }, 3000);
-    });
+        })
+        .catch(err => {
+            console.error('Error:', err);
+            statusText.innerHTML = '❌ Error al reconectar';
+        });
 }
 
-// ========== DIAGNÓSTICO ==========
-function diagnosticarFirebase() {
-    const diagnosticBox = document.getElementById('diagnosticBox');
-    diagnosticBox.classList.toggle('show');
-    
-    if (diagnosticBox.classList.contains('show')) {
-        let html = '<h4 style="color:#00ffd5;margin:0 0 10px 0;">🔍 Diagnóstico de Firebase</h4>';
-        
-        // 1. Verificar configuración
-        html += `<div><span class="info">📋 Configuración:</span> ${firebaseConfig.projectId}</div>`;
-        
-        // 2. Verificar conexión
-        html += `<div><span class="${firebaseConnected ? 'ok' : 'error'}">${firebaseConnected ? '✅' : '❌'} Conexión: ${firebaseConnected ? 'Conectado' : 'Desconectado'}</span></div>`;
-        
-        // 3. Verificar datos locales
-        html += `<div><span class="info">📊 Datos locales: ${historialEvaluaciones.length} registros</span></div>`;
-        
-        // 4. Verificar datos remotos
-        if (firebaseConnected) {
-            database.ref('ipk_r65_datos').once('value')
-                .then(snapshot => {
-                    const data = snapshot.val();
-                    const count = data && data.evaluaciones ? data.evaluaciones.length : 0;
-                    document.getElementById('diagnosticCount').textContent = count;
-                })
-                .catch(err => {
-                    document.getElementById('diagnosticCount').textContent = 'Error: ' + err.message;
-                });
-            html += `<div><span class="info">☁️ Datos remotos: <span id="diagnosticCount">Cargando...</span></span></div>`;
-        } else {
-            html += `<div><span class="error">❌ No se pueden verificar datos remotos (sin conexión)</span></div>`;
-        }
-        
-        // 5. Información del navegador
-        html += `<div style="font-size:0.7rem;color:#4a5a7a;margin-top:8px;border-top:1px solid #1a2744;padding-top:8px;">`;
-        html += `🌐 ${navigator.userAgent}`;
-        html += `</div>`;
-        
-        diagnosticBox.innerHTML = html;
-    }
-}
-
-// ========== PROBAR CONEXIÓN FIREBASE ==========
-function testFirebaseConnection() {
-    const statusText = document.getElementById('firebaseText');
-    statusText.innerHTML = '🔌 Probando conexión...';
-    ocultarErrorFirebase();
-    
-    const connectedRef = database.ref('.info/connected');
-    connectedRef.once('value', (snap) => {
-        if (snap.val() === true) {
-            statusText.innerHTML = '✅ Conexión a Firebase exitosa!';
-            firebaseConnected = true;
-            document.getElementById('firebaseDot').className = 'dot dot-online';
-            // Intentar cargar datos para verificar permisos
-            database.ref('ipk_r65_datos').once('value')
-                .then(() => {
-                    statusText.innerHTML = '✅ Conexión exitosa y permisos OK!';
-                })
-                .catch(err => {
-                    if (err.message && err.message.includes('permission_denied')) {
-                        statusText.innerHTML = '⚠️ Conexión OK pero PERMISOS DENEGADOS. Revisa las reglas.';
-                        mostrarErrorFirebase('Permiso denegado. Configura las reglas de Firebase.');
-                    }
-                });
-        } else {
-            statusText.innerHTML = '❌ No hay conexión a Firebase.';
-            firebaseConnected = false;
-            document.getElementById('firebaseDot').className = 'dot dot-offline';
-            mostrarErrorFirebase('El dispositivo no está conectado a internet o Firebase no está disponible.');
-        }
-        setTimeout(() => {
-            statusText.innerHTML = firebaseConnected ? '🟢 Conectado a Firebase' : '🔴 Desconectado de Firebase';
-        }, 3000);
-    });
-}
-
-// ========== MOSTRAR AYUDA DE FIREBASE ==========
-function mostrarAyudaFirebase() {
-    const resDiv = document.getElementById('res');
-    resDiv.innerHTML = `
-        <div style="background:#1a2744;padding:20px;border-radius:14px;border-left:4px solid #ffb74d;">
-            <h3 style="color:#ffb74d;margin-top:0;">🔓 Solución para error "permission_denied"</h3>
-            <p>El error <strong>permission_denied</strong> significa que Firebase está bloqueando el acceso a los datos.</p>
-            
-            <h4 style="color:#00ffd5;margin-bottom:8px;">📋 Pasos para resolverlo:</h4>
-            <ol style="color:#c2d6ff;line-height:1.8;padding-left:20px;">
-                <li>Ve a <strong>Firebase Console</strong> → <strong>Realtime Database</strong></li>
-                <li>Haz clic en la pestaña <strong>"Reglas"</strong></li>
-                <li>Reemplaza las reglas actuales con:
-                    <pre style="background:#0b1220;padding:10px;border-radius:8px;color:#00ffd5;font-family:monospace;margin:8px 0;">
-{
-  "rules": {
-    ".read": true,
-    ".write": true
-  }
-}</pre>
-                </li>
-                <li>Haz clic en <strong>"Publicar"</strong></li>
-                <li>Vuelve a esta página y presiona <strong>"📥 Cargar desde Firebase"</strong></li>
-            </ol>
-            
-            <div style="background:#0b1220;padding:10px;border-radius:8px;margin-top:10px;border:1px solid #2a3a60;">
-                <strong>🔗 Enlace directo:</strong>
-                <a href="https://console.firebase.google.com/project/irat-5-evaluaciones/database/irat-5-evaluaciones-default-rtdb/rules" 
-                   target="_blank" style="color:#00ffd5;text-decoration:underline;">
-                   Ir a Reglas de Firebase
-                </a>
-            </div>
-            
-            <button onclick="document.getElementById('res').innerHTML='💡 Complete los datos clínicos y presione \"Evaluar\".'" 
-                    style="margin-top:15px;background:#1c2a4a;color:#e6f1ff;border:1px solid #2b3c5f;padding:10px;border-radius:30px;cursor:pointer;width:auto;">
-                ✅ Entendido, cerrar
-            </button>
-        </div>
-    `;
-}
-
-// ========== MANEJO DE ERRORES ==========
-function mostrarErrorFirebase(mensaje) {
-    const errorDiv = document.getElementById('firebaseError');
-    const errorDetail = document.getElementById('errorDetail');
-    errorDiv.style.display = 'block';
-    errorDetail.textContent = mensaje || 'No se puede acceder a los datos. Revisa las reglas de seguridad.';
-    
-    const dot = document.getElementById('firebaseDot');
-    dot.className = 'dot dot-error';
-}
-
-function ocultarErrorFirebase() {
-    document.getElementById('firebaseError').style.display = 'none';
-    const dot = document.getElementById('firebaseDot');
-    if (firebaseConnected) {
-        dot.className = 'dot dot-online';
+// ========== VER USUARIO ==========
+function verUsuario() {
+    const user = auth.currentUser;
+    if (user) {
+        alert(`👤 Usuario autenticado\n\nID: ${user.uid}\nAutenticación: ${user.isAnonymous ? 'Anónima' : 'Con email'}\nCreado: ${new Date(user.metadata.creationTime).toLocaleString()}`);
     } else {
-        dot.className = 'dot dot-offline';
+        alert('❌ No hay usuario autenticado');
     }
 }
 
-// ========== TOGGLE PARA CONSEJOS EN HISTORIAL ==========
+// ========== TOGGLE PARA CONSEJOS ==========
 function toggleConsejos(id) {
     const content = document.getElementById('consejos-' + id);
     const arrow = document.getElementById('arrow-' + id);
@@ -1276,6 +1128,17 @@ function toggleConsejos(id) {
         content.classList.toggle('open');
         if (arrow) {
             arrow.classList.toggle('open');
+        }
+    }
+}
+
+function toggleCard(index) {
+    const body = document.getElementById('card-body-' + index);
+    const icon = document.getElementById('accordion-icon-' + index);
+    if (body) {
+        body.classList.toggle('open');
+        if (icon) {
+            icon.classList.toggle('rotated');
         }
     }
 }
@@ -1355,17 +1218,6 @@ function verHistorial() {
     historialDiv.innerHTML = html;
 }
 
-function toggleCard(index) {
-    const body = document.getElementById('card-body-' + index);
-    const icon = document.getElementById('accordion-icon-' + index);
-    if (body) {
-        body.classList.toggle('open');
-        if (icon) {
-            icon.classList.toggle('rotated');
-        }
-    }
-}
-
 // ========== EXPORTAR EXCEL ==========
 function exportarExcel() {
     if (historialEvaluaciones.length === 0) {
@@ -1415,7 +1267,7 @@ function limpiarHistorial() {
         document.getElementById("historial").innerHTML = "";
         document.getElementById("res").innerHTML = "🧹 Historial eliminado.";
         
-        if (firebaseConnected) {
+        if (firebaseConnected && authenticated) {
             database.ref('ipk_r65_datos').remove().then(() => {
                 document.getElementById('firebaseText').innerHTML = '🧹 Datos eliminados de Firebase';
                 document.getElementById('remoteStats').textContent = '📊 0 registros en la nube';
@@ -1436,59 +1288,25 @@ function escapeHtml(str) {
     });
 }
 
-// ========== CONEXIÓN FIREBASE CON RECONEXIÓN AUTOMÁTICA ==========
-function setupFirebaseConnection() {
-    const dot = document.getElementById('firebaseDot');
-    const text = document.getElementById('firebaseText');
-    
-    const connectedRef = database.ref('.info/connected');
-    connectedRef.on('value', (snap) => {
-        if (snap.val() === true) {
-            firebaseConnected = true;
-            dot.className = 'dot dot-online';
-            text.innerHTML = '🟢 Conectado a Firebase';
-            ocultarErrorFirebase();
-            reconnectAttempts = 0;
-            
-            // Cargar datos automáticamente
-            database.ref('ipk_r65_datos').once('value').then(snapshot => {
-                const data = snapshot.val();
-                if (data && data.evaluaciones) {
-                    remoteRecordCount = data.evaluaciones.length;
-                    document.getElementById('remoteStats').textContent = `📊 ${remoteRecordCount} registros en la nube`;
-                }
-            }).catch(err => {
-                console.error('Error al cargar datos iniciales:', err);
-                if (err.code === 'PERMISSION_DENIED' || (err.message && err.message.includes('permission_denied'))) {
-                    mostrarErrorFirebase('Permiso denegado. Configura las reglas de Firebase.');
-                }
-            });
-            
-        } else {
-            firebaseConnected = false;
-            dot.className = 'dot dot-offline';
-            text.innerHTML = '🔴 Desconectado de Firebase';
-            
-            // Intentar reconectar automáticamente
-            if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
-                reconnectAttempts++;
-                setTimeout(() => {
-                    if (!firebaseConnected) {
-                        text.innerHTML = `🔄 Reintentando conexión (${reconnectAttempts}/${MAX_RECONNECT_ATTEMPTS})...`;
-                        // Forzar reconexión
-                        database.ref('.info/connected').once('value');
-                    }
-                }, 3000 * reconnectAttempts);
-            } else {
-                text.innerHTML = '❌ No se pudo conectar a Firebase. Revisa tu conexión.';
-            }
-        }
-    });
-}
-
 // ========== INICIALIZACIÓN ==========
 cargarHistorialLocal();
-setupFirebaseConnection();
+
+// Escuchar cambios en la autenticación
+auth.onAuthStateChanged(user => {
+    if (user) {
+        authenticated = true;
+        userId = user.uid;
+        document.getElementById('userInfo').textContent = `👤 ID: ${userId.substring(0, 8)}...`;
+        console.log('✅ Autenticado:', userId);
+    } else {
+        authenticated = false;
+        document.getElementById('userInfo').textContent = '👤 Sin autenticar';
+        autenticarAnonimo();
+    }
+});
+
+// Iniciar autenticación automática
+autenticarAnonimo();
 
 window.addEventListener("DOMContentLoaded", () => {
     verHistorial();
@@ -1502,10 +1320,8 @@ window.verHistorial = verHistorial;
 window.exportarExcel = exportarExcel;
 window.limpiarHistorial = limpiarHistorial;
 window.syncWithFirebase = syncWithFirebase;
-window.testFirebaseConnection = testFirebaseConnection;
-window.diagnosticarFirebase = diagnosticarFirebase;
-window.mostrarAyudaFirebase = mostrarAyudaFirebase;
 window.forzarReconexion = forzarReconexion;
+window.verUsuario = verUsuario;
 window.toggleConsejos = toggleConsejos;
 window.toggleCard = toggleCard;
 </script>
