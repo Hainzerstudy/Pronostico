@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IPK-R65 Hospitalario - Conexión Universal</title>
+<title>IPK-R65 Hospitalario - Datos Compartidos</title>
 
 <!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -429,6 +429,15 @@ button:active {
     border-radius: 12px;
     border: 1px solid #1a2a4f;
 }
+
+.shared-badge {
+    background: #00ffd5;
+    color: #001018;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: bold;
+}
 </style>
 </head>
 
@@ -436,14 +445,15 @@ button:active {
 
 <div class="container">
 <h1>🏥 IPK-R65 Hospitalario</h1>
-<div class="sub">Escala de predicción kinésica | Conexión universal - Funciona en cualquier dispositivo</div>
+<div class="sub">📡 Datos COMPARTIDOS entre todos los dispositivos</div>
 
 <!-- Firebase Status -->
 <div class="firebase-status" id="firebaseStatus">
     <span class="dot dot-auth" id="firebaseDot"></span>
     <span id="firebaseText">Conectando a Firebase...</span>
-    <span class="stats-badge" id="remoteStats">📊 0 registros en la nube</span>
+    <span class="stats-badge" id="remoteStats">📊 0 registros</span>
     <span class="user-info" id="userInfo">👤 Autenticando...</span>
+    <span class="shared-badge">🌐 DATOS COMPARTIDOS</span>
 </div>
 
 <!-- PACIENTE -->
@@ -563,7 +573,6 @@ button:active {
 <div class="remote-controls">
     <button onclick="syncWithFirebase()" style="background:#2a3a60;color:#e6f1ff;border:1px solid #3a4a70;">🔄 Sincronizar</button>
     <button onclick="forzarReconexion()" style="background:#1c2a4a;color:#e6f1ff;border:1px solid #2b3c5f;">🔌 Reconectar</button>
-    <button onclick="verUsuario()" style="background:#1a2a3a;color:#ffb74d;border:1px solid #ffb74d;">👤 Ver usuario</button>
 </div>
 </div>
 
@@ -590,6 +599,9 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const database = firebase.database();
+
+// ========== RUTA COMPARTIDA (TODOS LOS USUARIOS VEN LO MISMO) ==========
+const RUTA_COMPARTIDA = 'ipk_r65_datos_compartidos';
 
 // ========== ALMACENAMIENTO LOCAL ==========
 let historialEvaluaciones = [];
@@ -619,14 +631,14 @@ function autenticarAnonimo() {
     const text = document.getElementById('firebaseText');
     const userInfo = document.getElementById('userInfo');
     
-    text.innerHTML = '🔑 Autenticando anónimamente...';
+    text.innerHTML = '🔑 Autenticando...';
     dot.className = 'dot dot-auth';
     
     auth.signInAnonymously()
         .then((userCredential) => {
             userId = userCredential.user.uid;
             authenticated = true;
-            text.innerHTML = '✅ Autenticación exitosa';
+            text.innerHTML = '✅ Autenticado';
             userInfo.textContent = `👤 ID: ${userId.substring(0, 8)}...`;
             dot.className = 'dot dot-online';
             
@@ -635,11 +647,10 @@ function autenticarAnonimo() {
         })
         .catch((error) => {
             console.error('Error de autenticación:', error);
-            text.innerHTML = '❌ Error de autenticación: ' + error.message;
+            text.innerHTML = '❌ Error: ' + error.message;
             dot.className = 'dot dot-offline';
             authenticated = false;
             
-            // Reintentar después de 3 segundos
             setTimeout(autenticarAnonimo, 3000);
         });
 }
@@ -661,7 +672,7 @@ function conectarDatabase() {
         } else {
             firebaseConnected = false;
             dot.className = 'dot dot-offline';
-            text.innerHTML = '🔴 Desconectado de Firebase';
+            text.innerHTML = '🔴 Desconectado';
         }
     });
 }
@@ -670,31 +681,50 @@ function conectarDatabase() {
 function cargarDatosIniciales() {
     if (!firebaseConnected) return;
     
-    database.ref('ipk_r65_datos').once('value')
+    database.ref(RUTA_COMPARTIDA).once('value')
         .then(snapshot => {
             const data = snapshot.val();
-            if (data && data.evaluaciones) {
+            if (data && data.evaluaciones && data.evaluaciones.length > 0) {
                 historialEvaluaciones = data.evaluaciones;
                 guardarHistorialLocal();
                 remoteRecordCount = data.evaluaciones.length;
-                document.getElementById('remoteStats').textContent = `📊 ${remoteRecordCount} registros en la nube`;
+                document.getElementById('remoteStats').textContent = `📊 ${remoteRecordCount} registros`;
+                document.getElementById('res').innerHTML = `📥 ${remoteRecordCount} evaluaciones cargadas desde la nube`;
                 verHistorial();
+            } else {
+                // Si no hay datos, crear estructura inicial
+                crearEstructuraInicial();
             }
         })
         .catch(err => {
-            console.error('Error al cargar datos iniciales:', err);
-            // Si hay error de permisos, intentar crear el nodo
+            console.error('Error al cargar datos:', err);
             if (err.message && err.message.includes('permission_denied')) {
-                database.ref('ipk_r65_datos').set({
-                    timestamp: new Date().toISOString(),
-                    mensaje: 'Base de datos creada automáticamente',
-                    evaluaciones: []
-                }).then(() => {
-                    console.log('Base de datos creada');
-                }).catch(e => {
-                    console.error('Error al crear base de datos:', e);
-                });
+                // Intentar crear la estructura
+                crearEstructuraInicial();
             }
+        });
+}
+
+// ========== CREAR ESTRUCTURA INICIAL ==========
+function crearEstructuraInicial() {
+    if (!firebaseConnected) return;
+    
+    const dataInicial = {
+        timestamp: new Date().toISOString(),
+        mensaje: 'Base de datos compartida creada automáticamente',
+        totalRegistros: 0,
+        ultimaActualizacion: new Date().toLocaleString(),
+        evaluaciones: []
+    };
+    
+    database.ref(RUTA_COMPARTIDA).set(dataInicial)
+        .then(() => {
+            console.log('✅ Estructura compartida creada');
+            document.getElementById('firebaseText').innerHTML = '✅ Base de datos compartida lista';
+        })
+        .catch(err => {
+            console.error('Error al crear estructura:', err);
+            document.getElementById('firebaseText').innerHTML = '⚠️ Error: ' + err.message;
         });
 }
 
@@ -917,7 +947,8 @@ function evaluar() {
         itemsSinColaboracion: noColaboraCount,
         observaciones: observaciones,
         puntajes: puntajes,
-        consejos: consejos
+        consejos: consejos,
+        creadoPor: userId || 'anónimo'
     };
     
     historialEvaluaciones.unshift(data);
@@ -937,6 +968,7 @@ function mostrarResultado(data, clasificacion) {
     htmlResultado += `🎯 <strong>Puntaje IPK-R65:</strong> ${data.total} puntos (escala 0-100)<br>`;
     htmlResultado += `🤝 <strong>Puntaje de soporte psicosocial:</strong> ${data.soporte} pts<br>`;
     htmlResultado += `<small>🕒 ${new Date(data.fecha).toLocaleString()}</small>`;
+    htmlResultado += `<div style="font-size:0.7rem;color:#4a6a8a;margin-top:4px;">👤 Creado por: ${data.creadoPor ? data.creadoPor.substring(0, 8) + '...' : 'anónimo'}</div>`;
     
     htmlResultado += `<div class="puntaje-detalle">`;
     for (const [key, value] of Object.entries(data.puntajes)) {
@@ -975,12 +1007,12 @@ async function guardarFirebase() {
     const statusText = document.getElementById('firebaseText');
     
     if (!firebaseConnected || !authenticated) {
-        statusText.innerHTML = '⚠️ No autenticado. Espera la conexión...';
+        statusText.innerHTML = '⚠️ No autenticado. Espera...';
         return;
     }
     
     if (historialEvaluaciones.length === 0) {
-        statusText.innerHTML = '⚠️ No hay datos para guardar. Realiza una evaluación primero.';
+        statusText.innerHTML = '⚠️ No hay datos para guardar.';
         return;
     }
     
@@ -991,18 +1023,17 @@ async function guardarFirebase() {
             timestamp: new Date().toISOString(),
             totalRegistros: historialEvaluaciones.length,
             ultimaActualizacion: new Date().toLocaleString(),
-            userId: userId,
             evaluaciones: historialEvaluaciones
         };
         
-        await database.ref('ipk_r65_datos').set(dataToSave);
+        await database.ref(RUTA_COMPARTIDA).set(dataToSave);
         
         remoteRecordCount = historialEvaluaciones.length;
-        document.getElementById('remoteStats').textContent = `📊 ${remoteRecordCount} registros en la nube`;
-        statusText.innerHTML = '✅ Datos guardados en Firebase exitosamente!';
+        document.getElementById('remoteStats').textContent = `📊 ${remoteRecordCount} registros`;
+        statusText.innerHTML = '✅ Datos guardados exitosamente!';
         
     } catch (error) {
-        console.error('Error al guardar en Firebase:', error);
+        console.error('Error al guardar:', error);
         statusText.innerHTML = `❌ Error: ${error.message}`;
     }
 }
@@ -1016,14 +1047,13 @@ function guardarFirebaseAuto(data) {
             timestamp: new Date().toISOString(),
             totalRegistros: historialEvaluaciones.length,
             ultimaActualizacion: new Date().toLocaleString(),
-            userId: userId,
             evaluaciones: historialEvaluaciones
         };
         
-        database.ref('ipk_r65_datos').set(dataToSave);
+        database.ref(RUTA_COMPARTIDA).set(dataToSave);
         remoteRecordCount = historialEvaluaciones.length;
-        document.getElementById('remoteStats').textContent = `📊 ${remoteRecordCount} registros en la nube`;
-        document.getElementById('firebaseText').innerHTML = '✅ Auto-guardado en Firebase';
+        document.getElementById('remoteStats').textContent = `📊 ${remoteRecordCount} registros`;
+        document.getElementById('firebaseText').innerHTML = '✅ Auto-guardado';
         
         setTimeout(() => {
             document.getElementById('firebaseText').innerHTML = '🟢 Conectado a Firebase';
@@ -1039,14 +1069,14 @@ async function cargarFirebase() {
     const statusText = document.getElementById('firebaseText');
     
     if (!firebaseConnected || !authenticated) {
-        statusText.innerHTML = '⚠️ No autenticado. Espera la conexión...';
+        statusText.innerHTML = '⚠️ No autenticado. Espera...';
         return;
     }
     
     statusText.innerHTML = '⏳ Cargando desde Firebase...';
     
     try {
-        const snapshot = await database.ref('ipk_r65_datos').once('value');
+        const snapshot = await database.ref(RUTA_COMPARTIDA).once('value');
         const data = snapshot.val();
         
         if (data && data.evaluaciones && data.evaluaciones.length > 0) {
@@ -1055,12 +1085,12 @@ async function cargarFirebase() {
             verHistorial();
             
             remoteRecordCount = historialEvaluaciones.length;
-            document.getElementById('remoteStats').textContent = `📊 ${remoteRecordCount} registros en la nube`;
+            document.getElementById('remoteStats').textContent = `📊 ${remoteRecordCount} registros`;
             statusText.innerHTML = `✅ ${historialEvaluaciones.length} evaluaciones cargadas!`;
             
-            document.getElementById('res').innerHTML = `📥 ${historialEvaluaciones.length} evaluaciones cargadas desde la nube.`;
+            document.getElementById('res').innerHTML = `📥 ${historialEvaluaciones.length} evaluaciones cargadas desde la nube`;
         } else {
-            statusText.innerHTML = '📭 No hay datos guardados en Firebase.';
+            statusText.innerHTML = '📭 No hay datos guardados.';
             document.getElementById('res').innerHTML = '📭 No hay datos guardados en Firebase.';
         }
         
@@ -1092,13 +1122,13 @@ function forzarReconexion() {
     const statusText = document.getElementById('firebaseText');
     statusText.innerHTML = '🔄 Reconectando...';
     
-    // Forzar reconexión
     database.ref('.info/connected').once('value')
         .then(snap => {
             if (snap.val() === true) {
                 statusText.innerHTML = '✅ Reconectado!';
                 firebaseConnected = true;
                 document.getElementById('firebaseDot').className = 'dot dot-online';
+                cargarDatosIniciales();
             } else {
                 statusText.innerHTML = '❌ Sin conexión. Reintentando...';
                 autenticarAnonimo();
@@ -1108,16 +1138,6 @@ function forzarReconexion() {
             console.error('Error:', err);
             statusText.innerHTML = '❌ Error al reconectar';
         });
-}
-
-// ========== VER USUARIO ==========
-function verUsuario() {
-    const user = auth.currentUser;
-    if (user) {
-        alert(`👤 Usuario autenticado\n\nID: ${user.uid}\nAutenticación: ${user.isAnonymous ? 'Anónima' : 'Con email'}\nCreado: ${new Date(user.metadata.creationTime).toLocaleString()}`);
-    } else {
-        alert('❌ No hay usuario autenticado');
-    }
 }
 
 // ========== TOGGLE PARA CONSEJOS ==========
@@ -1201,6 +1221,7 @@ function verHistorial() {
                     <b>🧾 ${escapeHtml(h.paciente)}</b> ${badges}
                     <div style="font-size:0.8rem;color:#8aa2e0;margin-top:2px;">
                         📆 ${fechaStr} · Puntaje: <strong style="color:#00ffd5;">${h.total}</strong> · ${h.categoria}
+                        ${h.creadoPor ? `<span style="font-size:0.65rem;color:#4a6a8a;"> · 👤 ${h.creadoPor.substring(0, 6)}...</span>` : ''}
                     </div>
                 </div>
                 <span class="accordion-icon" id="accordion-icon-${index}">▼</span>
@@ -1234,7 +1255,8 @@ function exportarExcel() {
             "Categoría": h.categoria,
             "Soporte psicosocial": h.soporte,
             "No puede consentir": h.noPuedeConsentir ? "Sí" : "No",
-            "Observaciones": h.observaciones || ""
+            "Observaciones": h.observaciones || "",
+            "Creado por": h.creadoPor || 'anónimo'
         };
         
         if (h.puntajes) {
@@ -1268,9 +1290,9 @@ function limpiarHistorial() {
         document.getElementById("res").innerHTML = "🧹 Historial eliminado.";
         
         if (firebaseConnected && authenticated) {
-            database.ref('ipk_r65_datos').remove().then(() => {
+            database.ref(RUTA_COMPARTIDA).remove().then(() => {
                 document.getElementById('firebaseText').innerHTML = '🧹 Datos eliminados de Firebase';
-                document.getElementById('remoteStats').textContent = '📊 0 registros en la nube';
+                document.getElementById('remoteStats').textContent = '📊 0 registros';
             }).catch(err => {
                 console.error('Error al limpiar Firebase:', err);
             });
@@ -1321,9 +1343,8 @@ window.exportarExcel = exportarExcel;
 window.limpiarHistorial = limpiarHistorial;
 window.syncWithFirebase = syncWithFirebase;
 window.forzarReconexion = forzarReconexion;
-window.verUsuario = verUsuario;
 window.toggleConsejos = toggleConsejos;
 window.toggleCard = toggleCard;
 </script>
 </body>
-    </html>
+</html>
