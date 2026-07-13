@@ -89,7 +89,6 @@ select:hover, input:hover {
 }
 
 button {
-    width: 100%;
     padding: 12px;
     margin-top: 12px;
     border-radius: 40px;
@@ -129,6 +128,26 @@ button:active {
 .danger {
     background: linear-gradient(90deg, #ff5722, #d84315);
     color: #fff;
+}
+
+.google-btn {
+    background: #ffffff;
+    color: #1a1a2e;
+    border: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.google-btn:hover {
+    background: #f5f5f5;
+}
+
+.google-btn img {
+    width: 20px;
+    height: 20px;
 }
 
 .result {
@@ -435,6 +454,11 @@ button:active {
     border: 1px solid #1a2a4f;
 }
 
+.user-info.logged-in {
+    color: #00ffd5;
+    border-color: #00ffd5;
+}
+
 .shared-badge {
     background: #00ffd5;
     color: #001018;
@@ -475,6 +499,40 @@ button:active {
 .debug-box .info {
     color: #ffb74d;
 }
+
+.auth-section {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.auth-section button {
+    flex: 0 1 auto;
+    min-width: 200px;
+    margin-top: 0;
+}
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #1f2d4a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+    color: #00ffd5;
+    border: 2px solid #00ffd5;
+}
+
+.user-avatar img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
 </style>
 </head>
 
@@ -489,8 +547,42 @@ button:active {
     <span class="dot dot-auth" id="firebaseDot"></span>
     <span id="firebaseText">Conectando a Firebase...</span>
     <span class="stats-badge" id="remoteStats">📊 0 registros</span>
-    <span class="user-info" id="userInfo">👤 Autenticando...</span>
+    <span class="user-info" id="userInfo">👤 Sin autenticar</span>
     <span class="shared-badge">🌐 DATOS COMPARTIDOS</span>
+</div>
+
+<!-- Autenticación con Google -->
+<div class="section" style="border-color: #00ffd5;">
+    <h3>🔐 Autenticación con Google</h3>
+    <div class="auth-section" id="authSection">
+        <button class="google-btn" onclick="loginWithGoogle()" id="loginGoogleBtn">
+            <svg width="20" height="20" viewBox="0 0 48 48">
+                <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z" />
+                <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z" />
+                <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z" />
+                <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z" />
+            </svg>
+            Iniciar sesión con Google
+        </button>
+        <button class="danger" onclick="logoutGoogle()" id="logoutGoogleBtn" style="display:none; min-width:150px;">
+            🚪 Cerrar sesión
+        </button>
+        <button class="secondary" onclick="cargarFirebase()" id="cargarBtn" style="min-width:150px;">
+            📥 Cargar datos
+        </button>
+        <button class="success" onclick="guardarFirebase()" id="guardarBtn" style="min-width:150px;">
+            ☁️ Guardar datos
+        </button>
+    </div>
+    <div id="userProfile" style="display:none; margin-top:12px; padding:12px; background:#0a1122; border-radius:10px; border:1px solid #1f2d4a;">
+        <div style="display:flex; align-items:center; gap:12px;">
+            <div class="user-avatar" id="userAvatar">👤</div>
+            <div>
+                <div id="userDisplayName" style="font-weight:bold; color:#00ffd5;">Usuario</div>
+                <div id="userEmail" style="font-size:0.8rem; color:#8aa2e0;">email@ejemplo.com</div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Debug Panel -->
@@ -605,8 +697,6 @@ button:active {
 <div class="section">
 <div class="flex-buttons">
 <button class="primary" onclick="evaluar()">📝 Evaluar y guardar</button>
-<button class="success" onclick="guardarFirebase()">☁️ Guardar en Firebase</button>
-<button class="warning" onclick="cargarFirebase()">📥 Cargar desde Firebase</button>
 <button class="secondary" onclick="verHistorial()">📋 Ver historial</button>
 <button class="secondary" onclick="exportarExcel()">📎 Exportar Excel</button>
 <button class="danger" onclick="limpiarHistorial()">🗑️ Limpiar todo</button>
@@ -638,6 +728,20 @@ const firebaseConfig = {
     appId: "1:487279274410:web:146e9c35a0bf795c5423d3"
 };
 
+// ========== INICIALIZAR FIREBASE ==========
+let firebaseApp = null;
+let auth = null;
+let database = null;
+let firebaseAvailable = false;
+let firebaseConnected = false;
+let authenticated = false;
+let userId = null;
+let userEmail = null;
+let userDisplayName = null;
+let userPhotoURL = null;
+let modoLocal = false;
+let historialEvaluaciones = [];
+
 // ========== DEBUG ==========
 function debugLog(message, type = 'info') {
     const content = document.getElementById('debugContent');
@@ -650,25 +754,12 @@ function debugLog(message, type = 'info') {
 }
 
 // ========== INICIALIZAR FIREBASE ==========
-let firebaseApp = null;
-let auth = null;
-let database = null;
-let firebaseAvailable = false;
-let firebaseConnected = false;
-let authenticated = false;
-let userId = null;
-let modoLocal = false;
-let historialEvaluaciones = [];
-
-debugLog('Iniciando aplicación...', 'info');
-
 try {
-    debugLog('Inicializando Firebase SDK...', 'info');
     firebaseApp = firebase.initializeApp(firebaseConfig);
     auth = firebase.auth();
     database = firebase.database();
     firebaseAvailable = true;
-    debugLog('Firebase SDK inicializado correctamente', 'ok');
+    debugLog('Firebase SDK inicializado', 'ok');
 } catch (e) {
     debugLog('ERROR al inicializar Firebase: ' + e.message, 'error');
     firebaseAvailable = false;
@@ -683,6 +774,7 @@ function iniciarModoLocal() {
     document.getElementById('firebaseDot').className = 'dot dot-local';
     document.getElementById('firebaseText').innerHTML = '💾 Modo Local - Datos en navegador';
     document.getElementById('userInfo').textContent = `👤 ${userId.substring(0, 10)} (local)`;
+    document.getElementById('userInfo').className = 'user-info';
     debugLog('Modo local activado', 'ok');
     cargarHistorialLocal();
     verHistorial();
@@ -708,50 +800,106 @@ function guardarHistorialLocal() {
     localStorage.setItem('ipk_r65_consejos_ejercicios', JSON.stringify(historialEvaluaciones));
 }
 
-// ========== AUTENTICACIÓN ==========
-function autenticarAnonimo() {
+// ========== AUTENTICACIÓN CON GOOGLE ==========
+function loginWithGoogle() {
     if (!firebaseAvailable || !auth) {
         debugLog('Firebase no disponible, usando modo local', 'error');
         iniciarModoLocal();
         return;
     }
 
-    debugLog('Intentando autenticación anónima...', 'info');
+    debugLog('Iniciando autenticación con Google...', 'info');
     document.getElementById('firebaseDot').className = 'dot dot-auth';
-    document.getElementById('firebaseText').innerHTML = '🔑 Autenticando...';
+    document.getElementById('firebaseText').innerHTML = '🔑 Autenticando con Google...';
+    document.getElementById('loginGoogleBtn').disabled = true;
 
-    const timeoutId = setTimeout(() => {
-        debugLog('⏰ TIMEOUT de autenticación (10s) - cambiando a modo local', 'error');
-        if (!authenticated) {
-            iniciarModoLocal();
-        }
-    }, 10000);
+    const provider = new firebase.auth.GoogleAuthProvider();
+    provider.setCustomParameters({
+        prompt: 'select_account'
+    });
 
-    auth.signInAnonymously()
-        .then((userCredential) => {
-            clearTimeout(timeoutId);
-            userId = userCredential.user.uid;
+    auth.signInWithPopup(provider)
+        .then((result) => {
+            const user = result.user;
+            userId = user.uid;
+            userEmail = user.email;
+            userDisplayName = user.displayName || user.email;
+            userPhotoURL = user.photoURL;
             authenticated = true;
             modoLocal = false;
-            debugLog('✅ Autenticación exitosa! ID: ' + userId.substring(0, 8), 'ok');
-            document.getElementById('firebaseText').innerHTML = '✅ Autenticado';
-            document.getElementById('userInfo').textContent = `👤 ${userId.substring(0, 8)}...`;
+            
+            debugLog(`✅ Autenticado como ${userDisplayName} (${userEmail})`, 'ok');
+            updateUIForUser(user);
             document.getElementById('firebaseDot').className = 'dot dot-online';
+            document.getElementById('firebaseText').innerHTML = '✅ Autenticado con Google';
+            document.getElementById('loginGoogleBtn').disabled = false;
+            
             conectarDatabase();
         })
         .catch((error) => {
-            clearTimeout(timeoutId);
             debugLog('❌ Error de autenticación: ' + error.code + ' - ' + error.message, 'error');
-            
-            if (error.code === 'auth/operation-not-allowed') {
-                debugLog('⚠️ La autenticación anónima NO está habilitada en Firebase Console', 'error');
-                debugLog('📌 Ve a: Firebase Console → Authentication → Sign-in methods → Habilitar Anonymous', 'info');
-            }
-            
-            document.getElementById('firebaseText').innerHTML = '⚠️ ' + error.message.substring(0, 40) + '...';
+            document.getElementById('firebaseText').innerHTML = '❌ Error: ' + error.message;
             document.getElementById('firebaseDot').className = 'dot dot-offline';
-            iniciarModoLocal();
+            document.getElementById('loginGoogleBtn').disabled = false;
+            
+            // Si el error es porque no está habilitado Google, intentar anónimo
+            if (error.code === 'auth/operation-not-allowed') {
+                debugLog('⚠️ Google Auth no habilitado en Firebase Console', 'error');
+                debugLog('📌 Ve a: Firebase Console → Authentication → Sign-in methods → Habilitar Google', 'info');
+                iniciarModoLocal();
+            }
         });
+}
+
+// ========== CERRAR SESIÓN ==========
+function logoutGoogle() {
+    if (!auth) {
+        iniciarModoLocal();
+        return;
+    }
+    
+    auth.signOut().then(() => {
+        debugLog('Sesión cerrada', 'info');
+        authenticated = false;
+        userId = null;
+        userEmail = null;
+        userDisplayName = null;
+        userPhotoURL = null;
+        firebaseConnected = false;
+        document.getElementById('firebaseDot').className = 'dot dot-offline';
+        document.getElementById('firebaseText').innerHTML = '🔴 Sesión cerrada';
+        document.getElementById('userInfo').textContent = '👤 Sin autenticar';
+        document.getElementById('userInfo').className = 'user-info';
+        document.getElementById('loginGoogleBtn').style.display = 'block';
+        document.getElementById('logoutGoogleBtn').style.display = 'none';
+        document.getElementById('userProfile').style.display = 'none';
+        document.getElementById('loginGoogleBtn').disabled = false;
+        
+        // Cargar datos locales
+        cargarHistorialLocal();
+        verHistorial();
+    }).catch((error) => {
+        debugLog('Error al cerrar sesión: ' + error.message, 'error');
+    });
+}
+
+// ========== ACTUALIZAR UI DEL USUARIO ==========
+function updateUIForUser(user) {
+    document.getElementById('userInfo').textContent = `👤 ${user.displayName || user.email}`;
+    document.getElementById('userInfo').className = 'user-info logged-in';
+    document.getElementById('loginGoogleBtn').style.display = 'none';
+    document.getElementById('logoutGoogleBtn').style.display = 'block';
+    document.getElementById('userProfile').style.display = 'block';
+    
+    document.getElementById('userDisplayName').textContent = user.displayName || 'Usuario sin nombre';
+    document.getElementById('userEmail').textContent = user.email || 'email no disponible';
+    
+    const avatar = document.getElementById('userAvatar');
+    if (user.photoURL) {
+        avatar.innerHTML = `<img src="${user.photoURL}" alt="Avatar">`;
+    } else {
+        avatar.textContent = user.displayName ? user.displayName.charAt(0).toUpperCase() : '👤';
+    }
 }
 
 // ========== CONEXIÓN A BASE DE DATOS ==========
@@ -792,15 +940,19 @@ function testFirebase() {
     debugLog('=== TEST DE FIREBASE ===', 'info');
     debugLog('Firebase disponible: ' + firebaseAvailable, firebaseAvailable ? 'ok' : 'error');
     debugLog('Autenticado: ' + authenticated, authenticated ? 'ok' : 'error');
+    debugLog('Usuario: ' + (userDisplayName || 'N/A'), userDisplayName ? 'ok' : 'info');
+    debugLog('Email: ' + (userEmail || 'N/A'), userEmail ? 'ok' : 'info');
     debugLog('Conectado: ' + firebaseConnected, firebaseConnected ? 'ok' : 'error');
     debugLog('Modo local: ' + modoLocal, modoLocal ? 'info' : 'ok');
     debugLog('User ID: ' + (userId || 'null'), userId ? 'ok' : 'error');
     debugLog('Registros locales: ' + historialEvaluaciones.length, 'info');
     
     if (authenticated && !modoLocal) {
-        debugLog('✅ Usuario autenticado correctamente', 'ok');
+        debugLog('✅ Usuario autenticado con Google correctamente', 'ok');
+    } else if (modoLocal) {
+        debugLog('ℹ️ Modo local activo (sin Firebase)', 'info');
     } else {
-        debugLog('⚠️ Usuario en modo local (sin Firebase)', 'info');
+        debugLog('⚠️ No autenticado', 'error');
     }
     
     // Probar escritura en Firebase
@@ -810,6 +962,7 @@ function testFirebase() {
         testRef.set({
             timestamp: new Date().toISOString(),
             message: 'Test desde IPK-R65',
+            user: userEmail || userId,
             userId: userId
         }).then(() => {
             debugLog('✅ Escritura en Firebase exitosa!', 'ok');
@@ -848,6 +1001,8 @@ function cargarDatosIniciales() {
                     debugLog(`✅ Cargados ${historialEvaluaciones.length} registros desde Firebase`, 'ok');
                 } else {
                     debugLog(`ℹ️ Datos locales (${historialEvaluaciones.length}) > remotos (${data.evaluaciones.length}), usando locales`, 'info');
+                    // Guardar datos locales en Firebase
+                    guardarFirebaseAuto(null);
                 }
                 guardarHistorialLocal();
                 verHistorial();
@@ -902,7 +1057,6 @@ function clasificarPaciente(total) {
 function generar6Consejos(total, soporte, noPuedeConsentir, noColaboraCount, perfil) {
     const consejos = [];
     
-    // Consejo 1: Intensidad según puntaje
     if (total >= 50) {
         consejos.push({
             titulo: "🏆 ALTA INTENSIDAD - Paciente con alto potencial",
@@ -929,7 +1083,6 @@ function generar6Consejos(total, soporte, noPuedeConsentir, noColaboraCount, per
         });
     }
     
-    // Consejo 2: Red de apoyo
     if (soporte >= 12) {
         consejos.push({
             titulo: "👨‍👩‍👧‍👦 RED DE APOYO SÓLIDA - Aprovechar recurso familiar",
@@ -950,7 +1103,6 @@ function generar6Consejos(total, soporte, noPuedeConsentir, noColaboraCount, per
         });
     }
     
-    // Consejo 3: Capacidad de consentir
     if (noPuedeConsentir) {
         consejos.push({
             titulo: "🧠 PACIENTE SIN CAPACIDAD DE CONSENTIR - Estrategia con cuidador",
@@ -965,7 +1117,6 @@ function generar6Consejos(total, soporte, noPuedeConsentir, noColaboraCount, per
         });
     }
     
-    // Consejo 4: Motivación
     if (perfil.motivacionBaja) {
         consejos.push({
             titulo: "🎯 BAJA MOTIVACIÓN - Estrategias conductuales",
@@ -986,7 +1137,6 @@ function generar6Consejos(total, soporte, noPuedeConsentir, noColaboraCount, per
         });
     }
     
-    // Consejo 5: Adherencia/Tolerancia
     if (perfil.adherenciaBaja || perfil.toleranciaBaja) {
         consejos.push({
             titulo: "⏱️ BAJA ADHERENCIA/TOLERANCIA - Sesiones fraccionadas",
@@ -1007,7 +1157,6 @@ function generar6Consejos(total, soporte, noPuedeConsentir, noColaboraCount, per
         });
     }
     
-    // Consejo 6: Plan de seguimiento
     if (total >= 50) {
         consejos.push({
             titulo: "🎯 PLAN DE ALTA FUNCIONAL - Objetivo independencia",
@@ -1111,7 +1260,7 @@ function evaluar() {
         observaciones: observaciones,
         puntajes: puntajes,
         consejos: consejos,
-        creadoPor: userId || 'local'
+        creadoPor: userEmail || userId || 'local'
     };
     
     historialEvaluaciones.unshift(data);
@@ -1132,7 +1281,7 @@ function mostrarResultado(data, clasificacion) {
     htmlResultado += `🎯 <strong>Puntaje IPK-R65:</strong> ${data.total} puntos (escala 0-100)<br>`;
     htmlResultado += `🤝 <strong>Puntaje de soporte psicosocial:</strong> ${data.soporte} pts<br>`;
     htmlResultado += `<small>🕒 ${new Date(data.fecha).toLocaleString()}</small>`;
-    htmlResultado += `<div style="font-size:0.7rem;color:#4a6a8a;margin-top:4px;">👤 Creado por: ${data.creadoPor ? data.creadoPor.substring(0, 8) + '...' : 'anónimo'}</div>`;
+    htmlResultado += `<div style="font-size:0.7rem;color:#4a6a8a;margin-top:4px;">👤 Creado por: ${data.creadoPor || 'anónimo'}</div>`;
     
     htmlResultado += `<div class="puntaje-detalle">`;
     for (const [key, value] of Object.entries(data.puntajes)) {
@@ -1169,7 +1318,7 @@ function mostrarResultado(data, clasificacion) {
 // ========== FIREBASE - GUARDAR ==========
 async function guardarFirebase() {
     if (modoLocal || !firebaseConnected || !authenticated) {
-        alert('📌 Modo local: los datos ya están guardados en el navegador');
+        alert('📌 Modo local: los datos ya están guardados en el navegador. Inicia sesión con Google para guardar en la nube.');
         return;
     }
     
@@ -1193,6 +1342,7 @@ async function guardarFirebase() {
         await database.ref(RUTA_COMPARTIDA).set(dataToSave);
         debugLog(`✅ ${historialEvaluaciones.length} registros guardados en Firebase`, 'ok');
         statusText.innerHTML = '✅ Guardado exitoso!';
+        document.getElementById('remoteStats').textContent = `📊 ${historialEvaluaciones.length} registros`;
         
     } catch (error) {
         debugLog('❌ Error al guardar: ' + error.message, 'error');
@@ -1221,7 +1371,7 @@ function guardarFirebaseAuto(data) {
 // ========== FIREBASE - CARGAR ==========
 async function cargarFirebase() {
     if (modoLocal || !firebaseConnected || !authenticated) {
-        alert('📌 Modo local: usando datos del navegador');
+        alert('📌 Modo local o no autenticado. Inicia sesión con Google para cargar datos de la nube.');
         verHistorial();
         return;
     }
@@ -1245,6 +1395,7 @@ async function cargarFirebase() {
         } else {
             debugLog('📭 No hay datos en Firebase', 'info');
             statusText.innerHTML = '📭 No hay datos';
+            document.getElementById('res').innerHTML = '📭 No hay datos guardados en Firebase.';
         }
         
     } catch (error) {
@@ -1255,8 +1406,8 @@ async function cargarFirebase() {
 
 // ========== SINCRONIZAR ==========
 async function syncWithFirebase() {
-    if (modoLocal) {
-        alert('📌 Modo local - sincronización no disponible');
+    if (modoLocal || !authenticated) {
+        alert('📌 Inicia sesión con Google para sincronizar datos');
         return;
     }
     await cargarFirebase();
@@ -1272,14 +1423,27 @@ function forzarReconexion() {
         iniciarModoLocal();
         return;
     }
-    authenticated = false;
-    userId = null;
+    
     if (auth) {
-        auth.signOut().then(() => {
-            setTimeout(autenticarAnonimo, 1000);
-        }).catch(() => {
-            setTimeout(autenticarAnonimo, 1000);
-        });
+        if (authenticated && !modoLocal) {
+            // Si ya está autenticado, forzar reconexión de base de datos
+            firebaseConnected = false;
+            conectarDatabase();
+            debugLog('Reconectando a la base de datos...', 'info');
+        } else {
+            auth.signOut().then(() => {
+                document.getElementById('loginGoogleBtn').style.display = 'block';
+                document.getElementById('logoutGoogleBtn').style.display = 'none';
+                document.getElementById('userProfile').style.display = 'none';
+                document.getElementById('firebaseDot').className = 'dot dot-offline';
+                document.getElementById('firebaseText').innerHTML = '🔴 Sesión cerrada';
+                document.getElementById('userInfo').textContent = '👤 Sin autenticar';
+                document.getElementById('userInfo').className = 'user-info';
+                debugLog('Sesión cerrada. Inicia sesión con Google.', 'info');
+            }).catch(() => {
+                iniciarModoLocal();
+            });
+        }
     } else {
         iniciarModoLocal();
     }
@@ -1362,7 +1526,7 @@ function verHistorial() {
                     <b>🧾 ${escapeHtml(h.paciente)}</b> ${badges}
                     <div style="font-size:0.8rem;color:#8aa2e0;margin-top:2px;">
                         📆 ${fechaStr} · Puntaje: <strong style="color:#00ffd5;">${h.total}</strong> · ${h.categoria}
-                        ${h.creadoPor ? `<span style="font-size:0.65rem;color:#4a6a8a;"> · 👤 ${h.creadoPor.substring(0, 6)}...</span>` : ''}
+                        ${h.creadoPor ? `<span style="font-size:0.65rem;color:#4a6a8a;"> · 👤 ${escapeHtml(h.creadoPor)}</span>` : ''}
                     </div>
                 </div>
                 <span class="accordion-icon" id="accordion-icon-${index}">▼</span>
@@ -1459,35 +1623,46 @@ cargarHistorialLocal();
 if (firebaseAvailable && auth) {
     auth.onAuthStateChanged(user => {
         if (user) {
-            debugLog('Auth state: Usuario autenticado', 'ok');
+            debugLog(`Auth state: Usuario autenticado: ${user.displayName || user.email}`, 'ok');
             authenticated = true;
             userId = user.uid;
+            userEmail = user.email;
+            userDisplayName = user.displayName || user.email;
+            userPhotoURL = user.photoURL;
             modoLocal = false;
-            document.getElementById('userInfo').textContent = `👤 ${userId.substring(0, 8)}...`;
+            updateUIForUser(user);
             conectarDatabase();
         } else {
             debugLog('Auth state: Usuario NO autenticado', 'info');
             authenticated = false;
             userId = null;
+            userEmail = null;
+            userDisplayName = null;
+            userPhotoURL = null;
+            firebaseConnected = false;
+            document.getElementById('firebaseDot').className = 'dot dot-offline';
+            document.getElementById('firebaseText').innerHTML = '🔴 No autenticado';
             document.getElementById('userInfo').textContent = '👤 Sin autenticar';
-            setTimeout(autenticarAnonimo, 500);
+            document.getElementById('userInfo').className = 'user-info';
+            document.getElementById('loginGoogleBtn').style.display = 'block';
+            document.getElementById('logoutGoogleBtn').style.display = 'none';
+            document.getElementById('userProfile').style.display = 'none';
+            document.getElementById('loginGoogleBtn').disabled = false;
+            
+            // Cargar datos locales
+            cargarHistorialLocal();
+            verHistorial();
         }
     });
-    
-    setTimeout(() => {
-        if (!authenticated && !modoLocal) {
-            debugLog('⏰ Timeout - iniciando modo local', 'error');
-            iniciarModoLocal();
-        }
-    }, 12000);
-    
-    setTimeout(autenticarAnonimo, 300);
 } else {
+    debugLog('Firebase no disponible - modo local', 'error');
     iniciarModoLocal();
 }
 
 // ========== EXPONER FUNCIONES ==========
 window.evaluar = evaluar;
+window.loginWithGoogle = loginWithGoogle;
+window.logoutGoogle = logoutGoogle;
 window.guardarFirebase = guardarFirebase;
 window.cargarFirebase = cargarFirebase;
 window.verHistorial = verHistorial;
