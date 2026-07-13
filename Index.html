@@ -103,6 +103,11 @@ button:active {
     transform: scale(0.98);
 }
 
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 .primary {
     background: linear-gradient(90deg, #00ffd5, #00a3ff);
     color: #001018;
@@ -609,6 +614,9 @@ button:active {
         <button class="success" onclick="guardarFirebase()" id="guardarBtn" style="min-width:150px;">
             ☁️ Guardar datos
         </button>
+        <button class="secondary" onclick="usarModoLocal()" style="min-width:150px; background:#4fc3f7; color:#001018;">
+            💾 Modo Local
+        </button>
     </div>
 
     <!-- Login -->
@@ -617,7 +625,7 @@ button:active {
         <div class="form-row">
             <input type="email" id="loginEmail" placeholder="Correo electrónico" autocomplete="email">
             <input type="password" id="loginPassword" placeholder="Contraseña" autocomplete="current-password">
-            <button class="primary" onclick="loginWithEmail()">Ingresar</button>
+            <button class="primary" onclick="loginWithEmail()" id="loginSubmitBtn">Ingresar</button>
         </div>
         <div style="margin-top:8px; font-size:0.8rem; color:#8aa2e0;">
             ¿No tienes cuenta? <span class="toggle-link" onclick="cambiarARegistro()">Regístrate aquí</span>
@@ -633,7 +641,7 @@ button:active {
             <input type="text" id="registerName" placeholder="Nombre (opcional)" autocomplete="name">
             <input type="email" id="registerEmail" placeholder="Correo electrónico" autocomplete="email">
             <input type="password" id="registerPassword" placeholder="Contraseña (mínimo 6 caracteres)" autocomplete="new-password">
-            <button class="success" onclick="registerWithEmail()">Registrarse</button>
+            <button class="success" onclick="registerWithEmail()" id="registerSubmitBtn">Registrarse</button>
         </div>
         <div style="margin-top:8px; font-size:0.8rem; color:#8aa2e0;">
             ¿Ya tienes cuenta? <span class="toggle-link" onclick="cambiarALogin()">Inicia sesión aquí</span>
@@ -810,6 +818,7 @@ let userEmail = null;
 let userDisplayName = null;
 let modoLocal = false;
 let historialEvaluaciones = [];
+let loginTimeout = null;
 
 // ========== DEBUG ==========
 function debugLog(message, type = 'info') {
@@ -847,6 +856,14 @@ function iniciarModoLocal() {
     debugLog('Modo local activado', 'ok');
     cargarHistorialLocal();
     verHistorial();
+    document.getElementById('res').innerHTML = '💾 MODO LOCAL ACTIVO - Los datos se guardan en el navegador';
+}
+
+// ========== USAR MODO LOCAL (botón) ==========
+function usarModoLocal() {
+    if (confirm('¿Cambiar a modo local? Los datos se guardarán solo en el navegador.')) {
+        iniciarModoLocal();
+    }
 }
 
 // ========== ALMACENAMIENTO LOCAL ==========
@@ -894,6 +911,23 @@ function cambiarARegistro() {
     mostrarRegistro();
 }
 
+// ========== RESTAURAR BOTONES ==========
+function restaurarBotonesLogin() {
+    const loginBtn = document.getElementById('loginSubmitBtn');
+    loginBtn.disabled = false;
+    loginBtn.textContent = 'Ingresar';
+    if (loginTimeout) {
+        clearTimeout(loginTimeout);
+        loginTimeout = null;
+    }
+}
+
+function restaurarBotonesRegistro() {
+    const registerBtn = document.getElementById('registerSubmitBtn');
+    registerBtn.disabled = false;
+    registerBtn.textContent = 'Registrarse';
+}
+
 // ========== REGISTRO CON EMAIL ==========
 async function registerWithEmail() {
     const email = document.getElementById('registerEmail').value.trim();
@@ -918,8 +952,15 @@ async function registerWithEmail() {
         return;
     }
     
+    // Si Firebase no está disponible, modo local
+    if (!firebaseAvailable || !auth) {
+        errorDiv.textContent = '⚠️ Firebase no disponible. Usa el modo local.';
+        errorDiv.classList.add('show');
+        return;
+    }
+    
     debugLog(`Registrando usuario: ${email}`, 'info');
-    const registerBtn = document.querySelector('#registerForm .success');
+    const registerBtn = document.getElementById('registerSubmitBtn');
     registerBtn.disabled = true;
     registerBtn.textContent = '⏳ Registrando...';
     
@@ -927,37 +968,26 @@ async function registerWithEmail() {
         const userCredential = await auth.createUserWithEmailAndPassword(email, password);
         const user = userCredential.user;
         
-        // Actualizar perfil con nombre
         if (name) {
-            await user.updateProfile({
-                displayName: name
-            });
+            await user.updateProfile({ displayName: name });
         }
         
-        // Enviar email de verificación
         await user.sendEmailVerification();
         
         debugLog(`✅ Usuario registrado: ${email}`, 'ok');
-        successDiv.innerHTML = '✅ Cuenta creada exitosamente!<br>📧 Se envió un email de verificación. Revisa tu correo.';
+        successDiv.innerHTML = '✅ Cuenta creada exitosamente!<br>📧 Se envió un email de verificación.';
         successDiv.classList.add('show');
         
-        // Actualizar UI
         actualizarUsuario(user);
-        
-        // Cerrar formularios
         document.getElementById('registerForm').classList.remove('show');
-        registerBtn.disabled = false;
-        registerBtn.textContent = 'Registrarse';
-        
-        // Conectar a base de datos
+        restaurarBotonesRegistro();
         conectarDatabase();
         
     } catch (error) {
         debugLog('❌ Error de registro: ' + error.code + ' - ' + error.message, 'error');
         errorDiv.textContent = '❌ ' + error.message;
         errorDiv.classList.add('show');
-        registerBtn.disabled = false;
-        registerBtn.textContent = 'Registrarse';
+        restaurarBotonesRegistro();
         
         if (error.code === 'auth/email-already-in-use') {
             errorDiv.textContent = '❌ Este correo ya está registrado. Inicia sesión.';
@@ -987,36 +1017,59 @@ async function loginWithEmail() {
         return;
     }
     
+    // Si Firebase no está disponible, intentar modo local
+    if (!firebaseAvailable || !auth) {
+        errorDiv.textContent = '⚠️ Firebase no disponible. Usando modo local.';
+        errorDiv.classList.add('show');
+        iniciarModoLocal();
+        return;
+    }
+    
     debugLog(`Iniciando sesión: ${email}`, 'info');
-    const loginBtn = document.querySelector('#loginForm .primary');
+    const loginBtn = document.getElementById('loginSubmitBtn');
     loginBtn.disabled = true;
     loginBtn.textContent = '⏳ Ingresando...';
+    
+    // Timeout para no quedarse colgado
+    loginTimeout = setTimeout(() => {
+        debugLog('⏰ Timeout de login - posiblemente Firebase no responde', 'error');
+        errorDiv.textContent = '⏰ Tiempo de espera agotado. Verifica tu conexión o usa el modo local.';
+        errorDiv.classList.add('show');
+        restaurarBotonesLogin();
+        // Ofrecer modo local como alternativa
+        if (confirm('Firebase no responde. ¿Cambiar a modo local?')) {
+            iniciarModoLocal();
+        }
+    }, 15000);
     
     try {
         const userCredential = await auth.signInWithEmailAndPassword(email, password);
         const user = userCredential.user;
         
+        if (loginTimeout) {
+            clearTimeout(loginTimeout);
+            loginTimeout = null;
+        }
+        
         debugLog(`✅ Sesión iniciada: ${email}`, 'ok');
         successDiv.textContent = '✅ Sesión iniciada exitosamente!';
         successDiv.classList.add('show');
         
-        // Actualizar UI
         actualizarUsuario(user);
-        
-        // Cerrar formularios
         document.getElementById('loginForm').classList.remove('show');
-        loginBtn.disabled = false;
-        loginBtn.textContent = 'Ingresar';
-        
-        // Conectar a base de datos
+        restaurarBotonesLogin();
         conectarDatabase();
         
     } catch (error) {
+        if (loginTimeout) {
+            clearTimeout(loginTimeout);
+            loginTimeout = null;
+        }
+        
         debugLog('❌ Error de login: ' + error.code + ' - ' + error.message, 'error');
         errorDiv.textContent = '❌ ' + error.message;
         errorDiv.classList.add('show');
-        loginBtn.disabled = false;
-        loginBtn.textContent = 'Ingresar';
+        restaurarBotonesLogin();
         
         if (error.code === 'auth/user-not-found') {
             errorDiv.textContent = '❌ Usuario no encontrado. ¿Estás registrado?';
@@ -1026,8 +1079,12 @@ async function loginWithEmail() {
             errorDiv.textContent = '❌ Demasiados intentos. Espera unos minutos.';
         } else if (error.code === 'auth/operation-not-allowed') {
             errorDiv.textContent = '❌ El login con email no está habilitado en Firebase Console';
-        } else if (error.code === 'auth/invalid-email') {
-            errorDiv.textContent = '❌ El formato del email no es válido';
+            debugLog('📌 Ve a: Firebase Console → Authentication → Sign-in methods → Habilitar Email/Password', 'error');
+        } else if (error.code === 'auth/network-request-failed') {
+            errorDiv.textContent = '❌ Error de red. Verifica tu conexión a internet.';
+            if (confirm('Error de conexión. ¿Cambiar a modo local?')) {
+                iniciarModoLocal();
+            }
         }
     }
 }
@@ -1050,7 +1107,6 @@ function actualizarUsuario(user) {
     document.getElementById('userDisplayName').textContent = userDisplayName;
     document.getElementById('userEmail').textContent = userEmail || 'email no disponible';
     
-    // Verificar si el email está verificado
     const statusDiv = document.getElementById('userStatus');
     if (user.emailVerified) {
         statusDiv.textContent = '✅ Email verificado';
@@ -1078,12 +1134,12 @@ async function reenviarVerificacion() {
     
     try {
         await auth.currentUser.sendEmailVerification();
-        document.getElementById('userStatus').textContent = '📧 Email de verificación reenviado! Revisa tu correo.';
+        document.getElementById('userStatus').textContent = '📧 Email de verificación reenviado!';
         document.getElementById('userStatus').style.color = '#00d97a';
         debugLog('Email de verificación reenviado', 'ok');
     } catch (error) {
         debugLog('Error al reenviar verificación: ' + error.message, 'error');
-        document.getElementById('userStatus').textContent = '❌ Error al reenviar: ' + error.message;
+        document.getElementById('userStatus').textContent = '❌ Error: ' + error.message;
         document.getElementById('userStatus').style.color = '#ff4444';
     }
 }
@@ -1162,13 +1218,15 @@ function testFirebase() {
     debugLog('Email: ' + (userEmail || 'N/A'), userEmail ? 'ok' : 'info');
     debugLog('Conectado: ' + firebaseConnected, firebaseConnected ? 'ok' : 'error');
     debugLog('Modo local: ' + modoLocal, modoLocal ? 'info' : 'ok');
-    debugLog('User ID: ' + (userId || 'null'), userId ? 'ok' : 'error');
     debugLog('Registros locales: ' + historialEvaluaciones.length, 'info');
+    
+    if (modoLocal) {
+        debugLog('💾 MODO LOCAL ACTIVO - Firebase no disponible', 'info');
+        return;
+    }
     
     if (authenticated && !modoLocal) {
         debugLog('✅ Usuario autenticado con email correctamente', 'ok');
-    } else if (modoLocal) {
-        debugLog('ℹ️ Modo local activo (sin Firebase)', 'info');
     } else {
         debugLog('⚠️ No autenticado', 'error');
     }
@@ -1475,7 +1533,7 @@ function evaluar() {
         observaciones: observaciones,
         puntajes: puntajes,
         consejos: consejos,
-        creadoPor: userEmail || userId || 'local'
+        creadoPor: userEmail || userId || (modoLocal ? 'local' : 'anónimo')
     };
     
     historialEvaluaciones.unshift(data);
@@ -1497,6 +1555,9 @@ function mostrarResultado(data, clasificacion) {
     htmlResultado += `🤝 <strong>Puntaje de soporte psicosocial:</strong> ${data.soporte} pts<br>`;
     htmlResultado += `<small>🕒 ${new Date(data.fecha).toLocaleString()}</small>`;
     htmlResultado += `<div style="font-size:0.7rem;color:#4a6a8a;margin-top:4px;">👤 Creado por: ${data.creadoPor || 'anónimo'}</div>`;
+    if (modoLocal) {
+        htmlResultado += `<div style="font-size:0.7rem;color:#4fc3f7;margin-top:4px;">💾 Guardado en modo local</div>`;
+    }
     
     htmlResultado += `<div class="puntaje-detalle">`;
     for (const [key, value] of Object.entries(data.puntajes)) {
@@ -1533,7 +1594,7 @@ function mostrarResultado(data, clasificacion) {
 // ========== FIREBASE - GUARDAR ==========
 async function guardarFirebase() {
     if (modoLocal || !firebaseConnected || !authenticated) {
-        alert('📌 Modo local o no autenticado. Los datos se guardan en el navegador. Inicia sesión para guardar en la nube.');
+        alert('💾 Modo local: los datos se guardan en el navegador. Haz clic en "Modo Local" si quieres usar solo el navegador.');
         return;
     }
     
@@ -1562,6 +1623,9 @@ async function guardarFirebase() {
     } catch (error) {
         debugLog('❌ Error al guardar: ' + error.message, 'error');
         statusText.innerHTML = '❌ Error: ' + error.message;
+        if (error.code === 'PERMISSION_DENIED') {
+            alert('⚠️ Error de permisos en Firebase. Verifica las reglas de la base de datos.');
+        }
     }
 }
 
@@ -1586,7 +1650,7 @@ function guardarFirebaseAuto(data) {
 // ========== FIREBASE - CARGAR ==========
 async function cargarFirebase() {
     if (modoLocal || !firebaseConnected || !authenticated) {
-        alert('📌 Modo local o no autenticado. Inicia sesión para cargar datos de la nube.');
+        alert('💾 Modo local activo. No se pueden cargar datos de la nube.');
         verHistorial();
         return;
     }
@@ -1622,7 +1686,7 @@ async function cargarFirebase() {
 // ========== SINCRONIZAR ==========
 async function syncWithFirebase() {
     if (modoLocal || !authenticated) {
-        alert('📌 Inicia sesión para sincronizar datos');
+        alert('💾 Modo local. Usa "Modo Local" para trabajar sin conexión.');
         return;
     }
     await cargarFirebase();
@@ -1643,6 +1707,7 @@ function forzarReconexion() {
         firebaseConnected = false;
         conectarDatabase();
         debugLog('Reconectando a la base de datos...', 'info');
+        document.getElementById('firebaseText').innerHTML = '🔄 Reconectando...';
     } else if (auth) {
         logoutEmail();
     } else {
@@ -1872,6 +1937,8 @@ window.toggleConsejos = toggleConsejos;
 window.toggleCard = toggleCard;
 window.testFirebase = testFirebase;
 window.reenviarVerificacion = reenviarVerificacion;
+window.usarModoLocal = usarModoLocal;
+window.iniciarModoLocal = iniciarModoLocal;
 </script>
 </body>
-    </html>
+</html>
