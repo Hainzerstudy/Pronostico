@@ -537,13 +537,6 @@ button:active {
     border: 2px solid #00ffd5;
 }
 
-.user-avatar img {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
 .toggle-link {
     color: #00ffd5;
     cursor: pointer;
@@ -600,7 +593,6 @@ button:active {
 <div class="section" style="border-color: #00ffd5;">
     <h3>🔐 Autenticación con Correo Electrónico</h3>
     
-    <!-- Botones de autenticación -->
     <div class="auth-section" id="authSection">
         <button class="primary" onclick="mostrarLogin()" id="loginBtn" style="min-width:150px;">
             📧 Iniciar sesión
@@ -619,7 +611,7 @@ button:active {
         </button>
     </div>
 
-    <!-- Formulario de Login -->
+    <!-- Login -->
     <div class="auth-form" id="loginForm">
         <h4 style="color:#00ffd5; margin:0 0 10px 0;">📧 Iniciar sesión</h4>
         <div class="form-row">
@@ -634,7 +626,7 @@ button:active {
         <div class="success-msg" id="loginSuccess"></div>
     </div>
 
-    <!-- Formulario de Registro -->
+    <!-- Registro -->
     <div class="auth-form" id="registerForm">
         <h4 style="color:#00ffd5; margin:0 0 10px 0;">✨ Crear cuenta nueva</h4>
         <div class="form-row">
@@ -650,13 +642,14 @@ button:active {
         <div class="success-msg" id="registerSuccess"></div>
     </div>
 
-    <!-- Perfil de usuario -->
+    <!-- Perfil -->
     <div id="userProfile" style="display:none; margin-top:12px; padding:12px; background:#0a1122; border-radius:10px; border:1px solid #1f2d4a;">
         <div style="display:flex; align-items:center; gap:12px;">
             <div class="user-avatar" id="userAvatar">👤</div>
             <div>
                 <div id="userDisplayName" style="font-weight:bold; color:#00ffd5;">Usuario</div>
                 <div id="userEmail" style="font-size:0.8rem; color:#8aa2e0;">email@ejemplo.com</div>
+                <div id="userStatus" style="font-size:0.7rem; color:#ffb74d; margin-top:4px;">✅ Cuenta verificada</div>
             </div>
         </div>
     </div>
@@ -805,7 +798,7 @@ const firebaseConfig = {
     appId: "1:487279274410:web:146e9c35a0bf795c5423d3"
 };
 
-// ========== INICIALIZAR FIREBASE ==========
+// ========== VARIABLES GLOBALES ==========
 let firebaseApp = null;
 let auth = null;
 let database = null;
@@ -882,6 +875,7 @@ function mostrarLogin() {
     document.getElementById('registerForm').classList.remove('show');
     document.getElementById('loginError').classList.remove('show');
     document.getElementById('loginSuccess').classList.remove('show');
+    document.getElementById('loginEmail').focus();
 }
 
 function mostrarRegistro() {
@@ -889,6 +883,7 @@ function mostrarRegistro() {
     document.getElementById('loginForm').classList.remove('show');
     document.getElementById('registerError').classList.remove('show');
     document.getElementById('registerSuccess').classList.remove('show');
+    document.getElementById('registerEmail').focus();
 }
 
 function cambiarALogin() {
@@ -924,7 +919,9 @@ async function registerWithEmail() {
     }
     
     debugLog(`Registrando usuario: ${email}`, 'info');
-    document.getElementById('registerBtn').disabled = true;
+    const registerBtn = document.querySelector('#registerForm .success');
+    registerBtn.disabled = true;
+    registerBtn.textContent = '⏳ Registrando...';
     
     try {
         const userCredential = await auth.createUserWithEmailAndPassword(email, password);
@@ -937,33 +934,30 @@ async function registerWithEmail() {
             });
         }
         
+        // Enviar email de verificación
+        await user.sendEmailVerification();
+        
         debugLog(`✅ Usuario registrado: ${email}`, 'ok');
-        successDiv.textContent = '✅ Cuenta creada exitosamente!';
+        successDiv.innerHTML = '✅ Cuenta creada exitosamente!<br>📧 Se envió un email de verificación. Revisa tu correo.';
         successDiv.classList.add('show');
         
         // Actualizar UI
-        userId = user.uid;
-        userEmail = user.email;
-        userDisplayName = user.displayName || user.email;
-        authenticated = true;
-        modoLocal = false;
-        
-        updateUIForUser(user);
-        document.getElementById('firebaseDot').className = 'dot dot-online';
-        document.getElementById('firebaseText').innerHTML = '✅ Autenticado con email';
+        actualizarUsuario(user);
         
         // Cerrar formularios
         document.getElementById('registerForm').classList.remove('show');
-        document.getElementById('registerBtn').disabled = false;
+        registerBtn.disabled = false;
+        registerBtn.textContent = 'Registrarse';
         
-        // Cargar datos
+        // Conectar a base de datos
         conectarDatabase();
         
     } catch (error) {
         debugLog('❌ Error de registro: ' + error.code + ' - ' + error.message, 'error');
         errorDiv.textContent = '❌ ' + error.message;
         errorDiv.classList.add('show');
-        document.getElementById('registerBtn').disabled = false;
+        registerBtn.disabled = false;
+        registerBtn.textContent = 'Registrarse';
         
         if (error.code === 'auth/email-already-in-use') {
             errorDiv.textContent = '❌ Este correo ya está registrado. Inicia sesión.';
@@ -994,7 +988,9 @@ async function loginWithEmail() {
     }
     
     debugLog(`Iniciando sesión: ${email}`, 'info');
-    document.getElementById('loginBtn').disabled = true;
+    const loginBtn = document.querySelector('#loginForm .primary');
+    loginBtn.disabled = true;
+    loginBtn.textContent = '⏳ Ingresando...';
     
     try {
         const userCredential = await auth.signInWithEmailAndPassword(email, password);
@@ -1005,28 +1001,22 @@ async function loginWithEmail() {
         successDiv.classList.add('show');
         
         // Actualizar UI
-        userId = user.uid;
-        userEmail = user.email;
-        userDisplayName = user.displayName || user.email;
-        authenticated = true;
-        modoLocal = false;
-        
-        updateUIForUser(user);
-        document.getElementById('firebaseDot').className = 'dot dot-online';
-        document.getElementById('firebaseText').innerHTML = '✅ Autenticado con email';
+        actualizarUsuario(user);
         
         // Cerrar formularios
         document.getElementById('loginForm').classList.remove('show');
-        document.getElementById('loginBtn').disabled = false;
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Ingresar';
         
-        // Cargar datos
+        // Conectar a base de datos
         conectarDatabase();
         
     } catch (error) {
         debugLog('❌ Error de login: ' + error.code + ' - ' + error.message, 'error');
         errorDiv.textContent = '❌ ' + error.message;
         errorDiv.classList.add('show');
-        document.getElementById('loginBtn').disabled = false;
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Ingresar';
         
         if (error.code === 'auth/user-not-found') {
             errorDiv.textContent = '❌ Usuario no encontrado. ¿Estás registrado?';
@@ -1036,8 +1026,65 @@ async function loginWithEmail() {
             errorDiv.textContent = '❌ Demasiados intentos. Espera unos minutos.';
         } else if (error.code === 'auth/operation-not-allowed') {
             errorDiv.textContent = '❌ El login con email no está habilitado en Firebase Console';
-            debugLog('📌 Ve a: Firebase Console → Authentication → Sign-in methods → Habilitar Email/Password', 'error');
+        } else if (error.code === 'auth/invalid-email') {
+            errorDiv.textContent = '❌ El formato del email no es válido';
         }
+    }
+}
+
+// ========== ACTUALIZAR USUARIO ==========
+function actualizarUsuario(user) {
+    authenticated = true;
+    userId = user.uid;
+    userEmail = user.email;
+    userDisplayName = user.displayName || user.email;
+    modoLocal = false;
+    
+    document.getElementById('userInfo').textContent = `👤 ${userDisplayName}`;
+    document.getElementById('userInfo').className = 'user-info logged-in';
+    document.getElementById('loginBtn').style.display = 'none';
+    document.getElementById('registerBtn').style.display = 'none';
+    document.getElementById('logoutBtn').style.display = 'block';
+    document.getElementById('userProfile').style.display = 'block';
+    
+    document.getElementById('userDisplayName').textContent = userDisplayName;
+    document.getElementById('userEmail').textContent = userEmail || 'email no disponible';
+    
+    // Verificar si el email está verificado
+    const statusDiv = document.getElementById('userStatus');
+    if (user.emailVerified) {
+        statusDiv.textContent = '✅ Email verificado';
+        statusDiv.style.color = '#00d97a';
+    } else {
+        statusDiv.innerHTML = '⚠️ Email NO verificado. <span class="toggle-link" onclick="reenviarVerificacion()">Reenviar verificación</span>';
+        statusDiv.style.color = '#ffb74d';
+    }
+    
+    const avatar = document.getElementById('userAvatar');
+    avatar.textContent = userDisplayName.charAt(0).toUpperCase();
+    
+    document.getElementById('firebaseDot').className = 'dot dot-online';
+    document.getElementById('firebaseText').innerHTML = '✅ Autenticado con email';
+    
+    debugLog(`Usuario autenticado: ${userEmail}`, 'ok');
+}
+
+// ========== REENVIAR VERIFICACIÓN ==========
+async function reenviarVerificacion() {
+    if (!auth || !auth.currentUser) {
+        debugLog('No hay usuario autenticado', 'error');
+        return;
+    }
+    
+    try {
+        await auth.currentUser.sendEmailVerification();
+        document.getElementById('userStatus').textContent = '📧 Email de verificación reenviado! Revisa tu correo.';
+        document.getElementById('userStatus').style.color = '#00d97a';
+        debugLog('Email de verificación reenviado', 'ok');
+    } catch (error) {
+        debugLog('Error al reenviar verificación: ' + error.message, 'error');
+        document.getElementById('userStatus').textContent = '❌ Error al reenviar: ' + error.message;
+        document.getElementById('userStatus').style.color = '#ff4444';
     }
 }
 
@@ -1064,32 +1111,13 @@ function logoutEmail() {
         document.getElementById('registerBtn').style.display = 'block';
         document.getElementById('logoutBtn').style.display = 'none';
         document.getElementById('userProfile').style.display = 'none';
-        document.getElementById('loginBtn').disabled = false;
-        document.getElementById('registerBtn').disabled = false;
         
-        // Cargar datos locales
         cargarHistorialLocal();
         verHistorial();
         document.getElementById('res').innerHTML = '💡 Sesión cerrada. Los datos locales siguen disponibles.';
     }).catch((error) => {
         debugLog('Error al cerrar sesión: ' + error.message, 'error');
     });
-}
-
-// ========== ACTUALIZAR UI DEL USUARIO ==========
-function updateUIForUser(user) {
-    document.getElementById('userInfo').textContent = `👤 ${user.displayName || user.email}`;
-    document.getElementById('userInfo').className = 'user-info logged-in';
-    document.getElementById('loginBtn').style.display = 'none';
-    document.getElementById('registerBtn').style.display = 'none';
-    document.getElementById('logoutBtn').style.display = 'block';
-    document.getElementById('userProfile').style.display = 'block';
-    
-    document.getElementById('userDisplayName').textContent = user.displayName || 'Usuario sin nombre';
-    document.getElementById('userEmail').textContent = user.email || 'email no disponible';
-    
-    const avatar = document.getElementById('userAvatar');
-    avatar.textContent = user.displayName ? user.displayName.charAt(0).toUpperCase() : '👤';
 }
 
 // ========== CONEXIÓN A BASE DE DATOS ==========
@@ -1611,14 +1639,12 @@ function forzarReconexion() {
         return;
     }
     
-    if (auth) {
-        if (authenticated && !modoLocal) {
-            firebaseConnected = false;
-            conectarDatabase();
-            debugLog('Reconectando a la base de datos...', 'info');
-        } else {
-            logoutEmail();
-        }
+    if (auth && authenticated && !modoLocal) {
+        firebaseConnected = false;
+        conectarDatabase();
+        debugLog('Reconectando a la base de datos...', 'info');
+    } else if (auth) {
+        logoutEmail();
     } else {
         iniciarModoLocal();
     }
@@ -1799,12 +1825,7 @@ if (firebaseAvailable && auth) {
     auth.onAuthStateChanged(user => {
         if (user) {
             debugLog(`Auth state: Usuario autenticado: ${user.displayName || user.email}`, 'ok');
-            authenticated = true;
-            userId = user.uid;
-            userEmail = user.email;
-            userDisplayName = user.displayName || user.email;
-            modoLocal = false;
-            updateUIForUser(user);
+            actualizarUsuario(user);
             conectarDatabase();
         } else {
             debugLog('Auth state: Usuario NO autenticado', 'info');
@@ -1821,8 +1842,6 @@ if (firebaseAvailable && auth) {
             document.getElementById('registerBtn').style.display = 'block';
             document.getElementById('logoutBtn').style.display = 'none';
             document.getElementById('userProfile').style.display = 'none';
-            document.getElementById('loginBtn').disabled = false;
-            document.getElementById('registerBtn').disabled = false;
             
             cargarHistorialLocal();
             verHistorial();
@@ -1852,6 +1871,7 @@ window.forzarReconexion = forzarReconexion;
 window.toggleConsejos = toggleConsejos;
 window.toggleCard = toggleCard;
 window.testFirebase = testFirebase;
+window.reenviarVerificacion = reenviarVerificacion;
 </script>
 </body>
-</html>
+    </html>
