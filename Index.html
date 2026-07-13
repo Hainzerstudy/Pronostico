@@ -588,7 +588,7 @@ button:active {
 const firebaseConfig = {
     apiKey: "AIzaSyDJbtRuEwWVAsC1Nz6LbeF5a99LcUfAz4g",
     authDomain: "irat-5-evaluaciones.firebaseapp.com",
-    databaseURL: "https://irat-5-evaluaciones-default-rtdb.firebaseio.com",
+    databaseURL: "https://irat-5-evaluaciones-default-rtdb.firebaseio.com",  // Esta es la URL CORRECTA
     projectId: "irat-5-evaluaciones",
     storageBucket: "irat-5-evaluaciones.firebasestorage.app",
     messagingSenderId: "487279274410",
@@ -631,6 +631,11 @@ function autenticarAnonimo() {
     const text = document.getElementById('firebaseText');
     const userInfo = document.getElementById('userInfo');
     
+    // Si ya estamos autenticados, no hacer nada
+    if (authenticated && userId) {
+        return;
+    }
+    
     text.innerHTML = '🔑 Autenticando...';
     dot.className = 'dot dot-auth';
     
@@ -647,11 +652,12 @@ function autenticarAnonimo() {
         })
         .catch((error) => {
             console.error('Error de autenticación:', error);
-            text.innerHTML = '❌ Error: ' + error.message;
+            text.innerHTML = '❌ Error de autenticación: ' + error.message;
             dot.className = 'dot dot-offline';
             authenticated = false;
             
-            setTimeout(autenticarAnonimo, 3000);
+            // Reintentar después de 5 segundos
+            setTimeout(autenticarAnonimo, 5000);
         });
 }
 
@@ -659,6 +665,10 @@ function autenticarAnonimo() {
 function conectarDatabase() {
     const dot = document.getElementById('firebaseDot');
     const text = document.getElementById('firebaseText');
+    
+    if (!authenticated) {
+        return;
+    }
     
     const connectedRef = database.ref('.info/connected');
     connectedRef.on('value', (snap) => {
@@ -672,14 +682,30 @@ function conectarDatabase() {
         } else {
             firebaseConnected = false;
             dot.className = 'dot dot-offline';
-            text.innerHTML = '🔴 Desconectado';
+            text.innerHTML = '🔴 Desconectado - Reintentando...';
+            
+            // Reintentar conexión después de 3 segundos
+            setTimeout(() => {
+                if (!firebaseConnected) {
+                    conectarDatabase();
+                }
+            }, 3000);
         }
+    }, (error) => {
+        console.error('Error en conexión:', error);
+        text.innerHTML = '❌ Error de conexión: ' + error.message;
+        dot.className = 'dot dot-offline';
     });
 }
 
 // ========== CARGAR DATOS INICIALES ==========
 function cargarDatosIniciales() {
-    if (!firebaseConnected) return;
+    if (!firebaseConnected || !authenticated) {
+        return;
+    }
+    
+    const text = document.getElementById('firebaseText');
+    text.innerHTML = '⏳ Cargando datos...';
     
     database.ref(RUTA_COMPARTIDA).once('value')
         .then(snapshot => {
@@ -691,6 +717,7 @@ function cargarDatosIniciales() {
                 document.getElementById('remoteStats').textContent = `📊 ${remoteRecordCount} registros`;
                 document.getElementById('res').innerHTML = `📥 ${remoteRecordCount} evaluaciones cargadas desde la nube`;
                 verHistorial();
+                text.innerHTML = `✅ ${remoteRecordCount} registros cargados`;
             } else {
                 // Si no hay datos, crear estructura inicial
                 crearEstructuraInicial();
@@ -698,16 +725,18 @@ function cargarDatosIniciales() {
         })
         .catch(err => {
             console.error('Error al cargar datos:', err);
-            if (err.message && err.message.includes('permission_denied')) {
-                // Intentar crear la estructura
-                crearEstructuraInicial();
-            }
+            text.innerHTML = '⚠️ Error al cargar: ' + err.message;
         });
 }
 
 // ========== CREAR ESTRUCTURA INICIAL ==========
 function crearEstructuraInicial() {
-    if (!firebaseConnected) return;
+    if (!firebaseConnected || !authenticated) {
+        return;
+    }
+    
+    const text = document.getElementById('firebaseText');
+    text.innerHTML = '⏳ Creando estructura...';
     
     const dataInicial = {
         timestamp: new Date().toISOString(),
@@ -720,11 +749,11 @@ function crearEstructuraInicial() {
     database.ref(RUTA_COMPARTIDA).set(dataInicial)
         .then(() => {
             console.log('✅ Estructura compartida creada');
-            document.getElementById('firebaseText').innerHTML = '✅ Base de datos compartida lista';
+            text.innerHTML = '✅ Base de datos compartida lista';
         })
         .catch(err => {
             console.error('Error al crear estructura:', err);
-            document.getElementById('firebaseText').innerHTML = '⚠️ Error: ' + err.message;
+            text.innerHTML = '⚠️ Error al crear estructura: ' + err.message;
         });
 }
 
@@ -1007,7 +1036,7 @@ async function guardarFirebase() {
     const statusText = document.getElementById('firebaseText');
     
     if (!firebaseConnected || !authenticated) {
-        statusText.innerHTML = '⚠️ No autenticado. Espera...';
+        statusText.innerHTML = '⚠️ No autenticado o sin conexión. Espera...';
         return;
     }
     
@@ -1069,7 +1098,7 @@ async function cargarFirebase() {
     const statusText = document.getElementById('firebaseText');
     
     if (!firebaseConnected || !authenticated) {
-        statusText.innerHTML = '⚠️ No autenticado. Espera...';
+        statusText.innerHTML = '⚠️ No autenticado o sin conexión. Espera...';
         return;
     }
     
@@ -1122,22 +1151,15 @@ function forzarReconexion() {
     const statusText = document.getElementById('firebaseText');
     statusText.innerHTML = '🔄 Reconectando...';
     
-    database.ref('.info/connected').once('value')
-        .then(snap => {
-            if (snap.val() === true) {
-                statusText.innerHTML = '✅ Reconectado!';
-                firebaseConnected = true;
-                document.getElementById('firebaseDot').className = 'dot dot-online';
-                cargarDatosIniciales();
-            } else {
-                statusText.innerHTML = '❌ Sin conexión. Reintentando...';
-                autenticarAnonimo();
-            }
-        })
-        .catch(err => {
-            console.error('Error:', err);
-            statusText.innerHTML = '❌ Error al reconectar';
-        });
+    // Forzar reconexión de autenticación
+    authenticated = false;
+    userId = null;
+    
+    auth.signOut().then(() => {
+        autenticarAnonimo();
+    }).catch(() => {
+        autenticarAnonimo();
+    });
 }
 
 // ========== TOGGLE PARA CONSEJOS ==========
@@ -1320,15 +1342,31 @@ auth.onAuthStateChanged(user => {
         userId = user.uid;
         document.getElementById('userInfo').textContent = `👤 ID: ${userId.substring(0, 8)}...`;
         console.log('✅ Autenticado:', userId);
+        
+        // Verificar conexión
+        const connectedRef = database.ref('.info/connected');
+        connectedRef.once('value', (snap) => {
+            if (snap.val() === true) {
+                firebaseConnected = true;
+                document.getElementById('firebaseDot').className = 'dot dot-online';
+                document.getElementById('firebaseText').innerHTML = '🟢 Conectado a Firebase';
+                cargarDatosIniciales();
+            } else {
+                firebaseConnected = false;
+                document.getElementById('firebaseDot').className = 'dot dot-offline';
+                document.getElementById('firebaseText').innerHTML = '🔴 Desconectado';
+            }
+        });
     } else {
         authenticated = false;
+        userId = null;
         document.getElementById('userInfo').textContent = '👤 Sin autenticar';
         autenticarAnonimo();
     }
 });
 
 // Iniciar autenticación automática
-autenticarAnonimo();
+setTimeout(autenticarAnonimo, 500);
 
 window.addEventListener("DOMContentLoaded", () => {
     verHistorial();
