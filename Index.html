@@ -296,6 +296,11 @@ button:active {
     animation: pulse 1s infinite;
 }
 
+.dot-local {
+    background: #4fc3f7;
+    box-shadow: 0 0 10px rgba(79,195,247,0.5);
+}
+
 @keyframes pulse {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.3; }
@@ -452,7 +457,7 @@ button:active {
     <span class="dot dot-auth" id="firebaseDot"></span>
     <span id="firebaseText">Conectando a Firebase...</span>
     <span class="stats-badge" id="remoteStats">📊 0 registros</span>
-    <span class="user-info" id="userInfo">👤 Autenticando...</span>
+    <span class="user-info" id="userInfo">👤 Modo Local</span>
     <span class="shared-badge">🌐 DATOS COMPARTIDOS</span>
 </div>
 
@@ -588,19 +593,30 @@ button:active {
 const firebaseConfig = {
     apiKey: "AIzaSyDJbtRuEwWVAsC1Nz6LbeF5a99LcUfAz4g",
     authDomain: "irat-5-evaluaciones.firebaseapp.com",
-    databaseURL: "https://irat-5-evaluaciones-default-rtdb.firebaseio.com",  // Esta es la URL CORRECTA
+    databaseURL: "https://irat-5-evaluaciones-default-rtdb.firebaseio.com",
     projectId: "irat-5-evaluaciones",
     storageBucket: "irat-5-evaluaciones.firebasestorage.app",
     messagingSenderId: "487279274410",
     appId: "1:487279274410:web:146e9c35a0bf795c5423d3"
 };
 
-// Inicializar Firebase
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const database = firebase.database();
+// Intentar inicializar Firebase, pero no fallar si no funciona
+let firebaseAvailable = false;
+let auth = null;
+let database = null;
 
-// ========== RUTA COMPARTIDA (TODOS LOS USUARIOS VEN LO MISMO) ==========
+try {
+    firebase.initializeApp(firebaseConfig);
+    auth = firebase.auth();
+    database = firebase.database();
+    firebaseAvailable = true;
+    console.log('✅ Firebase SDK inicializado');
+} catch (e) {
+    console.warn('⚠️ Firebase no disponible:', e.message);
+    firebaseAvailable = false;
+}
+
+// ========== RUTA COMPARTIDA ==========
 const RUTA_COMPARTIDA = 'ipk_r65_datos_compartidos';
 
 // ========== ALMACENAMIENTO LOCAL ==========
@@ -609,29 +625,57 @@ let firebaseConnected = false;
 let authenticated = false;
 let userId = null;
 let remoteRecordCount = 0;
+let modoLocal = true; // Por defecto, modo local
 
 function cargarHistorialLocal() {
     const guardado = localStorage.getItem('ipk_r65_consejos_ejercicios');
     if (guardado) {
         try {
             historialEvaluaciones = JSON.parse(guardado);
+            if (Array.isArray(historialEvaluaciones)) {
+                console.log(`📋 ${historialEvaluaciones.length} registros cargados del almacenamiento local`);
+            } else {
+                historialEvaluaciones = [];
+            }
         } catch (e) {
             historialEvaluaciones = [];
         }
     }
+    guardarHistorialLocal();
 }
 
 function guardarHistorialLocal() {
     localStorage.setItem('ipk_r65_consejos_ejercicios', JSON.stringify(historialEvaluaciones));
 }
 
-// ========== AUTENTICACIÓN ANÓNIMA ==========
-function autenticarAnonimo() {
+// ========== MODO LOCAL (sin Firebase) ==========
+function iniciarModoLocal() {
     const dot = document.getElementById('firebaseDot');
     const text = document.getElementById('firebaseText');
     const userInfo = document.getElementById('userInfo');
     
-    // Si ya estamos autenticados, no hacer nada
+    modoLocal = true;
+    authenticated = true;
+    userId = 'local_' + Date.now().toString(36);
+    dot.className = 'dot dot-local';
+    text.innerHTML = '💾 Modo Local - Datos guardados en el navegador';
+    userInfo.textContent = `👤 ${userId.substring(0, 10)} (local)`;
+    document.getElementById('remoteStats').textContent = `📊 ${historialEvaluaciones.length} registros`;
+    
+    console.log('💾 Modo local activado');
+}
+
+// ========== AUTENTICACIÓN ANÓNIMA ==========
+function autenticarAnonimo() {
+    if (!firebaseAvailable || !auth) {
+        iniciarModoLocal();
+        return;
+    }
+    
+    const dot = document.getElementById('firebaseDot');
+    const text = document.getElementById('firebaseText');
+    const userInfo = document.getElementById('userInfo');
+    
     if (authenticated && userId) {
         return;
     }
@@ -639,11 +683,21 @@ function autenticarAnonimo() {
     text.innerHTML = '🔑 Autenticando...';
     dot.className = 'dot dot-auth';
     
+    // Timeout para no quedarse colgado
+    const timeoutId = setTimeout(() => {
+        console.warn('⏰ Timeout de autenticación - cambiando a modo local');
+        if (!authenticated) {
+            iniciarModoLocal();
+        }
+    }, 8000);
+    
     auth.signInAnonymously()
         .then((userCredential) => {
+            clearTimeout(timeoutId);
             userId = userCredential.user.uid;
             authenticated = true;
-            text.innerHTML = '✅ Autenticado';
+            modoLocal = false;
+            text.innerHTML = '✅ Autenticado en Firebase';
             userInfo.textContent = `👤 ID: ${userId.substring(0, 8)}...`;
             dot.className = 'dot dot-online';
             
@@ -651,56 +705,58 @@ function autenticarAnonimo() {
             conectarDatabase();
         })
         .catch((error) => {
-            console.error('Error de autenticación:', error);
-            text.innerHTML = '❌ Error de autenticación: ' + error.message;
+            clearTimeout(timeoutId);
+            console.error('❌ Error de autenticación:', error);
+            text.innerHTML = '⚠️ ' + error.message.substring(0, 40) + '... Modo local';
             dot.className = 'dot dot-offline';
             authenticated = false;
             
-            // Reintentar después de 5 segundos
-            setTimeout(autenticarAnonimo, 5000);
+            // Iniciar modo local como respaldo
+            iniciarModoLocal();
         });
 }
 
 // ========== CONEXIÓN A LA BASE DE DATOS ==========
 function conectarDatabase() {
-    const dot = document.getElementById('firebaseDot');
-    const text = document.getElementById('firebaseText');
-    
-    if (!authenticated) {
+    if (!firebaseAvailable || !database || !authenticated) {
         return;
     }
     
-    const connectedRef = database.ref('.info/connected');
-    connectedRef.on('value', (snap) => {
-        if (snap.val() === true) {
-            firebaseConnected = true;
-            dot.className = 'dot dot-online';
-            text.innerHTML = '🟢 Conectado a Firebase';
-            
-            // Cargar datos automáticamente
-            cargarDatosIniciales();
-        } else {
-            firebaseConnected = false;
+    const dot = document.getElementById('firebaseDot');
+    const text = document.getElementById('firebaseText');
+    
+    try {
+        const connectedRef = database.ref('.info/connected');
+        connectedRef.on('value', (snap) => {
+            if (snap.val() === true) {
+                firebaseConnected = true;
+                dot.className = 'dot dot-online';
+                text.innerHTML = '🟢 Conectado a Firebase';
+                
+                // Cargar datos automáticamente
+                cargarDatosIniciales();
+            } else {
+                firebaseConnected = false;
+                dot.className = 'dot dot-offline';
+                text.innerHTML = '🔴 Desconectado - Modo local';
+            }
+        }, (error) => {
+            console.warn('Error en conexión:', error);
+            text.innerHTML = '⚠️ Error de conexión - Modo local';
             dot.className = 'dot dot-offline';
-            text.innerHTML = '🔴 Desconectado - Reintentando...';
-            
-            // Reintentar conexión después de 3 segundos
-            setTimeout(() => {
-                if (!firebaseConnected) {
-                    conectarDatabase();
-                }
-            }, 3000);
-        }
-    }, (error) => {
-        console.error('Error en conexión:', error);
-        text.innerHTML = '❌ Error de conexión: ' + error.message;
+            firebaseConnected = false;
+        });
+    } catch (e) {
+        console.warn('Error al conectar database:', e);
+        firebaseConnected = false;
         dot.className = 'dot dot-offline';
-    });
+        text.innerHTML = '⚠️ Firebase no disponible - Modo local';
+    }
 }
 
 // ========== CARGAR DATOS INICIALES ==========
 function cargarDatosIniciales() {
-    if (!firebaseConnected || !authenticated) {
+    if (!firebaseConnected || !authenticated || !database || modoLocal) {
         return;
     }
     
@@ -711,11 +767,22 @@ function cargarDatosIniciales() {
         .then(snapshot => {
             const data = snapshot.val();
             if (data && data.evaluaciones && data.evaluaciones.length > 0) {
-                historialEvaluaciones = data.evaluaciones;
+                // Fusionar con datos locales (no sobrescribir si hay datos nuevos)
+                const localData = historialEvaluaciones;
+                const remoteData = data.evaluaciones;
+                
+                // Usar los datos remotos si hay más registros
+                if (remoteData.length >= localData.length) {
+                    historialEvaluaciones = remoteData;
+                } else {
+                    // Si hay más datos locales, guardar en remoto
+                    guardarFirebaseAuto(null);
+                }
+                
                 guardarHistorialLocal();
-                remoteRecordCount = data.evaluaciones.length;
+                remoteRecordCount = historialEvaluaciones.length;
                 document.getElementById('remoteStats').textContent = `📊 ${remoteRecordCount} registros`;
-                document.getElementById('res').innerHTML = `📥 ${remoteRecordCount} evaluaciones cargadas desde la nube`;
+                document.getElementById('res').innerHTML = `📥 ${remoteRecordCount} evaluaciones cargadas`;
                 verHistorial();
                 text.innerHTML = `✅ ${remoteRecordCount} registros cargados`;
             } else {
@@ -725,13 +792,13 @@ function cargarDatosIniciales() {
         })
         .catch(err => {
             console.error('Error al cargar datos:', err);
-            text.innerHTML = '⚠️ Error al cargar: ' + err.message;
+            text.innerHTML = '⚠️ Error al cargar - usando datos locales';
         });
 }
 
 // ========== CREAR ESTRUCTURA INICIAL ==========
 function crearEstructuraInicial() {
-    if (!firebaseConnected || !authenticated) {
+    if (!firebaseConnected || !authenticated || !database || modoLocal) {
         return;
     }
     
@@ -753,7 +820,7 @@ function crearEstructuraInicial() {
         })
         .catch(err => {
             console.error('Error al crear estructura:', err);
-            text.innerHTML = '⚠️ Error al crear estructura: ' + err.message;
+            text.innerHTML = '⚠️ Error al crear estructura - modo local';
         });
 }
 
@@ -977,13 +1044,14 @@ function evaluar() {
         observaciones: observaciones,
         puntajes: puntajes,
         consejos: consejos,
-        creadoPor: userId || 'anónimo'
+        creadoPor: userId || 'local'
     };
     
     historialEvaluaciones.unshift(data);
     guardarHistorialLocal();
 
-    if (firebaseConnected && authenticated) {
+    // Intentar guardar en Firebase, pero no es crítico
+    if (firebaseConnected && authenticated && !modoLocal) {
         guardarFirebaseAuto(data);
     }
 
@@ -1035,8 +1103,8 @@ function mostrarResultado(data, clasificacion) {
 async function guardarFirebase() {
     const statusText = document.getElementById('firebaseText');
     
-    if (!firebaseConnected || !authenticated) {
-        statusText.innerHTML = '⚠️ No autenticado o sin conexión. Espera...';
+    if (modoLocal || !firebaseConnected || !authenticated) {
+        statusText.innerHTML = '💾 Modo local - datos guardados en el navegador';
         return;
     }
     
@@ -1068,7 +1136,7 @@ async function guardarFirebase() {
 }
 
 function guardarFirebaseAuto(data) {
-    if (!firebaseConnected || !authenticated) return;
+    if (modoLocal || !firebaseConnected || !authenticated || !database) return;
     if (historialEvaluaciones.length === 0) return;
     
     try {
@@ -1097,8 +1165,9 @@ function guardarFirebaseAuto(data) {
 async function cargarFirebase() {
     const statusText = document.getElementById('firebaseText');
     
-    if (!firebaseConnected || !authenticated) {
-        statusText.innerHTML = '⚠️ No autenticado o sin conexión. Espera...';
+    if (modoLocal || !firebaseConnected || !authenticated) {
+        statusText.innerHTML = '💾 Modo local - usando datos del navegador';
+        verHistorial();
         return;
     }
     
@@ -1134,6 +1203,11 @@ async function syncWithFirebase() {
     const statusText = document.getElementById('firebaseText');
     statusText.innerHTML = '🔄 Sincronizando...';
     
+    if (modoLocal) {
+        statusText.innerHTML = '💾 Modo local - sincronización no disponible';
+        return;
+    }
+    
     try {
         await cargarFirebase();
         await guardarFirebase();
@@ -1151,15 +1225,23 @@ function forzarReconexion() {
     const statusText = document.getElementById('firebaseText');
     statusText.innerHTML = '🔄 Reconectando...';
     
-    // Forzar reconexión de autenticación
+    if (modoLocal) {
+        statusText.innerHTML = '💾 Modo local - reconexión no necesaria';
+        return;
+    }
+    
     authenticated = false;
     userId = null;
     
-    auth.signOut().then(() => {
-        autenticarAnonimo();
-    }).catch(() => {
-        autenticarAnonimo();
-    });
+    if (auth) {
+        auth.signOut().then(() => {
+            setTimeout(autenticarAnonimo, 1000);
+        }).catch(() => {
+            setTimeout(autenticarAnonimo, 1000);
+        });
+    } else {
+        iniciarModoLocal();
+    }
 }
 
 // ========== TOGGLE PARA CONSEJOS ==========
@@ -1311,7 +1393,7 @@ function limpiarHistorial() {
         document.getElementById("historial").innerHTML = "";
         document.getElementById("res").innerHTML = "🧹 Historial eliminado.";
         
-        if (firebaseConnected && authenticated) {
+        if (firebaseConnected && authenticated && !modoLocal && database) {
             database.ref(RUTA_COMPARTIDA).remove().then(() => {
                 document.getElementById('firebaseText').innerHTML = '🧹 Datos eliminados de Firebase';
                 document.getElementById('remoteStats').textContent = '📊 0 registros';
@@ -1335,38 +1417,63 @@ function escapeHtml(str) {
 // ========== INICIALIZACIÓN ==========
 cargarHistorialLocal();
 
-// Escuchar cambios en la autenticación
-auth.onAuthStateChanged(user => {
-    if (user) {
-        authenticated = true;
-        userId = user.uid;
-        document.getElementById('userInfo').textContent = `👤 ID: ${userId.substring(0, 8)}...`;
-        console.log('✅ Autenticado:', userId);
-        
-        // Verificar conexión
-        const connectedRef = database.ref('.info/connected');
-        connectedRef.once('value', (snap) => {
-            if (snap.val() === true) {
-                firebaseConnected = true;
-                document.getElementById('firebaseDot').className = 'dot dot-online';
-                document.getElementById('firebaseText').innerHTML = '🟢 Conectado a Firebase';
-                cargarDatosIniciales();
-            } else {
-                firebaseConnected = false;
-                document.getElementById('firebaseDot').className = 'dot dot-offline';
-                document.getElementById('firebaseText').innerHTML = '🔴 Desconectado';
+// Verificar autenticación
+if (firebaseAvailable && auth) {
+    // Escuchar cambios en la autenticación
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            authenticated = true;
+            userId = user.uid;
+            modoLocal = false;
+            document.getElementById('userInfo').textContent = `👤 ID: ${userId.substring(0, 8)}...`;
+            console.log('✅ Autenticado:', userId);
+            
+            // Verificar conexión
+            try {
+                const connectedRef = database.ref('.info/connected');
+                connectedRef.once('value', (snap) => {
+                    if (snap.val() === true) {
+                        firebaseConnected = true;
+                        document.getElementById('firebaseDot').className = 'dot dot-online';
+                        document.getElementById('firebaseText').innerHTML = '🟢 Conectado a Firebase';
+                        cargarDatosIniciales();
+                    } else {
+                        firebaseConnected = false;
+                        document.getElementById('firebaseDot').className = 'dot dot-offline';
+                        document.getElementById('firebaseText').innerHTML = '🔴 Desconectado - Modo local';
+                        iniciarModoLocal();
+                    }
+                }, (error) => {
+                    console.warn('Error al verificar conexión:', error);
+                    iniciarModoLocal();
+                });
+            } catch (e) {
+                console.warn('Error al conectar:', e);
+                iniciarModoLocal();
             }
-        });
-    } else {
-        authenticated = false;
-        userId = null;
-        document.getElementById('userInfo').textContent = '👤 Sin autenticar';
-        autenticarAnonimo();
-    }
-});
-
-// Iniciar autenticación automática
-setTimeout(autenticarAnonimo, 500);
+        } else {
+            authenticated = false;
+            userId = null;
+            document.getElementById('userInfo').textContent = '👤 Sin autenticar';
+            // Intentar autenticar anónimamente
+            setTimeout(autenticarAnonimo, 500);
+        }
+    });
+    
+    // Timeout para no quedarse esperando autenticación
+    setTimeout(() => {
+        if (!authenticated && !modoLocal) {
+            console.warn('⏰ Timeout - iniciando modo local');
+            iniciarModoLocal();
+        }
+    }, 10000);
+    
+    // Iniciar autenticación
+    setTimeout(autenticarAnonimo, 300);
+} else {
+    // Firebase no disponible, modo local
+    iniciarModoLocal();
+}
 
 window.addEventListener("DOMContentLoaded", () => {
     verHistorial();
