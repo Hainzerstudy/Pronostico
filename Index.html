@@ -130,26 +130,6 @@ button:active {
     color: #fff;
 }
 
-.google-btn {
-    background: #ffffff;
-    color: #1a1a2e;
-    border: 1px solid #ddd;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    width: 100%;
-}
-
-.google-btn:hover {
-    background: #f5f5f5;
-}
-
-.google-btn img {
-    width: 20px;
-    height: 20px;
-}
-
 .result {
     margin-top: 15px;
     padding: 18px;
@@ -509,8 +489,38 @@ button:active {
 
 .auth-section button {
     flex: 0 1 auto;
-    min-width: 200px;
+    min-width: 150px;
     margin-top: 0;
+}
+
+.auth-form {
+    background: #0a1122;
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid #1f2d4a;
+    margin-top: 10px;
+    display: none;
+}
+
+.auth-form.show {
+    display: block;
+}
+
+.auth-form .form-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+}
+
+.auth-form .form-row input {
+    flex: 1;
+    min-width: 200px;
+}
+
+.auth-form .form-row button {
+    flex: 0 1 auto;
+    min-width: 120px;
 }
 
 .user-avatar {
@@ -533,6 +543,41 @@ button:active {
     border-radius: 50%;
     object-fit: cover;
 }
+
+.toggle-link {
+    color: #00ffd5;
+    cursor: pointer;
+    text-decoration: underline;
+    font-size: 0.85rem;
+}
+
+.toggle-link:hover {
+    opacity: 0.8;
+}
+
+.error-msg {
+    color: #ff4444;
+    font-size: 0.8rem;
+    margin-top: 8px;
+    padding: 8px;
+    background: #2a0a0a;
+    border-radius: 8px;
+    display: none;
+}
+
+.success-msg {
+    color: #00d97a;
+    font-size: 0.8rem;
+    margin-top: 8px;
+    padding: 8px;
+    background: #0a2a1a;
+    border-radius: 8px;
+    display: none;
+}
+
+.error-msg.show, .success-msg.show {
+    display: block;
+}
 </style>
 </head>
 
@@ -545,26 +590,25 @@ button:active {
 <!-- Firebase Status -->
 <div class="firebase-status" id="firebaseStatus">
     <span class="dot dot-auth" id="firebaseDot"></span>
-    <span id="firebaseText">Conectando a Firebase...</span>
+    <span id="firebaseText">Inicializando...</span>
     <span class="stats-badge" id="remoteStats">📊 0 registros</span>
     <span class="user-info" id="userInfo">👤 Sin autenticar</span>
     <span class="shared-badge">🌐 DATOS COMPARTIDOS</span>
 </div>
 
-<!-- Autenticación con Google -->
+<!-- Autenticación con Correo -->
 <div class="section" style="border-color: #00ffd5;">
-    <h3>🔐 Autenticación con Google</h3>
+    <h3>🔐 Autenticación con Correo Electrónico</h3>
+    
+    <!-- Botones de autenticación -->
     <div class="auth-section" id="authSection">
-        <button class="google-btn" onclick="loginWithGoogle()" id="loginGoogleBtn">
-            <svg width="20" height="20" viewBox="0 0 48 48">
-                <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z" />
-                <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z" />
-                <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z" />
-                <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z" />
-            </svg>
-            Iniciar sesión con Google
+        <button class="primary" onclick="mostrarLogin()" id="loginBtn" style="min-width:150px;">
+            📧 Iniciar sesión
         </button>
-        <button class="danger" onclick="logoutGoogle()" id="logoutGoogleBtn" style="display:none; min-width:150px;">
+        <button class="success" onclick="mostrarRegistro()" id="registerBtn" style="min-width:150px;">
+            ✨ Registrarse
+        </button>
+        <button class="danger" onclick="logoutEmail()" id="logoutBtn" style="display:none; min-width:150px;">
             🚪 Cerrar sesión
         </button>
         <button class="secondary" onclick="cargarFirebase()" id="cargarBtn" style="min-width:150px;">
@@ -574,6 +618,39 @@ button:active {
             ☁️ Guardar datos
         </button>
     </div>
+
+    <!-- Formulario de Login -->
+    <div class="auth-form" id="loginForm">
+        <h4 style="color:#00ffd5; margin:0 0 10px 0;">📧 Iniciar sesión</h4>
+        <div class="form-row">
+            <input type="email" id="loginEmail" placeholder="Correo electrónico" autocomplete="email">
+            <input type="password" id="loginPassword" placeholder="Contraseña" autocomplete="current-password">
+            <button class="primary" onclick="loginWithEmail()">Ingresar</button>
+        </div>
+        <div style="margin-top:8px; font-size:0.8rem; color:#8aa2e0;">
+            ¿No tienes cuenta? <span class="toggle-link" onclick="cambiarARegistro()">Regístrate aquí</span>
+        </div>
+        <div class="error-msg" id="loginError"></div>
+        <div class="success-msg" id="loginSuccess"></div>
+    </div>
+
+    <!-- Formulario de Registro -->
+    <div class="auth-form" id="registerForm">
+        <h4 style="color:#00ffd5; margin:0 0 10px 0;">✨ Crear cuenta nueva</h4>
+        <div class="form-row">
+            <input type="text" id="registerName" placeholder="Nombre (opcional)" autocomplete="name">
+            <input type="email" id="registerEmail" placeholder="Correo electrónico" autocomplete="email">
+            <input type="password" id="registerPassword" placeholder="Contraseña (mínimo 6 caracteres)" autocomplete="new-password">
+            <button class="success" onclick="registerWithEmail()">Registrarse</button>
+        </div>
+        <div style="margin-top:8px; font-size:0.8rem; color:#8aa2e0;">
+            ¿Ya tienes cuenta? <span class="toggle-link" onclick="cambiarALogin()">Inicia sesión aquí</span>
+        </div>
+        <div class="error-msg" id="registerError"></div>
+        <div class="success-msg" id="registerSuccess"></div>
+    </div>
+
+    <!-- Perfil de usuario -->
     <div id="userProfile" style="display:none; margin-top:12px; padding:12px; background:#0a1122; border-radius:10px; border:1px solid #1f2d4a;">
         <div style="display:flex; align-items:center; gap:12px;">
             <div class="user-avatar" id="userAvatar">👤</div>
@@ -738,7 +815,6 @@ let authenticated = false;
 let userId = null;
 let userEmail = null;
 let userDisplayName = null;
-let userPhotoURL = null;
 let modoLocal = false;
 let historialEvaluaciones = [];
 
@@ -800,59 +876,173 @@ function guardarHistorialLocal() {
     localStorage.setItem('ipk_r65_consejos_ejercicios', JSON.stringify(historialEvaluaciones));
 }
 
-// ========== AUTENTICACIÓN CON GOOGLE ==========
-function loginWithGoogle() {
-    if (!firebaseAvailable || !auth) {
-        debugLog('Firebase no disponible, usando modo local', 'error');
-        iniciarModoLocal();
+// ========== MOSTRAR FORMULARIOS ==========
+function mostrarLogin() {
+    document.getElementById('loginForm').classList.add('show');
+    document.getElementById('registerForm').classList.remove('show');
+    document.getElementById('loginError').classList.remove('show');
+    document.getElementById('loginSuccess').classList.remove('show');
+}
+
+function mostrarRegistro() {
+    document.getElementById('registerForm').classList.add('show');
+    document.getElementById('loginForm').classList.remove('show');
+    document.getElementById('registerError').classList.remove('show');
+    document.getElementById('registerSuccess').classList.remove('show');
+}
+
+function cambiarALogin() {
+    mostrarLogin();
+}
+
+function cambiarARegistro() {
+    mostrarRegistro();
+}
+
+// ========== REGISTRO CON EMAIL ==========
+async function registerWithEmail() {
+    const email = document.getElementById('registerEmail').value.trim();
+    const password = document.getElementById('registerPassword').value;
+    const name = document.getElementById('registerName').value.trim();
+    
+    const errorDiv = document.getElementById('registerError');
+    const successDiv = document.getElementById('registerSuccess');
+    
+    errorDiv.classList.remove('show');
+    successDiv.classList.remove('show');
+    
+    if (!email || !password) {
+        errorDiv.textContent = '⚠️ Por favor ingresa email y contraseña';
+        errorDiv.classList.add('show');
         return;
     }
+    
+    if (password.length < 6) {
+        errorDiv.textContent = '⚠️ La contraseña debe tener al menos 6 caracteres';
+        errorDiv.classList.add('show');
+        return;
+    }
+    
+    debugLog(`Registrando usuario: ${email}`, 'info');
+    document.getElementById('registerBtn').disabled = true;
+    
+    try {
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        const user = userCredential.user;
+        
+        // Actualizar perfil con nombre
+        if (name) {
+            await user.updateProfile({
+                displayName: name
+            });
+        }
+        
+        debugLog(`✅ Usuario registrado: ${email}`, 'ok');
+        successDiv.textContent = '✅ Cuenta creada exitosamente!';
+        successDiv.classList.add('show');
+        
+        // Actualizar UI
+        userId = user.uid;
+        userEmail = user.email;
+        userDisplayName = user.displayName || user.email;
+        authenticated = true;
+        modoLocal = false;
+        
+        updateUIForUser(user);
+        document.getElementById('firebaseDot').className = 'dot dot-online';
+        document.getElementById('firebaseText').innerHTML = '✅ Autenticado con email';
+        
+        // Cerrar formularios
+        document.getElementById('registerForm').classList.remove('show');
+        document.getElementById('registerBtn').disabled = false;
+        
+        // Cargar datos
+        conectarDatabase();
+        
+    } catch (error) {
+        debugLog('❌ Error de registro: ' + error.code + ' - ' + error.message, 'error');
+        errorDiv.textContent = '❌ ' + error.message;
+        errorDiv.classList.add('show');
+        document.getElementById('registerBtn').disabled = false;
+        
+        if (error.code === 'auth/email-already-in-use') {
+            errorDiv.textContent = '❌ Este correo ya está registrado. Inicia sesión.';
+        } else if (error.code === 'auth/weak-password') {
+            errorDiv.textContent = '❌ La contraseña es muy débil. Usa al menos 6 caracteres.';
+        } else if (error.code === 'auth/operation-not-allowed') {
+            errorDiv.textContent = '❌ El registro con email no está habilitado en Firebase Console';
+            debugLog('📌 Ve a: Firebase Console → Authentication → Sign-in methods → Habilitar Email/Password', 'error');
+        }
+    }
+}
 
-    debugLog('Iniciando autenticación con Google...', 'info');
-    document.getElementById('firebaseDot').className = 'dot dot-auth';
-    document.getElementById('firebaseText').innerHTML = '🔑 Autenticando con Google...';
-    document.getElementById('loginGoogleBtn').disabled = true;
-
-    const provider = new firebase.auth.GoogleAuthProvider();
-    provider.setCustomParameters({
-        prompt: 'select_account'
-    });
-
-    auth.signInWithPopup(provider)
-        .then((result) => {
-            const user = result.user;
-            userId = user.uid;
-            userEmail = user.email;
-            userDisplayName = user.displayName || user.email;
-            userPhotoURL = user.photoURL;
-            authenticated = true;
-            modoLocal = false;
-            
-            debugLog(`✅ Autenticado como ${userDisplayName} (${userEmail})`, 'ok');
-            updateUIForUser(user);
-            document.getElementById('firebaseDot').className = 'dot dot-online';
-            document.getElementById('firebaseText').innerHTML = '✅ Autenticado con Google';
-            document.getElementById('loginGoogleBtn').disabled = false;
-            
-            conectarDatabase();
-        })
-        .catch((error) => {
-            debugLog('❌ Error de autenticación: ' + error.code + ' - ' + error.message, 'error');
-            document.getElementById('firebaseText').innerHTML = '❌ Error: ' + error.message;
-            document.getElementById('firebaseDot').className = 'dot dot-offline';
-            document.getElementById('loginGoogleBtn').disabled = false;
-            
-            // Si el error es porque no está habilitado Google, intentar anónimo
-            if (error.code === 'auth/operation-not-allowed') {
-                debugLog('⚠️ Google Auth no habilitado en Firebase Console', 'error');
-                debugLog('📌 Ve a: Firebase Console → Authentication → Sign-in methods → Habilitar Google', 'info');
-                iniciarModoLocal();
-            }
-        });
+// ========== LOGIN CON EMAIL ==========
+async function loginWithEmail() {
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    
+    const errorDiv = document.getElementById('loginError');
+    const successDiv = document.getElementById('loginSuccess');
+    
+    errorDiv.classList.remove('show');
+    successDiv.classList.remove('show');
+    
+    if (!email || !password) {
+        errorDiv.textContent = '⚠️ Por favor ingresa email y contraseña';
+        errorDiv.classList.add('show');
+        return;
+    }
+    
+    debugLog(`Iniciando sesión: ${email}`, 'info');
+    document.getElementById('loginBtn').disabled = true;
+    
+    try {
+        const userCredential = await auth.signInWithEmailAndPassword(email, password);
+        const user = userCredential.user;
+        
+        debugLog(`✅ Sesión iniciada: ${email}`, 'ok');
+        successDiv.textContent = '✅ Sesión iniciada exitosamente!';
+        successDiv.classList.add('show');
+        
+        // Actualizar UI
+        userId = user.uid;
+        userEmail = user.email;
+        userDisplayName = user.displayName || user.email;
+        authenticated = true;
+        modoLocal = false;
+        
+        updateUIForUser(user);
+        document.getElementById('firebaseDot').className = 'dot dot-online';
+        document.getElementById('firebaseText').innerHTML = '✅ Autenticado con email';
+        
+        // Cerrar formularios
+        document.getElementById('loginForm').classList.remove('show');
+        document.getElementById('loginBtn').disabled = false;
+        
+        // Cargar datos
+        conectarDatabase();
+        
+    } catch (error) {
+        debugLog('❌ Error de login: ' + error.code + ' - ' + error.message, 'error');
+        errorDiv.textContent = '❌ ' + error.message;
+        errorDiv.classList.add('show');
+        document.getElementById('loginBtn').disabled = false;
+        
+        if (error.code === 'auth/user-not-found') {
+            errorDiv.textContent = '❌ Usuario no encontrado. ¿Estás registrado?';
+        } else if (error.code === 'auth/wrong-password') {
+            errorDiv.textContent = '❌ Contraseña incorrecta. Intenta de nuevo.';
+        } else if (error.code === 'auth/too-many-requests') {
+            errorDiv.textContent = '❌ Demasiados intentos. Espera unos minutos.';
+        } else if (error.code === 'auth/operation-not-allowed') {
+            errorDiv.textContent = '❌ El login con email no está habilitado en Firebase Console';
+            debugLog('📌 Ve a: Firebase Console → Authentication → Sign-in methods → Habilitar Email/Password', 'error');
+        }
+    }
 }
 
 // ========== CERRAR SESIÓN ==========
-function logoutGoogle() {
+function logoutEmail() {
     if (!auth) {
         iniciarModoLocal();
         return;
@@ -864,20 +1054,23 @@ function logoutGoogle() {
         userId = null;
         userEmail = null;
         userDisplayName = null;
-        userPhotoURL = null;
         firebaseConnected = false;
+        
         document.getElementById('firebaseDot').className = 'dot dot-offline';
         document.getElementById('firebaseText').innerHTML = '🔴 Sesión cerrada';
         document.getElementById('userInfo').textContent = '👤 Sin autenticar';
         document.getElementById('userInfo').className = 'user-info';
-        document.getElementById('loginGoogleBtn').style.display = 'block';
-        document.getElementById('logoutGoogleBtn').style.display = 'none';
+        document.getElementById('loginBtn').style.display = 'block';
+        document.getElementById('registerBtn').style.display = 'block';
+        document.getElementById('logoutBtn').style.display = 'none';
         document.getElementById('userProfile').style.display = 'none';
-        document.getElementById('loginGoogleBtn').disabled = false;
+        document.getElementById('loginBtn').disabled = false;
+        document.getElementById('registerBtn').disabled = false;
         
         // Cargar datos locales
         cargarHistorialLocal();
         verHistorial();
+        document.getElementById('res').innerHTML = '💡 Sesión cerrada. Los datos locales siguen disponibles.';
     }).catch((error) => {
         debugLog('Error al cerrar sesión: ' + error.message, 'error');
     });
@@ -887,19 +1080,16 @@ function logoutGoogle() {
 function updateUIForUser(user) {
     document.getElementById('userInfo').textContent = `👤 ${user.displayName || user.email}`;
     document.getElementById('userInfo').className = 'user-info logged-in';
-    document.getElementById('loginGoogleBtn').style.display = 'none';
-    document.getElementById('logoutGoogleBtn').style.display = 'block';
+    document.getElementById('loginBtn').style.display = 'none';
+    document.getElementById('registerBtn').style.display = 'none';
+    document.getElementById('logoutBtn').style.display = 'block';
     document.getElementById('userProfile').style.display = 'block';
     
     document.getElementById('userDisplayName').textContent = user.displayName || 'Usuario sin nombre';
     document.getElementById('userEmail').textContent = user.email || 'email no disponible';
     
     const avatar = document.getElementById('userAvatar');
-    if (user.photoURL) {
-        avatar.innerHTML = `<img src="${user.photoURL}" alt="Avatar">`;
-    } else {
-        avatar.textContent = user.displayName ? user.displayName.charAt(0).toUpperCase() : '👤';
-    }
+    avatar.textContent = user.displayName ? user.displayName.charAt(0).toUpperCase() : '👤';
 }
 
 // ========== CONEXIÓN A BASE DE DATOS ==========
@@ -948,14 +1138,13 @@ function testFirebase() {
     debugLog('Registros locales: ' + historialEvaluaciones.length, 'info');
     
     if (authenticated && !modoLocal) {
-        debugLog('✅ Usuario autenticado con Google correctamente', 'ok');
+        debugLog('✅ Usuario autenticado con email correctamente', 'ok');
     } else if (modoLocal) {
         debugLog('ℹ️ Modo local activo (sin Firebase)', 'info');
     } else {
         debugLog('⚠️ No autenticado', 'error');
     }
     
-    // Probar escritura en Firebase
     if (firebaseConnected && authenticated && !modoLocal) {
         debugLog('Probando escritura en Firebase...', 'info');
         const testRef = database.ref('test_connection');
@@ -995,13 +1184,11 @@ function cargarDatosIniciales() {
         .then(snapshot => {
             const data = snapshot.val();
             if (data && data.evaluaciones && data.evaluaciones.length > 0) {
-                // Usar datos remotos si hay más registros
                 if (data.evaluaciones.length >= historialEvaluaciones.length) {
                     historialEvaluaciones = data.evaluaciones;
                     debugLog(`✅ Cargados ${historialEvaluaciones.length} registros desde Firebase`, 'ok');
                 } else {
                     debugLog(`ℹ️ Datos locales (${historialEvaluaciones.length}) > remotos (${data.evaluaciones.length}), usando locales`, 'info');
-                    // Guardar datos locales en Firebase
                     guardarFirebaseAuto(null);
                 }
                 guardarHistorialLocal();
@@ -1318,7 +1505,7 @@ function mostrarResultado(data, clasificacion) {
 // ========== FIREBASE - GUARDAR ==========
 async function guardarFirebase() {
     if (modoLocal || !firebaseConnected || !authenticated) {
-        alert('📌 Modo local: los datos ya están guardados en el navegador. Inicia sesión con Google para guardar en la nube.');
+        alert('📌 Modo local o no autenticado. Los datos se guardan en el navegador. Inicia sesión para guardar en la nube.');
         return;
     }
     
@@ -1371,7 +1558,7 @@ function guardarFirebaseAuto(data) {
 // ========== FIREBASE - CARGAR ==========
 async function cargarFirebase() {
     if (modoLocal || !firebaseConnected || !authenticated) {
-        alert('📌 Modo local o no autenticado. Inicia sesión con Google para cargar datos de la nube.');
+        alert('📌 Modo local o no autenticado. Inicia sesión para cargar datos de la nube.');
         verHistorial();
         return;
     }
@@ -1407,7 +1594,7 @@ async function cargarFirebase() {
 // ========== SINCRONIZAR ==========
 async function syncWithFirebase() {
     if (modoLocal || !authenticated) {
-        alert('📌 Inicia sesión con Google para sincronizar datos');
+        alert('📌 Inicia sesión para sincronizar datos');
         return;
     }
     await cargarFirebase();
@@ -1426,23 +1613,11 @@ function forzarReconexion() {
     
     if (auth) {
         if (authenticated && !modoLocal) {
-            // Si ya está autenticado, forzar reconexión de base de datos
             firebaseConnected = false;
             conectarDatabase();
             debugLog('Reconectando a la base de datos...', 'info');
         } else {
-            auth.signOut().then(() => {
-                document.getElementById('loginGoogleBtn').style.display = 'block';
-                document.getElementById('logoutGoogleBtn').style.display = 'none';
-                document.getElementById('userProfile').style.display = 'none';
-                document.getElementById('firebaseDot').className = 'dot dot-offline';
-                document.getElementById('firebaseText').innerHTML = '🔴 Sesión cerrada';
-                document.getElementById('userInfo').textContent = '👤 Sin autenticar';
-                document.getElementById('userInfo').className = 'user-info';
-                debugLog('Sesión cerrada. Inicia sesión con Google.', 'info');
-            }).catch(() => {
-                iniciarModoLocal();
-            });
+            logoutEmail();
         }
     } else {
         iniciarModoLocal();
@@ -1628,7 +1803,6 @@ if (firebaseAvailable && auth) {
             userId = user.uid;
             userEmail = user.email;
             userDisplayName = user.displayName || user.email;
-            userPhotoURL = user.photoURL;
             modoLocal = false;
             updateUIForUser(user);
             conectarDatabase();
@@ -1638,18 +1812,18 @@ if (firebaseAvailable && auth) {
             userId = null;
             userEmail = null;
             userDisplayName = null;
-            userPhotoURL = null;
             firebaseConnected = false;
             document.getElementById('firebaseDot').className = 'dot dot-offline';
             document.getElementById('firebaseText').innerHTML = '🔴 No autenticado';
             document.getElementById('userInfo').textContent = '👤 Sin autenticar';
             document.getElementById('userInfo').className = 'user-info';
-            document.getElementById('loginGoogleBtn').style.display = 'block';
-            document.getElementById('logoutGoogleBtn').style.display = 'none';
+            document.getElementById('loginBtn').style.display = 'block';
+            document.getElementById('registerBtn').style.display = 'block';
+            document.getElementById('logoutBtn').style.display = 'none';
             document.getElementById('userProfile').style.display = 'none';
-            document.getElementById('loginGoogleBtn').disabled = false;
+            document.getElementById('loginBtn').disabled = false;
+            document.getElementById('registerBtn').disabled = false;
             
-            // Cargar datos locales
             cargarHistorialLocal();
             verHistorial();
         }
@@ -1661,8 +1835,13 @@ if (firebaseAvailable && auth) {
 
 // ========== EXPONER FUNCIONES ==========
 window.evaluar = evaluar;
-window.loginWithGoogle = loginWithGoogle;
-window.logoutGoogle = logoutGoogle;
+window.loginWithEmail = loginWithEmail;
+window.registerWithEmail = registerWithEmail;
+window.logoutEmail = logoutEmail;
+window.mostrarLogin = mostrarLogin;
+window.mostrarRegistro = mostrarRegistro;
+window.cambiarALogin = cambiarALogin;
+window.cambiarARegistro = cambiarARegistro;
 window.guardarFirebase = guardarFirebase;
 window.cargarFirebase = cargarFirebase;
 window.verHistorial = verHistorial;
