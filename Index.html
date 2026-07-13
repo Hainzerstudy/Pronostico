@@ -3,12 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IPK-R65 Hospitalario - Datos Compartidos</title>
-
-<!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+<title>IPK-R65 Hospitalario - Sin Firebase</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <style>
@@ -133,6 +128,11 @@ button:disabled {
 .danger {
     background: linear-gradient(90deg, #ff5722, #d84315);
     color: #fff;
+}
+
+.info {
+    background: linear-gradient(90deg, #4fc3f7, #0288d1);
+    color: #001018;
 }
 
 .result {
@@ -264,7 +264,7 @@ button:disabled {
     border-left: 2px solid #ffb74d;
 }
 
-.firebase-status {
+.status-bar {
     background: #0a1a2f;
     padding: 10px 15px;
     border-radius: 10px;
@@ -277,7 +277,7 @@ button:disabled {
     flex-wrap: wrap;
 }
 
-.firebase-status .dot {
+.status-bar .dot {
     width: 10px;
     height: 10px;
     border-radius: 50%;
@@ -294,32 +294,9 @@ button:disabled {
     box-shadow: 0 0 10px rgba(255,87,34,0.5);
 }
 
-.dot-auth {
-    background: #ffb74d;
-    box-shadow: 0 0 10px rgba(255,183,77,0.5);
-    animation: pulse 1s infinite;
-}
-
 .dot-local {
     background: #4fc3f7;
     box-shadow: 0 0 10px rgba(79,195,247,0.5);
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.3; }
-}
-
-.remote-controls {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-top: 10px;
-}
-
-.remote-controls button {
-    flex: 1;
-    min-width: 150px;
 }
 
 .stats-badge {
@@ -430,20 +407,6 @@ button:disabled {
     transform: rotate(180deg);
 }
 
-.user-info {
-    font-size: 0.75rem;
-    color: #4a6a8a;
-    padding: 4px 12px;
-    background: #0a1a2f;
-    border-radius: 12px;
-    border: 1px solid #1a2a4f;
-}
-
-.user-info.logged-in {
-    color: #00ffd5;
-    border-color: #00ffd5;
-}
-
 .shared-badge {
     background: #00ffd5;
     color: #001018;
@@ -460,121 +423,16 @@ button:disabled {
     padding-left: 4px;
 }
 
-.debug-box {
-    background: #1a0a2f;
-    border: 1px solid #ff4444;
-    border-radius: 10px;
-    padding: 12px;
-    margin-top: 10px;
-    font-family: monospace;
-    font-size: 0.75rem;
-    color: #ff8888;
-    max-height: 150px;
-    overflow-y: auto;
-}
-
-.debug-box .ok {
-    color: #00ffd5;
-}
-
-.debug-box .error {
-    color: #ff4444;
-}
-
-.debug-box .info {
-    color: #ffb74d;
-}
-
-.auth-section {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    align-items: center;
-}
-
-.auth-section button {
-    flex: 0 1 auto;
-    min-width: 150px;
-    margin-top: 0;
-}
-
-.auth-form {
+.storage-info {
     background: #0a1122;
-    padding: 15px;
-    border-radius: 12px;
-    border: 1px solid #1f2d4a;
-    margin-top: 10px;
-    display: none;
-}
-
-.auth-form.show {
-    display: block;
-}
-
-.auth-form .form-row {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin-top: 8px;
-}
-
-.auth-form .form-row input {
-    flex: 1;
-    min-width: 200px;
-}
-
-.auth-form .form-row button {
-    flex: 0 1 auto;
-    min-width: 120px;
-}
-
-.user-avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: #1f2d4a;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    color: #6a8aaa;
     display: flex;
     align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    font-weight: bold;
-    color: #00ffd5;
-    border: 2px solid #00ffd5;
-}
-
-.toggle-link {
-    color: #00ffd5;
-    cursor: pointer;
-    text-decoration: underline;
-    font-size: 0.85rem;
-}
-
-.toggle-link:hover {
-    opacity: 0.8;
-}
-
-.error-msg {
-    color: #ff4444;
-    font-size: 0.8rem;
-    margin-top: 8px;
-    padding: 8px;
-    background: #2a0a0a;
-    border-radius: 8px;
-    display: none;
-}
-
-.success-msg {
-    color: #00d97a;
-    font-size: 0.8rem;
-    margin-top: 8px;
-    padding: 8px;
-    background: #0a2a1a;
-    border-radius: 8px;
-    display: none;
-}
-
-.error-msg.show, .success-msg.show {
-    display: block;
+    gap: 12px;
+    flex-wrap: wrap;
 }
 </style>
 </head>
@@ -583,89 +441,33 @@ button:disabled {
 
 <div class="container">
 <h1>🏥 IPK-R65 Hospitalario</h1>
-<div class="sub">📡 Datos COMPARTIDOS entre todos los dispositivos</div>
+<div class="sub">📡 Datos guardados LOCALMENTE en el navegador</div>
 
-<!-- Firebase Status -->
-<div class="firebase-status" id="firebaseStatus">
-    <span class="dot dot-auth" id="firebaseDot"></span>
-    <span id="firebaseText">Inicializando...</span>
-    <span class="stats-badge" id="remoteStats">📊 0 registros</span>
-    <span class="user-info" id="userInfo">👤 Sin autenticar</span>
-    <span class="shared-badge">🌐 DATOS COMPARTIDOS</span>
+<!-- Status -->
+<div class="status-bar" id="statusBar">
+    <span class="dot dot-local" id="statusDot"></span>
+    <span id="statusText">💾 Modo Local - Datos en el navegador</span>
+    <span class="stats-badge" id="statsBadge">📊 0 registros</span>
+    <span class="shared-badge">💾 SIN FIREBASE</span>
 </div>
 
-<!-- Autenticación con Correo -->
-<div class="section" style="border-color: #00ffd5;">
-    <h3>🔐 Autenticación con Correo Electrónico</h3>
-    
-    <div class="auth-section" id="authSection">
-        <button class="primary" onclick="mostrarLogin()" id="loginBtn" style="min-width:150px;">
-            📧 Iniciar sesión
-        </button>
-        <button class="success" onclick="mostrarRegistro()" id="registerBtn" style="min-width:150px;">
-            ✨ Registrarse
-        </button>
-        <button class="danger" onclick="logoutEmail()" id="logoutBtn" style="display:none; min-width:150px;">
-            🚪 Cerrar sesión
-        </button>
-        <button class="secondary" onclick="cargarFirebase()" id="cargarBtn" style="min-width:150px;">
-            📥 Cargar datos
-        </button>
-        <button class="success" onclick="guardarFirebase()" id="guardarBtn" style="min-width:150px;">
-            ☁️ Guardar datos
-        </button>
-        <button class="secondary" onclick="usarModoLocal()" style="min-width:150px; background:#4fc3f7; color:#001018;">
-            💾 Modo Local
-        </button>
+<!-- Almacenamiento -->
+<div class="section" style="border-color: #4fc3f7;">
+    <h3>💾 Almacenamiento y Sincronización</h3>
+    <div class="flex-buttons">
+        <button class="info" onclick="exportarDatos()">📤 Exportar datos (JSON)</button>
+        <button class="warning" onclick="document.getElementById('importFile').click()">📥 Importar datos (JSON)</button>
+        <button class="secondary" onclick="sincronizarPestanas()">🔄 Sincronizar pestañas</button>
+        <button class="secondary" onclick="verHistorial()">📋 Ver historial</button>
+        <button class="secondary" onclick="exportarExcel()">📎 Exportar Excel</button>
+        <button class="danger" onclick="limpiarHistorial()">🗑️ Limpiar todo</button>
     </div>
-
-    <!-- Login -->
-    <div class="auth-form" id="loginForm">
-        <h4 style="color:#00ffd5; margin:0 0 10px 0;">📧 Iniciar sesión</h4>
-        <div class="form-row">
-            <input type="email" id="loginEmail" placeholder="Correo electrónico" autocomplete="email">
-            <input type="password" id="loginPassword" placeholder="Contraseña" autocomplete="current-password">
-            <button class="primary" onclick="loginWithEmail()" id="loginSubmitBtn">Ingresar</button>
-        </div>
-        <div style="margin-top:8px; font-size:0.8rem; color:#8aa2e0;">
-            ¿No tienes cuenta? <span class="toggle-link" onclick="cambiarARegistro()">Regístrate aquí</span>
-        </div>
-        <div class="error-msg" id="loginError"></div>
-        <div class="success-msg" id="loginSuccess"></div>
+    <input type="file" id="importFile" accept=".json" style="display:none" onchange="importarDatos(event)">
+    <div class="storage-info">
+        <span>💾 Datos guardados en: <strong>IndexedDB + localStorage</strong></span>
+        <span id="storageSize">📦 Tamaño: 0 KB</span>
+        <span id="recordCount">📋 Registros: 0</span>
     </div>
-
-    <!-- Registro -->
-    <div class="auth-form" id="registerForm">
-        <h4 style="color:#00ffd5; margin:0 0 10px 0;">✨ Crear cuenta nueva</h4>
-        <div class="form-row">
-            <input type="text" id="registerName" placeholder="Nombre (opcional)" autocomplete="name">
-            <input type="email" id="registerEmail" placeholder="Correo electrónico" autocomplete="email">
-            <input type="password" id="registerPassword" placeholder="Contraseña (mínimo 6 caracteres)" autocomplete="new-password">
-            <button class="success" onclick="registerWithEmail()" id="registerSubmitBtn">Registrarse</button>
-        </div>
-        <div style="margin-top:8px; font-size:0.8rem; color:#8aa2e0;">
-            ¿Ya tienes cuenta? <span class="toggle-link" onclick="cambiarALogin()">Inicia sesión aquí</span>
-        </div>
-        <div class="error-msg" id="registerError"></div>
-        <div class="success-msg" id="registerSuccess"></div>
-    </div>
-
-    <!-- Perfil -->
-    <div id="userProfile" style="display:none; margin-top:12px; padding:12px; background:#0a1122; border-radius:10px; border:1px solid #1f2d4a;">
-        <div style="display:flex; align-items:center; gap:12px;">
-            <div class="user-avatar" id="userAvatar">👤</div>
-            <div>
-                <div id="userDisplayName" style="font-weight:bold; color:#00ffd5;">Usuario</div>
-                <div id="userEmail" style="font-size:0.8rem; color:#8aa2e0;">email@ejemplo.com</div>
-                <div id="userStatus" style="font-size:0.7rem; color:#ffb74d; margin-top:4px;">✅ Cuenta verificada</div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Debug Panel -->
-<div class="debug-box" id="debugBox">
-    <div id="debugContent">🔄 Inicializando...</div>
 </div>
 
 <!-- PACIENTE -->
@@ -771,19 +573,13 @@ button:disabled {
 </select>
 </div>
 
-<!-- BOTONES -->
+<!-- BOTONES PRINCIPALES -->
 <div class="section">
 <div class="flex-buttons">
 <button class="primary" onclick="evaluar()">📝 Evaluar y guardar</button>
 <button class="secondary" onclick="verHistorial()">📋 Ver historial</button>
 <button class="secondary" onclick="exportarExcel()">📎 Exportar Excel</button>
 <button class="danger" onclick="limpiarHistorial()">🗑️ Limpiar todo</button>
-</div>
-
-<div class="remote-controls">
-    <button onclick="syncWithFirebase()" style="background:#2a3a60;color:#e6f1ff;border:1px solid #3a4a70;">🔄 Sincronizar</button>
-    <button onclick="forzarReconexion()" style="background:#1c2a4a;color:#e6f1ff;border:1px solid #2b3c5f;">🔌 Reconectar</button>
-    <button onclick="testFirebase()" style="background:#3a1a4a;color:#e6f1ff;border:1px solid #4a2a5a;">🧪 Test Firebase</button>
 </div>
 </div>
 
@@ -795,530 +591,144 @@ button:disabled {
 </div>
 
 <script>
-// ========== CONFIGURACIÓN FIREBASE ==========
-const firebaseConfig = {
-    apiKey: "AIzaSyDJbtRuEwWVAsC1Nz6LbeF5a99LcUfAz4g",
-    authDomain: "irat-5-evaluaciones.firebaseapp.com",
-    databaseURL: "https://irat-5-evaluaciones-default-rtdb.firebaseio.com",
-    projectId: "irat-5-evaluaciones",
-    storageBucket: "irat-5-evaluaciones.firebasestorage.app",
-    messagingSenderId: "487279274410",
-    appId: "1:487279274410:web:146e9c35a0bf795c5423d3"
-};
-
-// ========== VARIABLES GLOBALES ==========
-let firebaseApp = null;
-let auth = null;
-let database = null;
-let firebaseAvailable = false;
-let firebaseConnected = false;
-let authenticated = false;
-let userId = null;
-let userEmail = null;
-let userDisplayName = null;
-let modoLocal = false;
+// ========== ALMACENAMIENTO LOCAL CON INDEXEDDB ==========
 let historialEvaluaciones = [];
-let loginTimeout = null;
+let db = null;
+let dbReady = false;
 
-// ========== DEBUG ==========
-function debugLog(message, type = 'info') {
-    const content = document.getElementById('debugContent');
-    const timestamp = new Date().toLocaleTimeString();
-    const icon = type === 'ok' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
-    const color = type === 'ok' ? '#00ffd5' : type === 'error' ? '#ff4444' : '#ffb74d';
-    content.innerHTML += `<div style="color:${color}">${icon} [${timestamp}] ${message}</div>`;
-    content.scrollTop = content.scrollHeight;
-    console.log(`[${type}]`, message);
+// ========== INICIALIZAR INDEXEDDB ==========
+function initDatabase() {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open('IPK_R65_DB', 1);
+        
+        request.onupgradeneeded = function(event) {
+            const db = event.target.result;
+            if (!db.objectStoreNames.contains('evaluaciones')) {
+                const store = db.createObjectStore('evaluaciones', { keyPath: 'id' });
+                store.createIndex('fecha', 'fecha', { unique: false });
+                store.createIndex('paciente', 'paciente', { unique: false });
+                console.log('📦 Base de datos IndexedDB creada');
+            }
+        };
+        
+        request.onsuccess = function(event) {
+            db = event.target.result;
+            dbReady = true;
+            console.log('✅ IndexedDB conectada');
+            cargarDesdeIndexedDB().then(() => {
+                actualizarStats();
+                verHistorial();
+                resolve();
+            });
+        };
+        
+        request.onerror = function(event) {
+            console.error('❌ Error al abrir IndexedDB:', event.target.error);
+            // Fallback a localStorage
+            cargarDesdeLocalStorage();
+            resolve();
+        };
+    });
 }
 
-// ========== INICIALIZAR FIREBASE ==========
-try {
-    firebaseApp = firebase.initializeApp(firebaseConfig);
-    auth = firebase.auth();
-    database = firebase.database();
-    firebaseAvailable = true;
-    debugLog('Firebase SDK inicializado', 'ok');
-} catch (e) {
-    debugLog('ERROR al inicializar Firebase: ' + e.message, 'error');
-    firebaseAvailable = false;
-    iniciarModoLocal();
-}
-
-// ========== MODO LOCAL ==========
-function iniciarModoLocal() {
-    modoLocal = true;
-    authenticated = true;
-    userId = 'local_' + Date.now().toString(36);
-    document.getElementById('firebaseDot').className = 'dot dot-local';
-    document.getElementById('firebaseText').innerHTML = '💾 Modo Local - Datos en navegador';
-    document.getElementById('userInfo').textContent = `👤 ${userId.substring(0, 10)} (local)`;
-    document.getElementById('userInfo').className = 'user-info';
-    debugLog('Modo local activado', 'ok');
-    cargarHistorialLocal();
-    verHistorial();
-    document.getElementById('res').innerHTML = '💾 MODO LOCAL ACTIVO - Los datos se guardan en el navegador';
-}
-
-// ========== USAR MODO LOCAL (botón) ==========
-function usarModoLocal() {
-    if (confirm('¿Cambiar a modo local? Los datos se guardarán solo en el navegador.')) {
-        iniciarModoLocal();
+// ========== CARGAR DESDE INDEXEDDB ==========
+async function cargarDesdeIndexedDB() {
+    if (!dbReady) return;
+    
+    try {
+        const transaction = db.transaction(['evaluaciones'], 'readonly');
+        const store = transaction.objectStore('evaluaciones');
+        const request = store.getAll();
+        
+        return new Promise((resolve) => {
+            request.onsuccess = function() {
+                if (request.result && request.result.length > 0) {
+                    historialEvaluaciones = request.result;
+                    // Guardar también en localStorage como respaldo
+                    localStorage.setItem('ipk_r65_backup', JSON.stringify(historialEvaluaciones));
+                    console.log(`📋 Cargados ${historialEvaluaciones.length} registros desde IndexedDB`);
+                } else {
+                    // Intentar cargar desde localStorage como respaldo
+                    cargarDesdeLocalStorage();
+                }
+                resolve();
+            };
+            request.onerror = function() {
+                cargarDesdeLocalStorage();
+                resolve();
+            };
+        });
+    } catch (e) {
+        cargarDesdeLocalStorage();
     }
 }
 
-// ========== ALMACENAMIENTO LOCAL ==========
-function cargarHistorialLocal() {
-    const guardado = localStorage.getItem('ipk_r65_consejos_ejercicios');
+// ========== CARGAR DESDE LOCALSTORAGE (FALLBACK) ==========
+function cargarDesdeLocalStorage() {
+    const guardado = localStorage.getItem('ipk_r65_backup') || localStorage.getItem('ipk_r65_consejos_ejercicios');
     if (guardado) {
         try {
             historialEvaluaciones = JSON.parse(guardado);
             if (!Array.isArray(historialEvaluaciones)) historialEvaluaciones = [];
-            debugLog(`Cargados ${historialEvaluaciones.length} registros locales`, 'info');
+            console.log(`📋 Cargados ${historialEvaluaciones.length} registros desde localStorage`);
+            // Sincronizar a IndexedDB si está disponible
+            if (dbReady && historialEvaluaciones.length > 0) {
+                sincronizarIndexedDB();
+            }
         } catch (e) {
             historialEvaluaciones = [];
         }
     }
-    document.getElementById('remoteStats').textContent = `📊 ${historialEvaluaciones.length} registros`;
-    guardarHistorialLocal();
 }
 
-function guardarHistorialLocal() {
-    localStorage.setItem('ipk_r65_consejos_ejercicios', JSON.stringify(historialEvaluaciones));
-}
-
-// ========== MOSTRAR FORMULARIOS ==========
-function mostrarLogin() {
-    document.getElementById('loginForm').classList.add('show');
-    document.getElementById('registerForm').classList.remove('show');
-    document.getElementById('loginError').classList.remove('show');
-    document.getElementById('loginSuccess').classList.remove('show');
-    document.getElementById('loginEmail').focus();
-}
-
-function mostrarRegistro() {
-    document.getElementById('registerForm').classList.add('show');
-    document.getElementById('loginForm').classList.remove('show');
-    document.getElementById('registerError').classList.remove('show');
-    document.getElementById('registerSuccess').classList.remove('show');
-    document.getElementById('registerEmail').focus();
-}
-
-function cambiarALogin() {
-    mostrarLogin();
-}
-
-function cambiarARegistro() {
-    mostrarRegistro();
-}
-
-// ========== RESTAURAR BOTONES ==========
-function restaurarBotonesLogin() {
-    const loginBtn = document.getElementById('loginSubmitBtn');
-    loginBtn.disabled = false;
-    loginBtn.textContent = 'Ingresar';
-    if (loginTimeout) {
-        clearTimeout(loginTimeout);
-        loginTimeout = null;
-    }
-}
-
-function restaurarBotonesRegistro() {
-    const registerBtn = document.getElementById('registerSubmitBtn');
-    registerBtn.disabled = false;
-    registerBtn.textContent = 'Registrarse';
-}
-
-// ========== REGISTRO CON EMAIL ==========
-async function registerWithEmail() {
-    const email = document.getElementById('registerEmail').value.trim();
-    const password = document.getElementById('registerPassword').value;
-    const name = document.getElementById('registerName').value.trim();
-    
-    const errorDiv = document.getElementById('registerError');
-    const successDiv = document.getElementById('registerSuccess');
-    
-    errorDiv.classList.remove('show');
-    successDiv.classList.remove('show');
-    
-    if (!email || !password) {
-        errorDiv.textContent = '⚠️ Por favor ingresa email y contraseña';
-        errorDiv.classList.add('show');
-        return;
-    }
-    
-    if (password.length < 6) {
-        errorDiv.textContent = '⚠️ La contraseña debe tener al menos 6 caracteres';
-        errorDiv.classList.add('show');
-        return;
-    }
-    
-    // Si Firebase no está disponible, modo local
-    if (!firebaseAvailable || !auth) {
-        errorDiv.textContent = '⚠️ Firebase no disponible. Usa el modo local.';
-        errorDiv.classList.add('show');
-        return;
-    }
-    
-    debugLog(`Registrando usuario: ${email}`, 'info');
-    const registerBtn = document.getElementById('registerSubmitBtn');
-    registerBtn.disabled = true;
-    registerBtn.textContent = '⏳ Registrando...';
-    
-    try {
-        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-        const user = userCredential.user;
-        
-        if (name) {
-            await user.updateProfile({ displayName: name });
-        }
-        
-        await user.sendEmailVerification();
-        
-        debugLog(`✅ Usuario registrado: ${email}`, 'ok');
-        successDiv.innerHTML = '✅ Cuenta creada exitosamente!<br>📧 Se envió un email de verificación.';
-        successDiv.classList.add('show');
-        
-        actualizarUsuario(user);
-        document.getElementById('registerForm').classList.remove('show');
-        restaurarBotonesRegistro();
-        conectarDatabase();
-        
-    } catch (error) {
-        debugLog('❌ Error de registro: ' + error.code + ' - ' + error.message, 'error');
-        errorDiv.textContent = '❌ ' + error.message;
-        errorDiv.classList.add('show');
-        restaurarBotonesRegistro();
-        
-        if (error.code === 'auth/email-already-in-use') {
-            errorDiv.textContent = '❌ Este correo ya está registrado. Inicia sesión.';
-        } else if (error.code === 'auth/weak-password') {
-            errorDiv.textContent = '❌ La contraseña es muy débil. Usa al menos 6 caracteres.';
-        } else if (error.code === 'auth/operation-not-allowed') {
-            errorDiv.textContent = '❌ El registro con email no está habilitado en Firebase Console';
-            debugLog('📌 Ve a: Firebase Console → Authentication → Sign-in methods → Habilitar Email/Password', 'error');
-        }
-    }
-}
-
-// ========== LOGIN CON EMAIL ==========
-async function loginWithEmail() {
-    const email = document.getElementById('loginEmail').value.trim();
-    const password = document.getElementById('loginPassword').value;
-    
-    const errorDiv = document.getElementById('loginError');
-    const successDiv = document.getElementById('loginSuccess');
-    
-    errorDiv.classList.remove('show');
-    successDiv.classList.remove('show');
-    
-    if (!email || !password) {
-        errorDiv.textContent = '⚠️ Por favor ingresa email y contraseña';
-        errorDiv.classList.add('show');
-        return;
-    }
-    
-    // Si Firebase no está disponible, intentar modo local
-    if (!firebaseAvailable || !auth) {
-        errorDiv.textContent = '⚠️ Firebase no disponible. Usando modo local.';
-        errorDiv.classList.add('show');
-        iniciarModoLocal();
-        return;
-    }
-    
-    debugLog(`Iniciando sesión: ${email}`, 'info');
-    const loginBtn = document.getElementById('loginSubmitBtn');
-    loginBtn.disabled = true;
-    loginBtn.textContent = '⏳ Ingresando...';
-    
-    // Timeout para no quedarse colgado
-    loginTimeout = setTimeout(() => {
-        debugLog('⏰ Timeout de login - posiblemente Firebase no responde', 'error');
-        errorDiv.textContent = '⏰ Tiempo de espera agotado. Verifica tu conexión o usa el modo local.';
-        errorDiv.classList.add('show');
-        restaurarBotonesLogin();
-        // Ofrecer modo local como alternativa
-        if (confirm('Firebase no responde. ¿Cambiar a modo local?')) {
-            iniciarModoLocal();
-        }
-    }, 15000);
-    
-    try {
-        const userCredential = await auth.signInWithEmailAndPassword(email, password);
-        const user = userCredential.user;
-        
-        if (loginTimeout) {
-            clearTimeout(loginTimeout);
-            loginTimeout = null;
-        }
-        
-        debugLog(`✅ Sesión iniciada: ${email}`, 'ok');
-        successDiv.textContent = '✅ Sesión iniciada exitosamente!';
-        successDiv.classList.add('show');
-        
-        actualizarUsuario(user);
-        document.getElementById('loginForm').classList.remove('show');
-        restaurarBotonesLogin();
-        conectarDatabase();
-        
-    } catch (error) {
-        if (loginTimeout) {
-            clearTimeout(loginTimeout);
-            loginTimeout = null;
-        }
-        
-        debugLog('❌ Error de login: ' + error.code + ' - ' + error.message, 'error');
-        errorDiv.textContent = '❌ ' + error.message;
-        errorDiv.classList.add('show');
-        restaurarBotonesLogin();
-        
-        if (error.code === 'auth/user-not-found') {
-            errorDiv.textContent = '❌ Usuario no encontrado. ¿Estás registrado?';
-        } else if (error.code === 'auth/wrong-password') {
-            errorDiv.textContent = '❌ Contraseña incorrecta. Intenta de nuevo.';
-        } else if (error.code === 'auth/too-many-requests') {
-            errorDiv.textContent = '❌ Demasiados intentos. Espera unos minutos.';
-        } else if (error.code === 'auth/operation-not-allowed') {
-            errorDiv.textContent = '❌ El login con email no está habilitado en Firebase Console';
-            debugLog('📌 Ve a: Firebase Console → Authentication → Sign-in methods → Habilitar Email/Password', 'error');
-        } else if (error.code === 'auth/network-request-failed') {
-            errorDiv.textContent = '❌ Error de red. Verifica tu conexión a internet.';
-            if (confirm('Error de conexión. ¿Cambiar a modo local?')) {
-                iniciarModoLocal();
-            }
-        }
-    }
-}
-
-// ========== ACTUALIZAR USUARIO ==========
-function actualizarUsuario(user) {
-    authenticated = true;
-    userId = user.uid;
-    userEmail = user.email;
-    userDisplayName = user.displayName || user.email;
-    modoLocal = false;
-    
-    document.getElementById('userInfo').textContent = `👤 ${userDisplayName}`;
-    document.getElementById('userInfo').className = 'user-info logged-in';
-    document.getElementById('loginBtn').style.display = 'none';
-    document.getElementById('registerBtn').style.display = 'none';
-    document.getElementById('logoutBtn').style.display = 'block';
-    document.getElementById('userProfile').style.display = 'block';
-    
-    document.getElementById('userDisplayName').textContent = userDisplayName;
-    document.getElementById('userEmail').textContent = userEmail || 'email no disponible';
-    
-    const statusDiv = document.getElementById('userStatus');
-    if (user.emailVerified) {
-        statusDiv.textContent = '✅ Email verificado';
-        statusDiv.style.color = '#00d97a';
-    } else {
-        statusDiv.innerHTML = '⚠️ Email NO verificado. <span class="toggle-link" onclick="reenviarVerificacion()">Reenviar verificación</span>';
-        statusDiv.style.color = '#ffb74d';
-    }
-    
-    const avatar = document.getElementById('userAvatar');
-    avatar.textContent = userDisplayName.charAt(0).toUpperCase();
-    
-    document.getElementById('firebaseDot').className = 'dot dot-online';
-    document.getElementById('firebaseText').innerHTML = '✅ Autenticado con email';
-    
-    debugLog(`Usuario autenticado: ${userEmail}`, 'ok');
-}
-
-// ========== REENVIAR VERIFICACIÓN ==========
-async function reenviarVerificacion() {
-    if (!auth || !auth.currentUser) {
-        debugLog('No hay usuario autenticado', 'error');
+// ========== GUARDAR EN INDEXEDDB ==========
+async function guardarEnIndexedDB() {
+    if (!dbReady) {
+        // Fallback a localStorage
+        localStorage.setItem('ipk_r65_backup', JSON.stringify(historialEvaluaciones));
+        localStorage.setItem('ipk_r65_consejos_ejercicios', JSON.stringify(historialEvaluaciones));
         return;
     }
     
     try {
-        await auth.currentUser.sendEmailVerification();
-        document.getElementById('userStatus').textContent = '📧 Email de verificación reenviado!';
-        document.getElementById('userStatus').style.color = '#00d97a';
-        debugLog('Email de verificación reenviado', 'ok');
-    } catch (error) {
-        debugLog('Error al reenviar verificación: ' + error.message, 'error');
-        document.getElementById('userStatus').textContent = '❌ Error: ' + error.message;
-        document.getElementById('userStatus').style.color = '#ff4444';
-    }
-}
-
-// ========== CERRAR SESIÓN ==========
-function logoutEmail() {
-    if (!auth) {
-        iniciarModoLocal();
-        return;
-    }
-    
-    auth.signOut().then(() => {
-        debugLog('Sesión cerrada', 'info');
-        authenticated = false;
-        userId = null;
-        userEmail = null;
-        userDisplayName = null;
-        firebaseConnected = false;
+        const transaction = db.transaction(['evaluaciones'], 'readwrite');
+        const store = transaction.objectStore('evaluaciones');
         
-        document.getElementById('firebaseDot').className = 'dot dot-offline';
-        document.getElementById('firebaseText').innerHTML = '🔴 Sesión cerrada';
-        document.getElementById('userInfo').textContent = '👤 Sin autenticar';
-        document.getElementById('userInfo').className = 'user-info';
-        document.getElementById('loginBtn').style.display = 'block';
-        document.getElementById('registerBtn').style.display = 'block';
-        document.getElementById('logoutBtn').style.display = 'none';
-        document.getElementById('userProfile').style.display = 'none';
+        // Limpiar y guardar todos
+        store.clear();
+        for (const item of historialEvaluaciones) {
+            store.add(item);
+        }
         
-        cargarHistorialLocal();
-        verHistorial();
-        document.getElementById('res').innerHTML = '💡 Sesión cerrada. Los datos locales siguen disponibles.';
-    }).catch((error) => {
-        debugLog('Error al cerrar sesión: ' + error.message, 'error');
-    });
-}
-
-// ========== CONEXIÓN A BASE DE DATOS ==========
-function conectarDatabase() {
-    if (!firebaseAvailable || !database || !authenticated) {
-        debugLog('No se puede conectar: Firebase no disponible o no autenticado', 'error');
-        return;
-    }
-
-    debugLog('Conectando a Realtime Database...', 'info');
-    
-    try {
-        const connectedRef = database.ref('.info/connected');
-        connectedRef.on('value', (snap) => {
-            if (snap.val() === true) {
-                firebaseConnected = true;
-                debugLog('✅ Conectado a Firebase Realtime Database', 'ok');
-                document.getElementById('firebaseDot').className = 'dot dot-online';
-                document.getElementById('firebaseText').innerHTML = '🟢 Conectado a Firebase';
-                cargarDatosIniciales();
-            } else {
-                firebaseConnected = false;
-                debugLog('🔴 Desconectado de Firebase', 'error');
-                document.getElementById('firebaseDot').className = 'dot dot-offline';
-                document.getElementById('firebaseText').innerHTML = '🔴 Desconectado';
-            }
-        });
+        // Respaldo en localStorage
+        localStorage.setItem('ipk_r65_backup', JSON.stringify(historialEvaluaciones));
+        
+        console.log(`💾 Guardados ${historialEvaluaciones.length} registros en IndexedDB`);
+        actualizarStats();
     } catch (e) {
-        debugLog('❌ Error al conectar: ' + e.message, 'error');
-        firebaseConnected = false;
-        document.getElementById('firebaseDot').className = 'dot dot-offline';
-        document.getElementById('firebaseText').innerHTML = '❌ Error de conexión';
+        console.error('Error al guardar en IndexedDB:', e);
+        localStorage.setItem('ipk_r65_backup', JSON.stringify(historialEvaluaciones));
     }
 }
 
-// ========== TEST FIREBASE ==========
-function testFirebase() {
-    debugLog('=== TEST DE FIREBASE ===', 'info');
-    debugLog('Firebase disponible: ' + firebaseAvailable, firebaseAvailable ? 'ok' : 'error');
-    debugLog('Autenticado: ' + authenticated, authenticated ? 'ok' : 'error');
-    debugLog('Usuario: ' + (userDisplayName || 'N/A'), userDisplayName ? 'ok' : 'info');
-    debugLog('Email: ' + (userEmail || 'N/A'), userEmail ? 'ok' : 'info');
-    debugLog('Conectado: ' + firebaseConnected, firebaseConnected ? 'ok' : 'error');
-    debugLog('Modo local: ' + modoLocal, modoLocal ? 'info' : 'ok');
-    debugLog('Registros locales: ' + historialEvaluaciones.length, 'info');
+// ========== SINCRONIZAR INDEXEDDB ==========
+async function sincronizarIndexedDB() {
+    if (!dbReady || historialEvaluaciones.length === 0) return;
+    await guardarEnIndexedDB();
+}
+
+// ========== ACTUALIZAR ESTADÍSTICAS ==========
+function actualizarStats() {
+    document.getElementById('statsBadge').textContent = `📊 ${historialEvaluaciones.length} registros`;
+    document.getElementById('recordCount').textContent = `📋 Registros: ${historialEvaluaciones.length}`;
     
-    if (modoLocal) {
-        debugLog('💾 MODO LOCAL ACTIVO - Firebase no disponible', 'info');
-        return;
-    }
-    
-    if (authenticated && !modoLocal) {
-        debugLog('✅ Usuario autenticado con email correctamente', 'ok');
-    } else {
-        debugLog('⚠️ No autenticado', 'error');
-    }
-    
-    if (firebaseConnected && authenticated && !modoLocal) {
-        debugLog('Probando escritura en Firebase...', 'info');
-        const testRef = database.ref('test_connection');
-        testRef.set({
-            timestamp: new Date().toISOString(),
-            message: 'Test desde IPK-R65',
-            user: userEmail || userId,
-            userId: userId
-        }).then(() => {
-            debugLog('✅ Escritura en Firebase exitosa!', 'ok');
-            testRef.remove().then(() => {
-                debugLog('🧹 Dato de prueba eliminado', 'info');
-            });
-        }).catch((e) => {
-            debugLog('❌ Error de escritura: ' + e.message, 'error');
-            if (e.code === 'PERMISSION_DENIED') {
-                debugLog('⚠️ Las reglas de seguridad de Firebase bloquean la escritura', 'error');
-                debugLog('📌 Ve a: Firebase Console → Realtime Database → Rules → Cambiar a .read: true, .write: true', 'info');
-            }
-        });
-    } else {
-        debugLog('⚠️ No se puede probar escritura (no autenticado o desconectado)', 'error');
-    }
+    // Calcular tamaño aproximado
+    const size = new Blob([JSON.stringify(historialEvaluaciones)]).size;
+    const sizeKB = (size / 1024).toFixed(1);
+    document.getElementById('storageSize').textContent = `📦 Tamaño: ${sizeKB} KB`;
 }
 
-// ========== CARGAR DATOS INICIALES ==========
-function cargarDatosIniciales() {
-    if (!firebaseConnected || !authenticated || !database || modoLocal) {
-        debugLog('No se cargan datos: condiciones no cumplidas', 'info');
-        return;
-    }
-
-    debugLog('Cargando datos desde Firebase...', 'info');
-    document.getElementById('firebaseText').innerHTML = '⏳ Cargando datos...';
-
-    database.ref(RUTA_COMPARTIDA).once('value')
-        .then(snapshot => {
-            const data = snapshot.val();
-            if (data && data.evaluaciones && data.evaluaciones.length > 0) {
-                if (data.evaluaciones.length >= historialEvaluaciones.length) {
-                    historialEvaluaciones = data.evaluaciones;
-                    debugLog(`✅ Cargados ${historialEvaluaciones.length} registros desde Firebase`, 'ok');
-                } else {
-                    debugLog(`ℹ️ Datos locales (${historialEvaluaciones.length}) > remotos (${data.evaluaciones.length}), usando locales`, 'info');
-                    guardarFirebaseAuto(null);
-                }
-                guardarHistorialLocal();
-                verHistorial();
-                document.getElementById('remoteStats').textContent = `📊 ${historialEvaluaciones.length} registros`;
-                document.getElementById('res').innerHTML = `📥 ${historialEvaluaciones.length} evaluaciones cargadas`;
-                document.getElementById('firebaseText').innerHTML = `✅ ${historialEvaluaciones.length} registros`;
-            } else {
-                debugLog('📭 No hay datos en Firebase, creando estructura...', 'info');
-                crearEstructuraInicial();
-            }
-        })
-        .catch(err => {
-            debugLog('❌ Error al cargar: ' + err.message, 'error');
-            document.getElementById('firebaseText').innerHTML = '⚠️ Error al cargar';
-        });
-}
-
-// ========== CREAR ESTRUCTURA ==========
-function crearEstructuraInicial() {
-    if (!firebaseConnected || !authenticated || !database || modoLocal) return;
-
-    const dataInicial = {
-        timestamp: new Date().toISOString(),
-        mensaje: 'Base de datos compartida',
-        totalRegistros: 0,
-        ultimaActualizacion: new Date().toLocaleString(),
-        evaluaciones: []
-    };
-
-    database.ref(RUTA_COMPARTIDA).set(dataInicial)
-        .then(() => {
-            debugLog('✅ Estructura creada en Firebase', 'ok');
-            document.getElementById('firebaseText').innerHTML = '✅ Base de datos lista';
-        })
-        .catch(err => {
-            debugLog('❌ Error al crear estructura: ' + err.message, 'error');
-        });
-}
-
-// ========== RUTA COMPARTIDA ==========
-const RUTA_COMPARTIDA = 'ipk_r65_datos_compartidos';
-
-// ========== CLASIFICACIÓN ==========
+// ========== FUNCIONES DE EVALUACIÓN ==========
 function clasificarPaciente(total) {
     if (total >= 50) return { categoria: "🟢 ALTO BENEFICIO", color: "#00ffd5" };
     else if (total >= 35) return { categoria: "🟡 INTERMEDIO", color: "#ffd966" };
@@ -1326,160 +736,111 @@ function clasificarPaciente(total) {
     else return { categoria: "⚫ BAJO GLOBAL", color: "#cc99ff" };
 }
 
-// ========== GENERADOR DE CONSEJOS ==========
 function generar6Consejos(total, soporte, noPuedeConsentir, noColaboraCount, perfil) {
     const consejos = [];
     
     if (total >= 50) {
         consejos.push({
             titulo: "🏆 ALTA INTENSIDAD - Paciente con alto potencial",
-            ayuda: "Motivar al paciente con metas desafiantes pero alcanzables. Usar refuerzos positivos y gráficos de progreso. Celebrar cada logro.",
-            ejercicios: "Ejercicios: Entrenamiento intervalado de alta intensidad (HIIT) 2-3 min × 4 series. Circuito funcional: sentadillas, step, levantamiento de brazos con resistencia (bandas elásticas), marcha en el lugar 10 min. Frecuencia: 5-7 sesiones/semana."
+            ayuda: "Motivar al paciente con metas desafiantes pero alcanzables. Usar refuerzos positivos y gráficos de progreso.",
+            ejercicios: "HIIT 2-3 min × 4 series. Circuito funcional: sentadillas, step, levantamiento de brazos con bandas elásticas. 5-7 sesiones/semana."
         });
     } else if (total >= 35) {
         consejos.push({
             titulo: "📈 INTENSIDAD MODERADA - Buen candidato a rehabilitación",
-            ayuda: "Establecer contrato terapéutico con metas semanales. Usar agenda de ejercicios. Involucrar a familiar para refuerzo domiciliario.",
-            ejercicios: "Ejercicios: Fortalecimiento de miembros inferiores (puente, elevación de pierna, mini-sentadilla con soporte). Miembros superiores (lifting de pesas 1-2kg, flexiones de pared). Marcha asistida 15-20 min. Frecuencia: 3-4 sesiones/semana."
+            ayuda: "Establecer contrato terapéutico con metas semanales. Involucrar a familiar.",
+            ejercicios: "Fortalecimiento de miembros inferiores e superiores. Marcha asistida 15-20 min. 3-4 sesiones/semana."
         });
     } else if (total >= 20) {
         consejos.push({
             titulo: "🛡️ INTENSIDAD BAJA - Enfoque preventivo",
-            ayuda: "Priorizar la seguridad y la confianza. Sesiones cortas pero frecuentes. Explicar cada ejercicio paso a paso. Celebrar pequeños logros.",
-            ejercicios: "Ejercicios: Movilizaciones pasivas y activas asistidas de grandes articulaciones (hombro, cadera, rodilla). Ejercicios respiratorios (respiración diafragmática). Transferencias asistidas (sentado a parado con apoyo). Frecuencia: 2-3 sesiones/semana, sesiones de 15-20 min."
+            ayuda: "Priorizar la seguridad y la confianza. Sesiones cortas pero frecuentes.",
+            ejercicios: "Movilizaciones pasivas y activas asistidas. Ejercicios respiratorios. Transferencias asistidas. 2-3 sesiones/semana."
         });
     } else {
         consejos.push({
             titulo: "🔍 INTENSIDAD MUY BAJA - Paciente complejo",
-            ayuda: "Enfoque multidisciplinario. Coordinar con médico tratante, terapia ocupacional y trabajo social. Sesiones muy cortas (5-10 min) para evitar sobrecarga.",
-            ejercicios: "Ejercicios: Movilizaciones pasivas suaves en decúbito. Ejercicios isométricos (contracción sin movimiento). Posicionamiento terapéutico para prevenir contracturas y úlceras por presión. Objetivo: mantener rango articular básico."
+            ayuda: "Enfoque multidisciplinario. Sesiones muy cortas (5-10 min) para evitar sobrecarga.",
+            ejercicios: "Movilizaciones pasivas suaves. Ejercicios isométricos. Posicionamiento terapéutico."
         });
     }
     
+    // Consejos adicionales según perfil
     if (soporte >= 12) {
         consejos.push({
-            titulo: "👨‍👩‍👧‍👦 RED DE APOYO SÓLIDA - Aprovechar recurso familiar",
-            ayuda: "Capacitar al cuidador principal en técnicas de asistencia y transferencias seguras. Entregar material educativo escrito. Establecer comunicación diaria con el equipo.",
-            ejercicios: "Ejercicios para entrenar con cuidador: Transferencias cama-silla paso a paso, ejercicios de rango de movimiento asistidos, caminata con supervisión, uso correcto de ayudas técnicas (andador, bastón)."
+            titulo: "👨‍👩‍👧‍👦 RED DE APOYO SÓLIDA",
+            ayuda: "Capacitar al cuidador principal en técnicas de asistencia y transferencias seguras.",
+            ejercicios: "Transferencias cama-silla paso a paso, ejercicios de rango de movimiento asistidos."
         });
     } else if (soporte >= 7) {
         consejos.push({
-            titulo: "🤝 FORTALECER RED DE APOYO - Gestionar recursos",
-            ayuda: "Coordinar con trabajo social para identificar programas de apoyo comunitario, centros de día o cuidadores rotativos. Entregar guías de ejercicios sencillos.",
-            ejercicios: "Ejercicios que el cuidador puede supervisar: Series cortas de ejercicios de pie y sentado (3-5 repeticiones), registro diario de actividad, caminata corta dentro del hogar (5-10 min)."
+            titulo: "🤝 FORTALECER RED DE APOYO",
+            ayuda: "Coordinar con trabajo social para identificar programas de apoyo comunitario.",
+            ejercicios: "Series cortas de ejercicios de pie y sentado (3-5 repeticiones)."
         });
     } else {
         consejos.push({
-            titulo: "🏠 SOPORTE INSUFICIENTE - Gestión prioritaria",
-            ayuda: "Derivación URGENTE a asistente social. Evaluar internación transitoria, teleasistencia diaria o programa de hospital domiciliario. Documentar riesgo de abandono terapéutico.",
-            ejercicios: "Ejercicios autoadministrados con guía por video o folleto ilustrado: Estiramientos basicos en cama, ejercicios respiratorios, movilizaciones de miembros superiores e inferiores en sedestación. Priorizar seguridad."
+            titulo: "🏠 SOPORTE INSUFICIENTE",
+            ayuda: "Derivación a asistente social. Evaluar internación transitoria o teleasistencia.",
+            ejercicios: "Ejercicios autoadministrados con guía por video o folleto ilustrado."
         });
     }
     
     if (noPuedeConsentir) {
         consejos.push({
-            titulo: "🧠 PACIENTE SIN CAPACIDAD DE CONSENTIR - Estrategia con cuidador",
-            ayuda: "Designar un familiar como 'proxy decisor'. Usar comunicación no verbal para evaluar confort. Sesiones cortas (10-15 min) para evitar sobreestimulación.",
-            ejercicios: "Ejercicios pasivos: Movilizaciones suaves de hombros (flexión, abducción), codos (flexo-extensión), muñecas, cadera (flexión con rodilla flexionada), tobillos (flexo-extensión). 5-8 repeticiones por articulación, 2 series."
-        });
-    } else {
-        consejos.push({
-            titulo: "💬 PACIENTE CON CAPACIDAD DE DECIDIR - Estrategia motivacional",
-            ayuda: "Realizar entrevista motivacional: preguntar sobre metas personales, miedos y expectativas. Establecer metas SMART (específicas, medibles, alcanzables, relevantes, con tiempo).",
-            ejercicios: "Ejercicios con feedback del paciente: Permitir elegir orden de ejercicios, autorregular intensidad según escala de Borg (objetivo 3-4/10), autoevaluación post-sesión. Uso de apps de seguimiento si disponible."
+            titulo: "🧠 PACIENTE SIN CAPACIDAD DE CONSENTIR",
+            ayuda: "Designar un familiar como 'proxy decisor'. Sesiones cortas (10-15 min).",
+            ejercicios: "Movilizaciones suaves de hombros, codos, muñecas, cadera y tobillos. 5-8 repeticiones."
         });
     }
     
     if (perfil.motivacionBaja) {
         consejos.push({
-            titulo: "🎯 BAJA MOTIVACIÓN - Estrategias conductuales",
-            ayuda: "Usar economía de fichas (acumular puntos por ejercicio completado). Gamificación: competencia consigo mismo, medir pasos/repeticiones. Reforzadores sociales (elogio frecuente).",
-            ejercicios: "Ejercicios lúdicos: Lanzamiento de pelota suave, juegos de equilibrio (pararse en un pie con apoyo), circuito corto con estaciones de colores, música durante ejercicios rítmicos. Premiar con descanso activo."
-        });
-    } else if (perfil.motivacionAlta) {
-        consejos.push({
-            titulo: "🔥 ALTA MOTIVACIÓN - Aprovechar entusiasmo",
-            ayuda: "Desafiar con metas progresivas. Entregar responsabilidad: auto-registro de ejercicios domiciliarios. Programar seguimiento con aplicaciones móviles si está disponible.",
-            ejercicios: "Ejercicios avanzados: Subir y bajar escaleras (con baranda), levantarse del suelo sin ayuda, marcha en circuito con obstáculos, entrenamiento de fuerza con bandas de alta resistencia (color rojo/azul)."
-        });
-    } else {
-        consejos.push({
-            titulo: "⚖️ MOTIVACIÓN VARIABLE - Flexibilidad terapéutica",
-            ayuda: "Tener plan A, B y C según estado del día. Preguntar al inicio de cada sesión '¿Cómo se siente hoy para trabajar?'. Ofrecer opciones de ejercicios.",
-            ejercicios: "Menú de ejercicios modulares: Módulo suave (movilizaciones, estiramientos), módulo intermedio (fuerza básica), módulo intenso (circuito funcional). El paciente elige 2 de 3 módulos por sesión."
+            titulo: "🎯 BAJA MOTIVACIÓN",
+            ayuda: "Usar economía de fichas. Gamificación. Reforzadores sociales.",
+            ejercicios: "Ejercicios lúdicos: lanzamiento de pelota, juegos de equilibrio, circuito con estaciones."
         });
     }
     
     if (perfil.adherenciaBaja || perfil.toleranciaBaja) {
         consejos.push({
-            titulo: "⏱️ BAJA ADHERENCIA/TOLERANCIA - Sesiones fraccionadas",
-            ayuda: "Distribuir actividad en micro-sesiones de 5-10 minutos, 4-5 veces al día. Monitorizar signos de fatiga (disnea, frecuencia cardíaca). Usar escala de Borg modificada (0-10).",
-            ejercicios: "Ejercicios en sedestación o decúbito: Flexiones de tobillo (bomba venosa), elevaciones alternas de talones, flexión de rodillas deslizando pie, respiraciones profundas (5-10 repeticiones). Descanso 2 min entre series."
-        });
-    } else if (perfil.adherenciaAlta && perfil.toleranciaAlta) {
-        consejos.push({
-            titulo: "💪 ALTO RENDIMIENTO - Avanzar funcionalidad",
-            ayuda: "Evaluar para alta a programa ambulatorio o comunitario. Realizar test funcionales (Timed Up and Go, SPPB, test de 6 minutos). Objetivo: independencia funcional total.",
-            ejercicios: "Ejercicios avanzados: Subir 2 pisos por escaleras, levantarse del suelo en < 5 segundos, caminata continua 30 minutos, levantamiento de pesas 3-5 kg (miembros superiores), sentadillas libres, estocadas."
-        });
-    } else {
-        consejos.push({
-            titulo: "📋 ADHERENCIA MODERADA - Estrategia mixta",
-            ayuda: "Supervisión intermitente: sesión supervisada 1 vez/semana, resto autoadministrado con telemonitoreo (llamada o mensaje). Usar checklist de cumplimiento.",
-            ejercicios: "Ejercicios progresivos: Semana 1-2: 10 repeticiones × 2 series. Semana 3-4: 12 repeticiones × 3 series. Semana 5-6: añadir resistencia con bandas o peso. Reevaluar cargas cada 10 sesiones."
-        });
-    }
-    
-    if (total >= 50) {
-        consejos.push({
-            titulo: "🎯 PLAN DE ALTA FUNCIONAL - Objetivo independencia",
-            ayuda: "Programar alta a kinesiología ambulatoria en 4-6 semanas. Evaluar cada 2 semanas. Derivar a actividad física comunitaria (gimnasio, taller de ejercicio).",
-            ejercicios: "Ejercicios de mantenimiento: Caminata 30-45 min diarios, entrenamiento de fuerza 2-3 veces/semana (sentadillas, flexiones, plancha adaptada), ejercicios de equilibrio (parada en un pie, talón-punta)."
-        });
-    } else if (total >= 35) {
-        consejos.push({
-            titulo: "📅 PLAN A 8 SEMANAS - Seguimiento estructurado",
-            ayuda: "Reevaluación intermedia a las 4 semanas con test funcional. Coordinar con terapia ocupacional si hay déficit de actividades instrumentales (cocinar, manejar dinero).",
-            ejercicios: "Ejercicios progresivos mensuales: Mes 1: fortalecimiento básico. Mes 2: entrenamiento funcional. Mes 3: integración a ejercicio comunitario. Revaluar cargas cada 4 semanas."
-        });
-    } else {
-        consejos.push({
-            titulo: "🔄 SEGUIMIENTO ESTRECHO - Paciente complejo",
-            ayuda: "Revaluación cada 2-3 semanas. Considerar interconsulta a geriatría, neurología o medicina física. Evaluar necesidad de dispositivos de ayuda (silla de ruedas, grúa, cama hospitalaria).",
-            ejercicios: "Objetivos realistas: Mantener rango articular, prevenir úlceras por presión (cambios posturales cada 2 horas), ejercicios respiratorios para prevenir neumonía. Progresión muy lenta (evaluar cada 2-3 semanas)."
+            titulo: "⏱️ BAJA ADHERENCIA/TOLERANCIA",
+            ayuda: "Distribuir actividad en micro-sesiones de 5-10 minutos, 4-5 veces al día.",
+            ejercicios: "Flexiones de tobillo, elevaciones alternas de talones, flexión de rodillas. 5-10 repeticiones."
         });
     }
     
     while (consejos.length < 6) {
         consejos.push({
-            titulo: "📌 TELEMONITOREO Y SEGUIMIENTO",
-            ayuda: "Programar llamada semanal para reforzar adherencia, resolver dudas y detectar complicaciones tempranas (caídas, dolor, fatiga excesiva).",
-            ejercicios: "Ejercicios de recordatorio: Enviar por WhatsApp video corto (1-2 min) de ejercicios clave. Solicitar auto-registro semanal de frecuencia e intensidad."
+            titulo: "📌 SEGUIMIENTO Y TELEMONITOREO",
+            ayuda: "Programar llamada semanal para reforzar adherencia y detectar complicaciones.",
+            ejercicios: "Auto-registro semanal de frecuencia e intensidad de ejercicios."
         });
     }
     
     return consejos.slice(0, 6);
 }
 
-// ========== OBTENER PUNTAJES ==========
 function obtenerPuntajesItems() {
     return {
-        'Edad funcional': parseInt(edad.value) || 0,
-        'Reserva funcional': parseInt(v1.value) || 0,
-        'Complejidad clínica': parseInt(v2.value) || 0,
-        'Red de apoyo': parseInt(v3.value) || 0,
-        'Motivación basal': parseInt(v4.value) || 0,
-        'Edad funcional clínica': parseInt(j1.value) || 0,
-        'Motivación observada': parseInt(j2.value) || 0,
-        'Adherencia': parseInt(j3.value) || 0,
-        'Apoyo del cuidador': parseInt(j4.value) || 0,
-        'Tolerancia al esfuerzo': parseInt(j5.value) || 0
+        'Edad funcional': parseInt(document.getElementById('edad').value) || 0,
+        'Reserva funcional': parseInt(document.getElementById('v1').value) || 0,
+        'Complejidad clínica': parseInt(document.getElementById('v2').value) || 0,
+        'Red de apoyo': parseInt(document.getElementById('v3').value) || 0,
+        'Motivación basal': parseInt(document.getElementById('v4').value) || 0,
+        'Edad funcional clínica': parseInt(document.getElementById('j1').value) || 0,
+        'Motivación observada': parseInt(document.getElementById('j2').value) || 0,
+        'Adherencia': parseInt(document.getElementById('j3').value) || 0,
+        'Apoyo del cuidador': parseInt(document.getElementById('j4').value) || 0,
+        'Tolerancia al esfuerzo': parseInt(document.getElementById('j5').value) || 0
     };
 }
 
-// ========== EVALUAR ==========
 function evaluar() {
     const resDiv = document.getElementById("res");
+
+    const hemo = document.getElementById('hemo');
+    const acepta = document.getElementById('acepta');
 
     if (hemo.value === "no") {
         resDiv.innerHTML = "⛔ PACIENTE NO ESTABLE HEMODINÁMICAMENTE. No se puede evaluar hasta estabilización.";
@@ -1494,24 +855,25 @@ function evaluar() {
     const puntajes = obtenerPuntajesItems();
 
     let total = Object.values(puntajes).reduce((a, b) => a + b, 0);
-    let soporte = (parseInt(v3.value)||0) + (parseInt(j4.value)||0) + (parseInt(v4.value)||0);
+    let soporte = (parseInt(document.getElementById('v3').value)||0) + (parseInt(document.getElementById('j4').value)||0) + (parseInt(document.getElementById('v4').value)||0);
 
     let noColaboraCount = 0;
-    const selectoresNoColaboracion = [v4, j2, j3, j5];
+    const selectoresNoColaboracion = ['v4', 'j2', 'j3', 'j5'];
     for (let i = 0; i < selectoresNoColaboracion.length; i++) {
-        const selectedText = selectoresNoColaboracion[i].options[selectoresNoColaboracion[i].selectedIndex]?.text;
+        const el = document.getElementById(selectoresNoColaboracion[i]);
+        const selectedText = el.options[el.selectedIndex]?.text;
         if (selectedText && selectedText.includes("No puede colaborar")) {
             noColaboraCount++;
         }
     }
 
     const perfil = {
-        motivacionBaja: (parseInt(v4.value)||0) === 0 && !document.querySelector('#v4 option:checked')?.text.includes("No puede colaborar"),
-        motivacionAlta: (parseInt(v4.value)||0) >= 4,
-        adherenciaBaja: (parseInt(j3.value)||0) === 0,
-        adherenciaAlta: (parseInt(j3.value)||0) >= 6,
-        toleranciaBaja: (parseInt(j5.value)||0) === 0,
-        toleranciaAlta: (parseInt(j5.value)||0) >= 6
+        motivacionBaja: (parseInt(document.getElementById('v4').value)||0) === 0,
+        motivacionAlta: (parseInt(document.getElementById('v4').value)||0) >= 4,
+        adherenciaBaja: (parseInt(document.getElementById('j3').value)||0) === 0,
+        adherenciaAlta: (parseInt(document.getElementById('j3').value)||0) >= 6,
+        toleranciaBaja: (parseInt(document.getElementById('j5').value)||0) === 0,
+        toleranciaAlta: (parseInt(document.getElementById('j5').value)||0) >= 6
     };
 
     const clasificacion = clasificarPaciente(total);
@@ -1523,7 +885,7 @@ function evaluar() {
 
     const data = {
         id: Date.now().toString(36) + Math.random().toString(36).substring(2, 6),
-        paciente: paciente.value.trim() || "Anónimo",
+        paciente: document.getElementById('paciente').value.trim() || "Anónimo",
         fecha: new Date().toISOString(),
         total: total,
         categoria: clasificacion.categoria,
@@ -1533,18 +895,13 @@ function evaluar() {
         observaciones: observaciones,
         puntajes: puntajes,
         consejos: consejos,
-        creadoPor: userEmail || userId || (modoLocal ? 'local' : 'anónimo')
+        creadoPor: 'local'
     };
     
     historialEvaluaciones.unshift(data);
-    guardarHistorialLocal();
-
-    if (firebaseConnected && authenticated && !modoLocal) {
-        guardarFirebaseAuto(data);
-    }
+    guardarEnIndexedDB();
 
     mostrarResultado(data, clasificacion);
-    debugLog(`Evaluación guardada: ${data.paciente} - ${data.total} pts`, 'ok');
 }
 
 function mostrarResultado(data, clasificacion) {
@@ -1554,10 +911,7 @@ function mostrarResultado(data, clasificacion) {
     htmlResultado += `🎯 <strong>Puntaje IPK-R65:</strong> ${data.total} puntos (escala 0-100)<br>`;
     htmlResultado += `🤝 <strong>Puntaje de soporte psicosocial:</strong> ${data.soporte} pts<br>`;
     htmlResultado += `<small>🕒 ${new Date(data.fecha).toLocaleString()}</small>`;
-    htmlResultado += `<div style="font-size:0.7rem;color:#4a6a8a;margin-top:4px;">👤 Creado por: ${data.creadoPor || 'anónimo'}</div>`;
-    if (modoLocal) {
-        htmlResultado += `<div style="font-size:0.7rem;color:#4fc3f7;margin-top:4px;">💾 Guardado en modo local</div>`;
-    }
+    htmlResultado += `<div style="font-size:0.7rem;color:#4a6a8a;margin-top:4px;">💾 Guardado localmente</div>`;
     
     htmlResultado += `<div class="puntaje-detalle">`;
     for (const [key, value] of Object.entries(data.puntajes)) {
@@ -1581,7 +935,7 @@ function mostrarResultado(data, clasificacion) {
                                 <strong>🤝 Cómo ayudar:</strong> ${consejo.ayuda}
                             </div>
                             <div class="consejo-ejercicios">
-                                <strong>🏋️ Ejercicios y rehabilitación:</strong> ${consejo.ejercicios}
+                                <strong>🏋️ Ejercicios:</strong> ${consejo.ejercicios}
                             </div>
                           </div>`;
     });
@@ -1589,149 +943,6 @@ function mostrarResultado(data, clasificacion) {
     
     resDiv.innerHTML = htmlResultado;
     verHistorial();
-}
-
-// ========== FIREBASE - GUARDAR ==========
-async function guardarFirebase() {
-    if (modoLocal || !firebaseConnected || !authenticated) {
-        alert('💾 Modo local: los datos se guardan en el navegador. Haz clic en "Modo Local" si quieres usar solo el navegador.');
-        return;
-    }
-    
-    if (historialEvaluaciones.length === 0) {
-        alert('No hay datos para guardar');
-        return;
-    }
-    
-    const statusText = document.getElementById('firebaseText');
-    statusText.innerHTML = '⏳ Guardando...';
-    debugLog('Guardando en Firebase...', 'info');
-    
-    try {
-        const dataToSave = {
-            timestamp: new Date().toISOString(),
-            totalRegistros: historialEvaluaciones.length,
-            ultimaActualizacion: new Date().toLocaleString(),
-            evaluaciones: historialEvaluaciones
-        };
-        
-        await database.ref(RUTA_COMPARTIDA).set(dataToSave);
-        debugLog(`✅ ${historialEvaluaciones.length} registros guardados en Firebase`, 'ok');
-        statusText.innerHTML = '✅ Guardado exitoso!';
-        document.getElementById('remoteStats').textContent = `📊 ${historialEvaluaciones.length} registros`;
-        
-    } catch (error) {
-        debugLog('❌ Error al guardar: ' + error.message, 'error');
-        statusText.innerHTML = '❌ Error: ' + error.message;
-        if (error.code === 'PERMISSION_DENIED') {
-            alert('⚠️ Error de permisos en Firebase. Verifica las reglas de la base de datos.');
-        }
-    }
-}
-
-function guardarFirebaseAuto(data) {
-    if (modoLocal || !firebaseConnected || !authenticated || !database) return;
-    if (historialEvaluaciones.length === 0) return;
-    
-    try {
-        const dataToSave = {
-            timestamp: new Date().toISOString(),
-            totalRegistros: historialEvaluaciones.length,
-            ultimaActualizacion: new Date().toLocaleString(),
-            evaluaciones: historialEvaluaciones
-        };
-        database.ref(RUTA_COMPARTIDA).set(dataToSave);
-        document.getElementById('remoteStats').textContent = `📊 ${historialEvaluaciones.length} registros`;
-    } catch (error) {
-        debugLog('Error en auto-guardado: ' + error.message, 'error');
-    }
-}
-
-// ========== FIREBASE - CARGAR ==========
-async function cargarFirebase() {
-    if (modoLocal || !firebaseConnected || !authenticated) {
-        alert('💾 Modo local activo. No se pueden cargar datos de la nube.');
-        verHistorial();
-        return;
-    }
-    
-    const statusText = document.getElementById('firebaseText');
-    statusText.innerHTML = '⏳ Cargando...';
-    debugLog('Cargando desde Firebase...', 'info');
-    
-    try {
-        const snapshot = await database.ref(RUTA_COMPARTIDA).once('value');
-        const data = snapshot.val();
-        
-        if (data && data.evaluaciones && data.evaluaciones.length > 0) {
-            historialEvaluaciones = data.evaluaciones;
-            guardarHistorialLocal();
-            verHistorial();
-            document.getElementById('remoteStats').textContent = `📊 ${historialEvaluaciones.length} registros`;
-            statusText.innerHTML = `✅ ${historialEvaluaciones.length} registros cargados!`;
-            debugLog(`✅ ${historialEvaluaciones.length} registros cargados desde Firebase`, 'ok');
-            document.getElementById('res').innerHTML = `📥 ${historialEvaluaciones.length} evaluaciones cargadas desde la nube`;
-        } else {
-            debugLog('📭 No hay datos en Firebase', 'info');
-            statusText.innerHTML = '📭 No hay datos';
-            document.getElementById('res').innerHTML = '📭 No hay datos guardados en Firebase.';
-        }
-        
-    } catch (error) {
-        debugLog('❌ Error al cargar: ' + error.message, 'error');
-        statusText.innerHTML = '❌ Error: ' + error.message;
-    }
-}
-
-// ========== SINCRONIZAR ==========
-async function syncWithFirebase() {
-    if (modoLocal || !authenticated) {
-        alert('💾 Modo local. Usa "Modo Local" para trabajar sin conexión.');
-        return;
-    }
-    await cargarFirebase();
-    await guardarFirebase();
-    debugLog('🔄 Sincronización completada', 'ok');
-}
-
-// ========== FORZAR RECONEXIÓN ==========
-function forzarReconexion() {
-    debugLog('🔄 Forzando reconexión...', 'info');
-    if (!firebaseAvailable) {
-        debugLog('Firebase no disponible, usando modo local', 'error');
-        iniciarModoLocal();
-        return;
-    }
-    
-    if (auth && authenticated && !modoLocal) {
-        firebaseConnected = false;
-        conectarDatabase();
-        debugLog('Reconectando a la base de datos...', 'info');
-        document.getElementById('firebaseText').innerHTML = '🔄 Reconectando...';
-    } else if (auth) {
-        logoutEmail();
-    } else {
-        iniciarModoLocal();
-    }
-}
-
-// ========== TOGGLES ==========
-function toggleConsejos(id) {
-    const content = document.getElementById('consejos-' + id);
-    const arrow = document.getElementById('arrow-' + id);
-    if (content) {
-        content.classList.toggle('open');
-        if (arrow) arrow.classList.toggle('open');
-    }
-}
-
-function toggleCard(index) {
-    const body = document.getElementById('card-body-' + index);
-    const icon = document.getElementById('accordion-icon-' + index);
-    if (body) {
-        body.classList.toggle('open');
-        if (icon) icon.classList.toggle('rotated');
-    }
 }
 
 // ========== VER HISTORIAL ==========
@@ -1792,7 +1003,6 @@ function verHistorial() {
                     <b>🧾 ${escapeHtml(h.paciente)}</b> ${badges}
                     <div style="font-size:0.8rem;color:#8aa2e0;margin-top:2px;">
                         📆 ${fechaStr} · Puntaje: <strong style="color:#00ffd5;">${h.total}</strong> · ${h.categoria}
-                        ${h.creadoPor ? `<span style="font-size:0.65rem;color:#4a6a8a;"> · 👤 ${escapeHtml(h.creadoPor)}</span>` : ''}
                     </div>
                 </div>
                 <span class="accordion-icon" id="accordion-icon-${index}">▼</span>
@@ -1808,6 +1018,108 @@ function verHistorial() {
         </div>`;
     });
     historialDiv.innerHTML = html;
+}
+
+// ========== EXPORTAR DATOS (JSON) ==========
+function exportarDatos() {
+    if (historialEvaluaciones.length === 0) {
+        alert('No hay datos para exportar.');
+        return;
+    }
+    
+    const data = {
+        version: '1.0',
+        exportado: new Date().toISOString(),
+        totalRegistros: historialEvaluaciones.length,
+        evaluaciones: historialEvaluaciones
+    };
+    
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `IPK_R65_backup_${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+// ========== IMPORTAR DATOS (JSON) ==========
+function importarDatos(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const data = JSON.parse(e.target.result);
+            if (data.evaluaciones && Array.isArray(data.evaluaciones)) {
+                if (confirm(`¿Importar ${data.evaluaciones.length} registros? Los datos actuales se mantendrán.`)) {
+                    // Fusionar sin duplicados por ID
+                    const idsExistentes = new Set(historialEvaluaciones.map(h => h.id));
+                    let nuevos = 0;
+                    for (const item of data.evaluaciones) {
+                        if (!idsExistentes.has(item.id)) {
+                            historialEvaluaciones.push(item);
+                            nuevos++;
+                        }
+                    }
+                    guardarEnIndexedDB();
+                    actualizarStats();
+                    verHistorial();
+                    alert(`✅ Importados ${nuevos} registros nuevos. Total: ${historialEvaluaciones.length}`);
+                }
+            } else {
+                alert('❌ Formato de archivo inválido.');
+            }
+        } catch (err) {
+            alert('❌ Error al leer el archivo: ' + err.message);
+        }
+    };
+    reader.readAsText(file);
+    event.target.value = '';
+}
+
+// ========== SINCRONIZAR PESTAÑAS ==========
+function sincronizarPestanas() {
+    // Usar BroadcastChannel para sincronizar entre pestañas
+    try {
+        const channel = new BroadcastChannel('ipk_r65_sync');
+        channel.postMessage({ type: 'sync', data: historialEvaluaciones });
+        channel.onmessage = function(e) {
+            if (e.data.type === 'sync') {
+                historialEvaluaciones = e.data.data;
+                guardarEnIndexedDB();
+                actualizarStats();
+                verHistorial();
+                document.getElementById('res').innerHTML = '🔄 Datos sincronizados con otra pestaña';
+            }
+        };
+        // Pedir sincronización a otras pestañas
+        channel.postMessage({ type: 'request_sync' });
+        setTimeout(() => {
+            channel.close();
+        }, 5000);
+        document.getElementById('res').innerHTML = '🔄 Solicitando sincronización con otras pestañas...';
+    } catch (e) {
+        // Fallback: usar localStorage
+        localStorage.setItem('ipk_r65_sync_request', Date.now().toString());
+        document.getElementById('res').innerHTML = '🔄 Sincronización mediante localStorage (puede tomar unos segundos)';
+        // Escuchar cambios en localStorage
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'ipk_r65_sync_request') {
+                // Otra pestaña pidió sincronización
+                const channel = new BroadcastChannel('ipk_r65_sync');
+                channel.postMessage({ type: 'sync', data: historialEvaluaciones });
+                channel.close();
+            }
+            if (e.key === 'ipk_r65_backup') {
+                // Otra pestaña guardó datos
+                cargarDesdeLocalStorage();
+                actualizarStats();
+                verHistorial();
+            }
+        });
+    }
 }
 
 // ========== EXPORTAR EXCEL ==========
@@ -1826,8 +1138,7 @@ function exportarExcel() {
             "Categoría": h.categoria,
             "Soporte psicosocial": h.soporte,
             "No puede consentir": h.noPuedeConsentir ? "Sí" : "No",
-            "Observaciones": h.observaciones || "",
-            "Creado por": h.creadoPor || 'anónimo'
+            "Observaciones": h.observaciones || ""
         };
         
         if (h.puntajes) {
@@ -1853,23 +1164,33 @@ function exportarExcel() {
     XLSX.writeFile(wb, `IPK_R65_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.xlsx`);
 }
 
+// ========== LIMPIAR HISTORIAL ==========
 function limpiarHistorial() {
     if (confirm("¿Eliminar TODO el historial?")) {
         historialEvaluaciones = [];
-        guardarHistorialLocal();
+        guardarEnIndexedDB();
         document.getElementById("historial").innerHTML = "";
         document.getElementById("res").innerHTML = "🧹 Historial eliminado.";
-        debugLog('Historial eliminado', 'info');
-        
-        if (firebaseConnected && authenticated && !modoLocal && database) {
-            database.ref(RUTA_COMPARTIDA).remove().then(() => {
-                document.getElementById('firebaseText').innerHTML = '🧹 Datos eliminados';
-                document.getElementById('remoteStats').textContent = '📊 0 registros';
-                debugLog('Datos eliminados de Firebase', 'ok');
-            }).catch(err => {
-                debugLog('Error al limpiar Firebase: ' + err.message, 'error');
-            });
-        }
+        actualizarStats();
+    }
+}
+
+// ========== TOGGLES ==========
+function toggleConsejos(id) {
+    const content = document.getElementById('consejos-' + id);
+    const arrow = document.getElementById('arrow-' + id);
+    if (content) {
+        content.classList.toggle('open');
+        if (arrow) arrow.classList.toggle('open');
+    }
+}
+
+function toggleCard(index) {
+    const body = document.getElementById('card-body-' + index);
+    const icon = document.getElementById('accordion-icon-' + index);
+    if (body) {
+        body.classList.toggle('open');
+        if (icon) icon.classList.toggle('rotated');
     }
 }
 
@@ -1884,61 +1205,24 @@ function escapeHtml(str) {
 }
 
 // ========== INICIALIZACIÓN ==========
-cargarHistorialLocal();
-
-if (firebaseAvailable && auth) {
-    auth.onAuthStateChanged(user => {
-        if (user) {
-            debugLog(`Auth state: Usuario autenticado: ${user.displayName || user.email}`, 'ok');
-            actualizarUsuario(user);
-            conectarDatabase();
-        } else {
-            debugLog('Auth state: Usuario NO autenticado', 'info');
-            authenticated = false;
-            userId = null;
-            userEmail = null;
-            userDisplayName = null;
-            firebaseConnected = false;
-            document.getElementById('firebaseDot').className = 'dot dot-offline';
-            document.getElementById('firebaseText').innerHTML = '🔴 No autenticado';
-            document.getElementById('userInfo').textContent = '👤 Sin autenticar';
-            document.getElementById('userInfo').className = 'user-info';
-            document.getElementById('loginBtn').style.display = 'block';
-            document.getElementById('registerBtn').style.display = 'block';
-            document.getElementById('logoutBtn').style.display = 'none';
-            document.getElementById('userProfile').style.display = 'none';
-            
-            cargarHistorialLocal();
-            verHistorial();
-        }
+document.addEventListener('DOMContentLoaded', function() {
+    initDatabase().then(() => {
+        actualizarStats();
+        verHistorial();
+        document.getElementById('statusText').textContent = '💾 Datos guardados en IndexedDB + localStorage';
     });
-} else {
-    debugLog('Firebase no disponible - modo local', 'error');
-    iniciarModoLocal();
-}
+});
 
-// ========== EXPONER FUNCIONES ==========
+// Exponer funciones globalmente
 window.evaluar = evaluar;
-window.loginWithEmail = loginWithEmail;
-window.registerWithEmail = registerWithEmail;
-window.logoutEmail = logoutEmail;
-window.mostrarLogin = mostrarLogin;
-window.mostrarRegistro = mostrarRegistro;
-window.cambiarALogin = cambiarALogin;
-window.cambiarARegistro = cambiarARegistro;
-window.guardarFirebase = guardarFirebase;
-window.cargarFirebase = cargarFirebase;
 window.verHistorial = verHistorial;
 window.exportarExcel = exportarExcel;
 window.limpiarHistorial = limpiarHistorial;
-window.syncWithFirebase = syncWithFirebase;
-window.forzarReconexion = forzarReconexion;
+window.exportarDatos = exportarDatos;
+window.importarDatos = importarDatos;
+window.sincronizarPestanas = sincronizarPestanas;
 window.toggleConsejos = toggleConsejos;
 window.toggleCard = toggleCard;
-window.testFirebase = testFirebase;
-window.reenviarVerificacion = reenviarVerificacion;
-window.usarModoLocal = usarModoLocal;
-window.iniciarModoLocal = iniciarModoLocal;
 </script>
 </body>
 </html>
