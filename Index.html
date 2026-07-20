@@ -299,7 +299,7 @@ async function subirANube() {
     document.getElementById('syncBadge').textContent = '☁️ SUBIENDO...';
     
     try {
-        // Eliminar datos existentes con esta clave
+        // Primero eliminar datos existentes con esta clave
         const { error: deleteError } = await supabaseClient
             .from('encuestas')
             .delete()
@@ -430,7 +430,7 @@ async function bajarDeNube() {
     }
 }
 
-// ========== EL RESTO DE LAS FUNCIONES DE LA ENCUESTA ==========
+// ========== ENVIAR ENCUESTA ==========
 function enviarEncuesta() {
     const resDiv = document.getElementById("res");
 
