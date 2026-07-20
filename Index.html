@@ -220,8 +220,8 @@ button:active { transform: scale(0.98); }
 </div>
 
 <script>
-// ========== 🔑 CONFIGURACIÓN SUPABASE ==========
-const SUPABASE_URL = 'https://moclokzexdywlbluykar.supabase.co/rest/v1/';
+// ========== 🔑 CONFIGURACIÓN SUPABASE (CORREGIDA) ==========
+const SUPABASE_URL = 'https://moclokzexdywlbluykar.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1vY2xva3pleGR5d2xibHV5a2FyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1NzYyNDEsImV4cCI6MjEwMDE1MjI0MX0.BCkKQrWaZ9_3oZgpcwc54KUR_iiKH7PvyEr6APQNLuQ';
 
 // ========== INICIALIZAR SUPABASE ==========
@@ -300,10 +300,14 @@ async function subirANube() {
     
     try {
         // Eliminar datos existentes con esta clave
-        await supabaseClient
+        const { error: deleteError } = await supabaseClient
             .from('encuestas')
             .delete()
             .eq('clave_compartida', syncKey);
+        
+        if (deleteError) {
+            console.warn('Error al eliminar datos existentes:', deleteError);
+        }
         
         // Preparar datos para insertar
         const datosParaInsertar = encuestas.map(e => ({
@@ -326,7 +330,7 @@ async function subirANube() {
         }));
         
         // Insertar datos
-        const { error } = await supabaseClient
+        const { error, data } = await supabaseClient
             .from('encuestas')
             .insert(datosParaInsertar);
         
