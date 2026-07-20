@@ -220,7 +220,7 @@ button:active { transform: scale(0.98); }
 </div>
 
 <script>
-// ========== 🔑 CONFIGURACIÓN SUPABASE (CORREGIDA) ==========
+// ========== 🔑 CONFIGURACIÓN SUPABASE ==========
 const SUPABASE_URL = 'https://moclokzexdywlbluykar.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1vY2xva3pleGR5d2xibHV5a2FyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1NzYyNDEsImV4cCI6MjEwMDE1MjI0MX0.BCkKQrWaZ9_3oZgpcwc54KUR_iiKH7PvyEr6APQNLuQ';
 
@@ -300,13 +300,14 @@ async function subirANube() {
     
     try {
         // Primero eliminar datos existentes con esta clave
-        const { error: deleteError } = await supabaseClient
-            .from('encuestas')
-            .delete()
-            .eq('clave_compartida', syncKey);
-        
-        if (deleteError) {
-            console.warn('Error al eliminar datos existentes:', deleteError);
+        try {
+            await supabaseClient
+                .from('encuestas')
+                .delete()
+                .eq('clave_compartida', syncKey);
+        } catch(e) {
+            // Si no se puede eliminar, continuar
+            console.log('No se pudieron eliminar datos existentes:', e.message);
         }
         
         // Preparar datos para insertar
@@ -329,21 +330,29 @@ async function subirANube() {
             clave_compartida: syncKey
         }));
         
-        // Insertar datos
-        const { error, data } = await supabaseClient
-            .from('encuestas')
-            .insert(datosParaInsertar);
-        
-        if (error) {
-            throw new Error(error.message);
+        // Insertar datos uno por uno (más estable)
+        let errores = 0;
+        for (const item of datosParaInsertar) {
+            const { error } = await supabaseClient
+                .from('encuestas')
+                .insert(item);
+            
+            if (error) {
+                errores++;
+                console.log('Error insertando:', error.message);
+            }
         }
         
-        status.innerHTML = `✅ ${encuestas.length} encuestas subidas a Supabase!`;
+        if (errores > 0 && errores === datosParaInsertar.length) {
+            throw new Error('No se pudo insertar ningún registro');
+        }
+        
+        status.innerHTML = `✅ ${datosParaInsertar.length - errores} de ${datosParaInsertar.length} encuestas subidas a Supabase!`;
         status.style.color = '#00d97a';
         dot.className = 'dot dot-online';
         document.getElementById('statusText').textContent = '☁️ Datos en la nube';
         document.getElementById('syncBadge').textContent = '☁️ ONLINE';
-        document.getElementById('res').innerHTML = `☁️ ${encuestas.length} encuestas subidas correctamente`;
+        document.getElementById('res').innerHTML = `☁️ ${datosParaInsertar.length - errores} encuestas subidas correctamente`;
         
     } catch (error) {
         status.innerHTML = '❌ Error al subir: ' + error.message;
@@ -430,7 +439,7 @@ async function bajarDeNube() {
     }
 }
 
-// ========== ENVIAR ENCUESTA ==========
+// ========== EL RESTO DE LAS FUNCIONES DE LA ENCUESTA ==========
 function enviarEncuesta() {
     const resDiv = document.getElementById("res");
 
