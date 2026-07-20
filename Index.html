@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>📊 IPK-R65 - Encuestas Compartidas</title>
+<title>📊 IPK-R65 - Encuestas Completas</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <style>
@@ -14,6 +14,7 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #0b1220; color: #
 .section h3 { margin-top: 0; margin-bottom: 15px; color: #00ffd5; display: flex; align-items: center; gap: 8px; }
 label { display: block; margin-top: 14px; font-weight: 700; color: #c2d6ff; font-size: 0.95rem; }
 select, input { width: 100%; padding: 12px; margin-top: 6px; border-radius: 12px; border: 1px solid #2b3c5f; background: #0b1220; color: #e6f1ff; font-size: 0.85rem; }
+select option { padding: 8px; }
 button { padding: 12px; margin-top: 12px; border-radius: 40px; border: none; font-weight: bold; font-size: 0.95rem; cursor: pointer; transition: transform 0.1s; }
 button:active { transform: scale(0.98); }
 .primary { background: linear-gradient(90deg, #00ffd5, #00a3ff); color: #001018; }
@@ -44,13 +45,21 @@ button:active { transform: scale(0.98); }
 .puntaje-detalle .valor { color: #00ffd5; font-weight: bold; }
 .shared-badge { background: #00ffd5; color: #001018; padding: 2px 10px; border-radius: 12px; font-size: 0.7rem; font-weight: bold; }
 .sync-key-input { background: #0a1122; border: 1px solid #2b3c5f; color: #00ffd5; padding: 8px 12px; border-radius: 8px; font-family: monospace; font-size: 0.9rem; width: 100%; max-width: 300px; }
+.warning-badge { background: #ffb74d; color: #1a1a2e; padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; margin-left: 8px; }
+.observation-note { background: #1a2744; padding: 10px; border-radius: 10px; margin-top: 12px; font-size: 0.85rem; border-left: 3px solid #ffb74d; }
+.consejos-container { background: #0a1a2f; border-radius: 14px; padding: 15px; margin-top: 15px; border: 1px solid #2a3a60; }
+.consejos-container h4 { color: #00ffd5; margin: 0 0 12px 0; font-size: 1rem; }
+.consejo-item { background: #0f1b33; margin: 8px 0; padding: 12px; border-radius: 10px; display: flex; flex-direction: column; gap: 6px; border-left: 3px solid #00ffd5; }
+.consejo-titulo { font-weight: bold; color: #00ffd5; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; }
+.consejo-descripcion { font-size: 0.85rem; color: #c2d6ff; line-height: 1.4; }
+.consejo-ejercicios { font-size: 0.82rem; color: #a9c1ff; background: #0b1220; padding: 8px 10px; border-radius: 8px; margin-top: 5px; border-left: 2px solid #ffb74d; }
 </style>
 </head>
 
 <body>
 
 <div class="container">
-<h1>📊 IPK-R65 - Encuestas</h1>
+<h1>📊 IPK-R65 - Encuestas Completas</h1>
 <div class="sub">📡 Todas las encuestas se guardan en la nube. Cualquier persona con la misma clave ve el historial.</div>
 
 <div class="status-bar" id="statusBar">
@@ -80,99 +89,111 @@ button:active { transform: scale(0.98); }
     </div>
 </div>
 
-<!-- FORMULARIO -->
+<!-- PACIENTE -->
 <div class="section">
-<h3>📝 Nueva Encuesta</h3>
+<h3>🧑‍⚕️ Identificación del paciente</h3>
+<input id="paciente" placeholder="Ej: HSJ-042 / Nombre o código" autocomplete="off">
+<div style="color:#6a8aaa; font-size:0.75rem; margin-top:4px; padding-left:4px;">📌 Ingrese ID, iniciales o número de historia clínica</div>
+</div>
 
-<label>👤 Nombre del paciente</label>
-<input id="paciente" placeholder="Ej: Juan Pérez">
+<!-- VARIABLES CLÍNICAS OBJETIVAS -->
+<div class="section">
+<h3>📊 Variables clínicas basales</h3>
 
 <label>🔻 Estabilidad hemodinámica</label>
 <select id="hemo">
-<option value="no">❌ No estable</option>
-<option value="si">✅ Estable</option>
+<option value="no">❌ No estable — Inestabilidad de signos vitales (TA, FC, FR alterados), requiere monitoreo continuo, no movilizar</option>
+<option value="si">✅ Estable — TA, FC, FR dentro de parámetros seguros para el reposo y la movilización progresiva</option>
 </select>
 
-<label>🤝 Capacidad de consentir</label>
+<label>🤝 Capacidad de consentir / Colaboración <span class="warning-badge">Informativo, no bloquea</span></label>
 <select id="acepta">
-<option value="si">👍 Sí puede</option>
-<option value="no_puede">🧠 No puede</option>
-<option value="no">🚫 No acepta</option>
+<option value="si">👍 Sí puede consentir — Comprende la información, acepta voluntariamente participar en el plan kinésico</option>
+<option value="no_puede">🧠 No puede consentir — Deterioro cognitivo severo, sedación profunda, trastorno de conciencia (se evalúa con cuidador/familiar)</option>
+<option value="no">🚫 No acepta — Rechaza activamente la intervención kinésica por decisión propia informada</option>
 </select>
 
-<label>📅 Edad funcional</label>
+<label>📅 Edad funcional (riesgo biológico)</label>
 <select id="edad">
-<option value="0">👴 ≥75 años</option>
-<option value="5">🧑 &lt;75 años</option>
+<option value="0">👴 ≥75 años — Mayor fragilidad asociada, mayor riesgo de sarcopenia, comorbilidades y menor reserva funcional</option>
+<option value="5">🧑 &lt;75 años — Menor riesgo etario, generalmente mejor reserva fisiológica y capacidad de recuperación</option>
 </select>
 
-<label>💪 Reserva funcional</label>
+<label>💪 Reserva funcional (previo a enfermedad aguda)</label>
 <select id="v1">
-<option value="0">🦽 Severa</option>
-<option value="6">🚶 Parcial</option>
-<option value="12">🏃 Independiente</option>
+<option value="0">🦽 Severa — Dependiente para actividades básicas de la vida diaria (ABVD), postrado en cama o silla de ruedas, requiere asistencia total</option>
+<option value="6">🚶 Parcial — Requiere ayuda para algunas actividades como baño, vestimenta o transferencias, deambula con asistencia</option>
+<option value="12">🏃 Independiente — Se moviliza sin asistencia, realiza ABVD solo, vida activa previa a la hospitalización</option>
 </select>
 
-<label>⚙️ Complejidad clínica</label>
+<label>⚙️ Complejidad clínica (comorbilidades/gravedad)</label>
 <select id="v2">
-<option value="0">🔴 Alta</option>
-<option value="6">🟡 Media</option>
-<option value="12">🟢 Baja</option>
+<option value="0">🔴 Alta — Múltiples patologías descompensadas (Ej: ICC+EPOC+IRC), alto riesgo de eventos adversos, manejo complejo</option>
+<option value="6">🟡 Media — Comorbilidades controladas con tratamiento, estabilidad clínica relativa, riesgo moderado</option>
+<option value="12">🟢 Baja — Patología única o sin repercusión sistémica importante, buen estado general basal</option>
 </select>
 
-<label>👨‍👩‍👧 Red de apoyo</label>
+<label>👨‍👩‍👧 Red de apoyo (familiar/cuidador)</label>
 <select id="v3">
-<option value="0">🏚️ Sin apoyo</option>
-<option value="4">🤝 Parcial</option>
-<option value="8">🏠 Fuerte</option>
+<option value="0">🏚️ Sin apoyo — Vive solo, sin cuidador formal o informal, dificultad para seguimiento ambulatorio</option>
+<option value="4">🤝 Parcial — Familiar o cuidador que ayuda de forma intermitente, pero con limitaciones de tiempo o capacitación</option>
+<option value="8">🏠 Fuerte — Cuidador presente y entrenado, soporte emocional y logístico continuo, vivienda adaptada</option>
 </select>
 
-<label>🎯 Motivación basal</label>
+<label>🎯 Motivación basal (disposición para rehabilitación)</label>
 <select id="v4">
-<option value="0">😞 Baja</option>
-<option value="4">🔄 Variable</option>
-<option value="8">🔥 Alta</option>
-<option value="0">🚫 No puede</option>
+<option value="0">😞 Baja — Poco o nulo interés en participar de actividades terapéuticas, actitud pasiva o negativa</option>
+<option value="4">🔄 Variable — A veces colabora, otras no, depende del estímulo o del momento del día</option>
+<option value="8">🔥 Alta — Participa activamente, busca información, muestra entusiasmo por mejorar su condición</option>
+<option value="0">🚫 No puede colaborar — Por déficit neurológico severo, sedación, alteración de conciencia o barrera cognitiva</option>
 </select>
+</div>
 
-<label>🧓 Edad funcional clínica</label>
+<!-- JUICIO CLÍNICO -->
+<div class="section">
+<h3>🧠 Juicio kinésico (evaluador profesional)</h3>
+
+<label>🧓 Edad funcional clínica (percepción del kinesiólogo)</label>
 <select id="j1">
-<option value="0">📉 Baja</option>
-<option value="3">📊 Media</option>
-<option value="6">📈 Alta</option>
+<option value="0">📉 Baja — El paciente se comporta como muy anciano/frágil, con limitaciones superiores a lo esperado por edad cronológica</option>
+<option value="3">📊 Media — Acorde a su edad cronológica, desempeño funcional esperable</option>
+<option value="6">📈 Alta — Vitalidad y desempeño funcional superior a lo esperado para su edad</option>
 </select>
 
-<label>💡 Motivación observada</label>
+<label>💡 Motivación observada en sesión (conducta durante evaluación)</label>
 <select id="j2">
-<option value="0">🪨 Nula</option>
-<option value="3">⚡ Parcial</option>
-<option value="6">✨ Alta</option>
-<option value="0">❌ No puede</option>
+<option value="0">🪨 Nula — Total pasividad, sin iniciativa, no responde a estímulos verbales o táctiles</option>
+<option value="3">⚡ Parcial — Reacciona ante estímulos pero no busca activamente participar, requiere constante redirección</option>
+<option value="6">✨ Alta — Entusiasmo evidente, participa voluntariamente, realiza preguntas, busca superarse</option>
+<option value="0">❌ No puede colaborar — Alteración de conciencia, déficit cognitivo severo o condición que impide expresión de motivación</option>
 </select>
 
-<label>🔄 Adherencia</label>
+<label>🔄 Adherencia a indicaciones (capacidad de seguir órdenes)</label>
 <select id="j3">
-<option value="0">⚠️ Baja</option>
-<option value="3">📋 Media</option>
-<option value="6">🧠 Alta</option>
-<option value="0">🚫 No puede</option>
+<option value="0">⚠️ Baja — No sigue instrucciones, olvida ejercicios, requiere supervisión constante y repetitiva</option>
+<option value="3">📋 Media — Sigue instrucciones con ayuda o recordatorios visuales/verbales, requiere supervisión ocasional</option>
+<option value="6">🧠 Alta — Realiza correctamente los ejercicios sin supervisión, comprende y recuerda las indicaciones</option>
+<option value="0">🚫 No puede colaborar — Imposibilidad por condición clínica (afasia, demencia avanzada, sedación)</option>
 </select>
 
-<label>🤲 Apoyo del cuidador</label>
+<label>🤲 Apoyo del cuidador (desde perspectiva kinésica)</label>
 <select id="j4">
-<option value="0">❌ Ausente</option>
-<option value="3">🕒 Irregular</option>
-<option value="6">✅ Constante</option>
+<option value="0">❌ Ausente — No hay cuidador identificado o no se involucra en el proceso terapéutico</option>
+<option value="3">🕒 Irregular — Apoyo esporádico, poco compromiso con las indicaciones, dificultad para continuidad en domicilio</option>
+<option value="6">✅ Constante — Cuidador presente y entrenado activamente, participa en sesiones, refuerza aprendizajes</option>
 </select>
 
-<label>🏋️ Tolerancia al esfuerzo</label>
+<label>🏋️ Tolerancia al esfuerzo (respuesta durante actividad física)</label>
 <select id="j5">
-<option value="0">🪫 Baja</option>
-<option value="3">⚖️ Moderada</option>
-<option value="6">⚡ Alta</option>
-<option value="0">⛔ No puede</option>
+<option value="0">🪫 Baja — Fatiga extrema, desaturación (SpO2 &lt;88%), disnea intensa, no completa series de ejercicios</option>
+<option value="3">⚖️ Moderada — Se fatiga pero completa ejercicios con pausas, ligera disnea, recuperación en &lt;5 min</option>
+<option value="6">⚡ Alta — Buen desempeño cardiorrespiratorio, sin desaturación, fatiga mínima, completa series sin dificultad</option>
+<option value="0">⛔ No puede colaborar — Paciente no puede realizar esfuerzo dirigido por inestabilidad, dolor severo o indicación médica</option>
 </select>
+</div>
 
+<!-- BOTONES -->
+<div class="section">
 <div class="flex-buttons">
     <button class="primary" onclick="enviarEncuesta()">📤 Enviar encuesta</button>
     <button class="secondary" onclick="verHistorial()">📋 Ver historial</button>
@@ -395,38 +416,64 @@ async function cargarEncuestas() {
 // ========== ENVIAR ENCUESTA ==========
 function enviarEncuesta() {
     const resDiv = document.getElementById("res");
-    const hemo = document.getElementById('hemo');
-    const acepta = document.getElementById('acepta');
 
-    if (hemo.value === "no") {
-        resDiv.innerHTML = "⛔ PACIENTE NO ESTABLE";
+    if (document.getElementById('hemo').value === "no") {
+        resDiv.innerHTML = "⛔ PACIENTE NO ESTABLE HEMODINÁMICAMENTE. No se puede evaluar hasta estabilización.";
         return;
     }
-    if (acepta.value === "no") {
-        resDiv.innerHTML = "❌ El paciente RECHAZA";
+    if (document.getElementById('acepta').value === "no") {
+        resDiv.innerHTML = "❌ El paciente RECHAZA ACTIVAMENTE la intervención. Suspender evaluación.";
         return;
     }
 
+    const noPuedeConsentir = (document.getElementById('acepta').value === "no_puede");
+    
     const puntajes = {
         'Edad funcional': parseInt(document.getElementById('edad').value) || 0,
         'Reserva funcional': parseInt(document.getElementById('v1').value) || 0,
-        'Complejidad': parseInt(document.getElementById('v2').value) || 0,
+        'Complejidad clínica': parseInt(document.getElementById('v2').value) || 0,
         'Red de apoyo': parseInt(document.getElementById('v3').value) || 0,
-        'Motivación': parseInt(document.getElementById('v4').value) || 0,
+        'Motivación basal': parseInt(document.getElementById('v4').value) || 0,
         'Edad funcional clínica': parseInt(document.getElementById('j1').value) || 0,
         'Motivación observada': parseInt(document.getElementById('j2').value) || 0,
         'Adherencia': parseInt(document.getElementById('j3').value) || 0,
-        'Apoyo cuidador': parseInt(document.getElementById('j4').value) || 0,
-        'Tolerancia': parseInt(document.getElementById('j5').value) || 0
+        'Apoyo del cuidador': parseInt(document.getElementById('j4').value) || 0,
+        'Tolerancia al esfuerzo': parseInt(document.getElementById('j5').value) || 0
     };
     
     let total = Object.values(puntajes).reduce((a, b) => a + b, 0);
     let soporte = (parseInt(document.getElementById('v3').value)||0) + (parseInt(document.getElementById('j4').value)||0) + (parseInt(document.getElementById('v4').value)||0);
-    
+
+    let noColaboraCount = 0;
+    const selectoresNoColaboracion = ['v4', 'j2', 'j3', 'j5'];
+    for (let i = 0; i < selectoresNoColaboracion.length; i++) {
+        const el = document.getElementById(selectoresNoColaboracion[i]);
+        const selectedText = el.options[el.selectedIndex]?.text;
+        if (selectedText && selectedText.includes("No puede colaborar")) {
+            noColaboraCount++;
+        }
+    }
+
+    const perfil = {
+        motivacionBaja: (parseInt(document.getElementById('v4').value)||0) === 0 && !document.querySelector('#v4 option:checked')?.text.includes("No puede colaborar"),
+        motivacionAlta: (parseInt(document.getElementById('v4').value)||0) >= 4,
+        adherenciaBaja: (parseInt(document.getElementById('j3').value)||0) === 0,
+        adherenciaAlta: (parseInt(document.getElementById('j3').value)||0) >= 6,
+        toleranciaBaja: (parseInt(document.getElementById('j5').value)||0) === 0,
+        toleranciaAlta: (parseInt(document.getElementById('j5').value)||0) >= 6
+    };
+
     const categoria = total >= 50 ? "🟢 ALTO BENEFICIO" : 
                       total >= 35 ? "🟡 INTERMEDIO" : 
                       total >= 20 ? "🔴 PREVENTIVO/FRÁGIL" : "⚫ BAJO GLOBAL";
-    
+
+    // Generar consejos personalizados
+    const consejos = generarConsejos(total, soporte, noPuedeConsentir, noColaboraCount, perfil);
+
+    let observaciones = "";
+    if (noPuedeConsentir) observaciones += "🧠 Paciente NO PUEDE CONSENTIR. Evaluación mediante cuidador. ";
+    if (noColaboraCount >= 2) observaciones += `📌 ${noColaboraCount} ítem(s) con "No puede colaborar".`;
+
     const encuesta = {
         id: Date.now().toString(36) + Math.random().toString(36).substring(2, 6),
         paciente: document.getElementById('paciente').value.trim() || "Anónimo",
@@ -435,27 +482,179 @@ function enviarEncuesta() {
         total: total,
         categoria: categoria,
         soporte: soporte,
+        noPuedeConsentir: noPuedeConsentir,
+        itemsSinColaboracion: noColaboraCount,
+        observaciones: observaciones,
         puntajes: puntajes,
-        hemo: hemo.value,
-        acepta: acepta.value
+        consejos: consejos,
+        hemo: document.getElementById('hemo').value,
+        acepta: document.getElementById('acepta').value,
+        creadoPor: 'usuario'
     };
     
     encuestas.unshift(encuesta);
     guardarLocal();
-    guardarEncuestas(); // Guardado automático en la nube
+    guardarEncuestas();
     mostrarResultado(encuesta);
     verHistorial();
-    document.getElementById('paciente').value = '';
 }
 
-function mostrarResultado(encuesta) {
+function generarConsejos(total, soporte, noPuedeConsentir, noColaboraCount, perfil) {
+    const consejos = [];
+    
+    if (total >= 50) {
+        consejos.push({
+            titulo: "🏆 ALTA INTENSIDAD - Paciente con alto potencial",
+            ayuda: "Motivar al paciente con metas desafiantes pero alcanzables. Usar refuerzos positivos y gráficos de progreso. Celebrar cada logro.",
+            ejercicios: "Ejercicios: Entrenamiento intervalado de alta intensidad (HIIT) 2-3 min × 4 series. Circuito funcional: sentadillas, step, levantamiento de brazos con resistencia (bandas elásticas), marcha en el lugar 10 min. Frecuencia: 5-7 sesiones/semana."
+        });
+    } else if (total >= 35) {
+        consejos.push({
+            titulo: "📈 INTENSIDAD MODERADA - Buen candidato a rehabilitación",
+            ayuda: "Establecer contrato terapéutico con metas semanales. Usar agenda de ejercicios. Involucrar a familiar para refuerzo domiciliario.",
+            ejercicios: "Ejercicios: Fortalecimiento de miembros inferiores (puente, elevación de pierna, mini-sentadilla con soporte). Miembros superiores (lifting de pesas 1-2kg, flexiones de pared). Marcha asistida 15-20 min. Frecuencia: 3-4 sesiones/semana."
+        });
+    } else if (total >= 20) {
+        consejos.push({
+            titulo: "🛡️ INTENSIDAD BAJA - Enfoque preventivo",
+            ayuda: "Priorizar la seguridad y la confianza. Sesiones cortas pero frecuentes. Explicar cada ejercicio paso a paso. Celebrar pequeños logros.",
+            ejercicios: "Ejercicios: Movilizaciones pasivas y activas asistidas de grandes articulaciones (hombro, cadera, rodilla). Ejercicios respiratorios (respiración diafragmática). Transferencias asistidas (sentado a parado con apoyo). Frecuencia: 2-3 sesiones/semana, sesiones de 15-20 min."
+        });
+    } else {
+        consejos.push({
+            titulo: "🔍 INTENSIDAD MUY BAJA - Paciente complejo",
+            ayuda: "Enfoque multidisciplinario. Coordinar con médico tratante, terapia ocupacional y trabajo social. Sesiones muy cortas (5-10 min) para evitar sobrecarga.",
+            ejercicios: "Ejercicios: Movilizaciones pasivas suaves en decúbito. Ejercicios isométricos (contracción sin movimiento). Posicionamiento terapéutico para prevenir contracturas y úlceras por presión. Objetivo: mantener rango articular básico."
+        });
+    }
+    
+    if (soporte >= 12) {
+        consejos.push({
+            titulo: "👨‍👩‍👧‍👦 RED DE APOYO SÓLIDA - Aprovechar recurso familiar",
+            ayuda: "Capacitar al cuidador principal en técnicas de asistencia y transferencias seguras. Entregar material educativo escrito. Establecer comunicación diaria con el equipo.",
+            ejercicios: "Ejercicios para entrenar con cuidador: Transferencias cama-silla paso a paso, ejercicios de rango de movimiento asistidos, caminata con supervisión, uso correcto de ayudas técnicas (andador, bastón)."
+        });
+    } else if (soporte >= 7) {
+        consejos.push({
+            titulo: "🤝 FORTALECER RED DE APOYO - Gestionar recursos",
+            ayuda: "Coordinar con trabajo social para identificar programas de apoyo comunitario, centros de día o cuidadores rotativos. Entregar guías de ejercicios sencillos.",
+            ejercicios: "Ejercicios que el cuidador puede supervisar: Series cortas de ejercicios de pie y sentado (3-5 repeticiones), registro diario de actividad, caminata corta dentro del hogar (5-10 min)."
+        });
+    } else {
+        consejos.push({
+            titulo: "🏠 SOPORTE INSUFICIENTE - Gestión prioritaria",
+            ayuda: "Derivación URGENTE a asistente social. Evaluar internación transitoria, teleasistencia diaria o programa de hospital domiciliario. Documentar riesgo de abandono terapéutico.",
+            ejercicios: "Ejercicios autoadministrados con guía por video o folleto ilustrado: Estiramientos basicos en cama, ejercicios respiratorios, movilizaciones de miembros superiores e inferiores en sedestación. Priorizar seguridad."
+        });
+    }
+    
+    if (noPuedeConsentir) {
+        consejos.push({
+            titulo: "🧠 PACIENTE SIN CAPACIDAD DE CONSENTIR - Estrategia con cuidador",
+            ayuda: "Designar un familiar como 'proxy decisor'. Usar comunicación no verbal para evaluar confort. Sesiones cortas (10-15 min) para evitar sobreestimulación.",
+            ejercicios: "Ejercicios pasivos: Movilizaciones suaves de hombros (flexión, abducción), codos (flexo-extensión), muñecas, cadera (flexión con rodilla flexionada), tobillos (flexo-extensión). 5-8 repeticiones por articulación, 2 series."
+        });
+    } else {
+        consejos.push({
+            titulo: "💬 PACIENTE CON CAPACIDAD DE DECIDIR - Estrategia motivacional",
+            ayuda: "Realizar entrevista motivacional: preguntar sobre metas personales, miedos y expectativas. Establecer metas SMART (específicas, medibles, alcanzables, relevantes, con tiempo).",
+            ejercicios: "Ejercicios con feedback del paciente: Permitir elegir orden de ejercicios, autorregular intensidad según escala de Borg (objetivo 3-4/10), autoevaluación post-sesión. Uso de apps de seguimiento si disponible."
+        });
+    }
+    
+    if (perfil.motivacionBaja) {
+        consejos.push({
+            titulo: "🎯 BAJA MOTIVACIÓN - Estrategias conductuales",
+            ayuda: "Usar economía de fichas (acumular puntos por ejercicio completado). Gamificación: competencia consigo mismo, medir pasos/repeticiones. Reforzadores sociales (elogio frecuente).",
+            ejercicios: "Ejercicios lúdicos: Lanzamiento de pelota suave, juegos de equilibrio (pararse en un pie con apoyo), circuito corto con estaciones de colores, música durante ejercicios rítmicos. Premiar con descanso activo."
+        });
+    } else if (perfil.motivacionAlta) {
+        consejos.push({
+            titulo: "🔥 ALTA MOTIVACIÓN - Aprovechar entusiasmo",
+            ayuda: "Desafiar con metas progresivas. Entregar responsabilidad: auto-registro de ejercicios domiciliarios. Programar seguimiento con aplicaciones móviles si está disponible.",
+            ejercicios: "Ejercicios avanzados: Subir y bajar escaleras (con baranda), levantarse del suelo sin ayuda, marcha en circuito con obstáculos, entrenamiento de fuerza con bandas de alta resistencia (color rojo/azul)."
+        });
+    } else {
+        consejos.push({
+            titulo: "⚖️ MOTIVACIÓN VARIABLE - Flexibilidad terapéutica",
+            ayuda: "Tener plan A, B y C según estado del día. Preguntar al inicio de cada sesión '¿Cómo se siente hoy para trabajar?'. Ofrecer opciones de ejercicios.",
+            ejercicios: "Menú de ejercicios modulares: Módulo suave (movilizaciones, estiramientos), módulo intermedio (fuerza básica), módulo intenso (circuito funcional). El paciente elige 2 de 3 módulos por sesión."
+        });
+    }
+    
+    if (perfil.adherenciaBaja || perfil.toleranciaBaja) {
+        consejos.push({
+            titulo: "⏱️ BAJA ADHERENCIA/TOLERANCIA - Sesiones fraccionadas",
+            ayuda: "Distribuir actividad en micro-sesiones de 5-10 minutos, 4-5 veces al día. Monitorizar signos de fatiga (disnea, frecuencia cardíaca). Usar escala de Borg modificada (0-10).",
+            ejercicios: "Ejercicios en sedestación o decúbito: Flexiones de tobillo (bomba venosa), elevaciones alternas de talones, flexión de rodillas deslizando pie, respiraciones profundas (5-10 repeticiones). Descanso 2 min entre series."
+        });
+    } else if (perfil.adherenciaAlta && perfil.toleranciaAlta) {
+        consejos.push({
+            titulo: "💪 ALTO RENDIMIENTO - Avanzar funcionalidad",
+            ayuda: "Evaluar para alta a programa ambulatorio o comunitario. Realizar test funcionales (Timed Up and Go, SPPB, test de 6 minutos). Objetivo: independencia funcional total.",
+            ejercicios: "Ejercicios avanzados: Subir 2 pisos por escaleras, levantarse del suelo en < 5 segundos, caminata continua 30 minutos, levantamiento de pesas 3-5 kg (miembros superiores), sentadillas libres, estocadas."
+        });
+    } else {
+        consejos.push({
+            titulo: "📋 ADHERENCIA MODERADA - Estrategia mixta",
+            ayuda: "Supervisión intermitente: sesión supervisada 1 vez/semana, resto autoadministrado con telemonitoreo (llamada o mensaje). Usar checklist de cumplimiento.",
+            ejercicios: "Ejercicios progresivos: Semana 1-2: 10 repeticiones × 2 series. Semana 3-4: 12 repeticiones × 3 series. Semana 5-6: añadir resistencia con bandas o peso. Reevaluar cargas cada 10 sesiones."
+        });
+    }
+    
+    // Asegurar que haya al menos 6 consejos
+    while (consejos.length < 6) {
+        consejos.push({
+            titulo: "📌 TELEMONITOREO Y SEGUIMIENTO",
+            ayuda: "Programar llamada semanal para reforzar adherencia, resolver dudas y detectar complicaciones tempranas (caídas, dolor, fatiga excesiva).",
+            ejercicios: "Ejercicios de recordatorio: Enviar por WhatsApp video corto (1-2 min) de ejercicios clave. Solicitar auto-registro semanal de frecuencia e intensidad."
+        });
+    }
+    
+    return consejos.slice(0, 6);
+}
+
+function mostrarResultado(data) {
     const resDiv = document.getElementById("res");
-    let html = `<strong style="color:#00ffd5">✅ Encuesta enviada!</strong><br>`;
-    html += `🧑 <strong>Paciente:</strong> ${encuesta.paciente}<br>`;
-    html += `📊 <strong>Categoría:</strong> ${encuesta.categoria}<br>`;
-    html += `🎯 <strong>Puntaje:</strong> ${encuesta.total} puntos<br>`;
-    html += `🤝 <strong>Soporte:</strong> ${encuesta.soporte} pts<br>`;
-    html += `<small>🕒 ${encuesta.fechaLocal}</small>`;
+    
+    const color = data.total >= 50 ? "#00ffd5" : data.total >= 35 ? "#ffd966" : data.total >= 20 ? "#ffaa66" : "#cc99ff";
+    
+    let html = `<strong style="color:${color}">${data.categoria}</strong><br>`;
+    html += `🎯 <strong>Puntaje IPK-R65:</strong> ${data.total} puntos (escala 0-100)<br>`;
+    html += `🤝 <strong>Puntaje de soporte psicosocial:</strong> ${data.soporte} pts<br>`;
+    html += `<small>🕒 ${data.fechaLocal}</small>`;
+    html += `<div style="font-size:0.7rem;color:#4a6a8a;margin-top:4px;">👤 Creado por: ${data.creadoPor || 'anónimo'}</div>`;
+    
+    html += `<div class="puntaje-detalle">`;
+    for (const [key, value] of Object.entries(data.puntajes)) {
+        html += `<div class="item"><span>${key}</span><span class="valor">${value} pts</span></div>`;
+    }
+    html += `</div>`;
+    
+    if (data.observaciones) {
+        html += `<div class="observation-note">📋 ${data.observaciones}</div>`;
+    }
+    
+    if (data.consejos && data.consejos.length > 0) {
+        html += `<div class="consejos-container">`;
+        html += `<h4>💡 6 RECOMENDACIONES PERSONALIZADAS</h4>`;
+        data.consejos.forEach((consejo, idx) => {
+            html += `<div class="consejo-item">
+                        <div class="consejo-titulo">
+                            <span>${idx + 1}️⃣</span>
+                            <span>${consejo.titulo}</span>
+                        </div>
+                        <div class="consejo-descripcion">
+                            <strong>🤝 Cómo ayudar:</strong> ${consejo.ayuda}
+                        </div>
+                        <div class="consejo-ejercicios">
+                            <strong>🏋️ Ejercicios y rehabilitación:</strong> ${consejo.ejercicios}
+                        </div>
+                      </div>`;
+        });
+        html += `</div>`;
+    }
+    
     resDiv.innerHTML = html;
 }
 
@@ -469,6 +668,12 @@ function verHistorial() {
     let html = "<h3 class='historial-title'>📜 Historial de encuestas</h3>";
     encuestas.forEach((e, index) => {
         const fechaStr = e.fechaLocal || new Date(e.fecha).toLocaleString();
+        const idUnico = e.id || 'eval-' + index;
+        
+        let badges = "";
+        if (e.noPuedeConsentir) badges += "<span style='background:#ff9800;padding:2px 8px;border-radius:16px;font-size:11px;margin-right:6px;'>⚠️ No puede consentir</span>";
+        if (e.itemsSinColaboracion > 0) badges += `<span style='background:#ff5722;padding:2px 8px;border-radius:16px;font-size:11px;'>🚫 ${e.itemsSinColaboracion} sin colaboración</span>`;
+        
         let puntajesHtml = '';
         if (e.puntajes) {
             puntajesHtml = `<div class="puntaje-detalle">`;
@@ -477,29 +682,66 @@ function verHistorial() {
             }
             puntajesHtml += `</div>`;
         }
+        
+        let consejosHtml = '';
+        if (e.consejos && e.consejos.length > 0) {
+            consejosHtml = `
+                <div class="consejos-dropdown" style="margin-top:10px;">
+                    <div class="dropdown-header" style="background:#0f1b33;padding:8px 12px;border-radius:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;border:1px solid #1f2d4a;user-select:none;font-size:0.85rem;color:#8aa2e0;" onclick="toggleConsejos('${idUnico}')">
+                        <span>💡 Ver ${e.consejos.length} recomendaciones</span>
+                        <span class="arrow" id="arrow-${idUnico}" style="transition:transform 0.3s;">▼</span>
+                    </div>
+                    <div class="dropdown-content" id="consejos-${idUnico}" style="display:none;margin-top:8px;padding:8px;background:#0a1122;border-radius:8px;border:1px solid #1a2744;">
+            `;
+            e.consejos.forEach((c, idx) => {
+                consejosHtml += `
+                    <div class="consejo-mini" style="padding:6px 8px;margin:4px 0;border-left:2px solid #00ffd5;font-size:0.8rem;color:#c2d6ff;">
+                        <div><span class="label" style="color:#8aa2e0;font-weight:bold;">${idx+1}. ${c.titulo}</span></div>
+                        <div style="font-size:0.8rem;color:#8aa2e0;margin-top:2px;">${c.ayuda}</div>
+                        <div class="ejercicios" style="color:#a9c1ff;font-size:0.75rem;margin-top:3px;padding-left:8px;border-left:1px solid #1a2744;">🏋️ ${c.ejercicios}</div>
+                    </div>
+                `;
+            });
+            consejosHtml += `
+                    </div>
+                </div>
+            `;
+        }
+        
         html += `
         <div class="card">
             <div class="card-header" onclick="toggleCard(${index})">
                 <div>
-                    <b>🧾 ${e.paciente}</b>
-                    <span style="background:#00ffd5; color:#001018; padding:2px 10px; border-radius:12px; font-size:0.7rem; margin-left:8px;">${e.categoria}</span>
+                    <b>🧾 ${escapeHtml(e.paciente)}</b> ${badges}
                     <div style="font-size:0.8rem;color:#8aa2e0;margin-top:2px;">
-                        📆 ${fechaStr} · Puntaje: <strong style="color:#00ffd5;">${e.total}</strong>
+                        📆 ${fechaStr} · Puntaje: <strong style="color:#00ffd5;">${e.total}</strong> · ${e.categoria}
+                        ${e.creadoPor ? `<span style="font-size:0.65rem;color:#4a6a8a;"> · 👤 ${escapeHtml(e.creadoPor)}</span>` : ''}
                     </div>
                 </div>
-                <span class="accordion-icon" id="accordion-icon-${index}">▼</span>
+                <span class="accordion-icon" id="accordion-icon-${index}" style="transition:transform 0.3s;">▼</span>
             </div>
             <div class="card-body" id="card-body-${index}">
                 <div style="display:flex;gap:15px;flex-wrap:wrap;font-size:0.85rem;">
                     <span>🤝 Soporte: ${e.soporte} pts</span>
                     <span>🔻 Estabilidad: ${e.hemo === 'si' ? '✅ Estable' : '❌ No estable'}</span>
                     <span>🤝 Consentimiento: ${e.acepta === 'si' ? '👍 Sí' : e.acepta === 'no_puede' ? '🧠 No puede' : '🚫 No acepta'}</span>
+                    ${e.observaciones ? `<span style="color:#ffb74d;">📋 ${e.observaciones}</span>` : ''}
                 </div>
                 ${puntajesHtml}
+                ${consejosHtml}
             </div>
         </div>`;
     });
     div.innerHTML = html;
+}
+
+function toggleConsejos(id) {
+    const content = document.getElementById('consejos-' + id);
+    const arrow = document.getElementById('arrow-' + id);
+    if (content) {
+        content.style.display = content.style.display === 'block' ? 'none' : 'block';
+        if (arrow) arrow.classList.toggle('open');
+    }
 }
 
 function toggleCard(index) {
@@ -525,12 +767,22 @@ function exportarExcel() {
             "Categoría": e.categoria,
             "Soporte": e.soporte,
             "Estabilidad": e.hemo === 'si' ? 'Estable' : 'No estable',
-            "Consentimiento": e.acepta === 'si' ? 'Sí' : e.acepta === 'no_puede' ? 'No puede' : 'No acepta'
+            "Consentimiento": e.acepta === 'si' ? 'Sí' : e.acepta === 'no_puede' ? 'No puede' : 'No acepta',
+            "No puede consentir": e.noPuedeConsentir ? "Sí" : "No",
+            "Items sin colaboración": e.itemsSinColaboracion || 0,
+            "Observaciones": e.observaciones || ""
         };
         if (e.puntajes) {
             for (const [key, value] of Object.entries(e.puntajes)) {
                 row[key] = value;
             }
+        }
+        if (e.consejos) {
+            e.consejos.forEach((c, idx) => {
+                row[`Consejo_${idx+1}_Titulo`] = c.titulo || '';
+                row[`Consejo_${idx+1}_Ayuda`] = c.ayuda || '';
+                row[`Consejo_${idx+1}_Ejercicios`] = c.ejercicios || '';
+            });
         }
         return row;
     });
@@ -550,6 +802,16 @@ function limpiarTodo() {
     }
 }
 
+function escapeHtml(str) {
+    if (!str) return "";
+    return str.replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+    });
+}
+
 document.addEventListener('DOMContentLoaded', init);
 
 window.enviarEncuesta = enviarEncuesta;
@@ -560,6 +822,7 @@ window.guardarEncuestas = guardarEncuestas;
 window.cargarEncuestas = cargarEncuestas;
 window.generarNuevaClave = generarNuevaClave;
 window.toggleCard = toggleCard;
+window.toggleConsejos = toggleConsejos;
 </script>
 </body>
 </html>
