@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>📊 IPK-R65 - Encuestas en la Nube</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <style>
@@ -72,13 +73,13 @@ button:active { transform: scale(0.98); }
 
 <div class="container">
 <h1>📊 IPK-R65 - Encuestas en la Nube</h1>
-<div class="sub">📡 Datos guardados en la nube (JSONBin.io) y en tu navegador</div>
+<div class="sub">📡 Datos guardados en Supabase y en tu navegador</div>
 
 <div class="status-bar" id="statusBar">
-    <span class="dot dot-offline" id="statusDot"></span>
-    <span id="statusText">📡 Conectando a la nube...</span>
+    <span class="dot dot-online" id="statusDot"></span>
+    <span id="statusText">☁️ Supabase conectado</span>
     <span class="stats-badge" id="statsBadge">📊 0 encuestas</span>
-    <span class="shared-badge" id="syncBadge">☁️ LOCAL</span>
+    <span class="shared-badge" id="syncBadge">💾 LOCAL</span>
 </div>
 
 <!-- CONFIGURACIÓN DE NUBE -->
@@ -95,8 +96,8 @@ button:active { transform: scale(0.98); }
         <button class="primary" onclick="bajarDeNube()" style="flex:0 1 auto;">📥 BAJAR de nube</button>
     </div>
     
-    <div id="syncStatus" style="margin-top:10px; padding:10px; background:#0a1122; border-radius:8px; font-size:0.85rem; color:#8aa2e0;">
-        💡 Presiona "SUBIR" para guardar en la nube o "BAJAR" para recuperar datos de otro dispositivo.
+    <div id="syncStatus" style="margin-top:10px; padding:10px; background:#0a1122; border-radius:8px; font-size:0.85rem; color:#00d97a;">
+        ✅ Supabase configurado correctamente. Presiona "SUBIR" para guardar en la nube.
     </div>
 </div>
 
@@ -219,13 +220,16 @@ button:active { transform: scale(0.98); }
 </div>
 
 <script>
-// ========== 🔑 CLAVE DE API JSONBin.io (YA CONFIGURADA) ==========
-const MASTER_KEY = '$2a$10$V27DjTCNJfc3MNgKjcoWhurwCRHyinftLXzI58nLJo7D.oPK2dNx2';
+// ========== 🔑 CONFIGURACIÓN SUPABASE ==========
+const SUPABASE_URL = 'https://moclokzexdywlbluykar.supabase.co/rest/v1/';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1vY2xva3pleGR5d2xibHV5a2FyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ1NzYyNDEsImV4cCI6MjEwMDE1MjI0MX0.BCkKQrWaZ9_3oZgpcwc54KUR_iiKH7PvyEr6APQNLuQ';
+
+// ========== INICIALIZAR SUPABASE ==========
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+console.log('✅ Supabase inicializado');
 
 // ========== VARIABLES GLOBALES ==========
-const JSONBIN_URL = 'https://api.jsonbin.io/v3/b';
 let encuestas = [];
-let binId = null;
 let syncKey = '';
 
 // ========== INICIALIZACIÓN ==========
@@ -234,9 +238,11 @@ function init() {
     document.getElementById('syncKeyInput').value = syncKey;
     cargarLocal();
     verHistorial();
-    document.getElementById('statusText').textContent = '💾 Modo local - Presiona "SUBIR" para guardar en la nube';
+    document.getElementById('statusText').textContent = '☁️ Supabase conectado';
     document.getElementById('syncBadge').textContent = '💾 LOCAL';
     document.getElementById('statusDot').className = 'dot dot-online';
+    document.getElementById('syncStatus').innerHTML = '✅ Supabase configurado correctamente. Presiona "SUBIR" para guardar en la nube.';
+    document.getElementById('syncStatus').style.color = '#00d97a';
 }
 
 function generarNuevaClave() {
@@ -272,7 +278,7 @@ function actualizarStats() {
     document.getElementById('statsBadge').textContent = `📊 ${encuestas.length} encuestas`;
 }
 
-// ========== SUBIR A LA NUBE ==========
+// ========== SUBIR A LA NUBE (SUPABASE) ==========
 async function subirANube() {
     const status = document.getElementById('syncStatus');
     const dot = document.getElementById('statusDot');
@@ -286,73 +292,65 @@ async function subirANube() {
         return;
     }
     
-    status.innerHTML = '⏳ Subiendo a la nube...';
+    status.innerHTML = '⏳ Subiendo a Supabase...';
     status.style.color = '#ffb74d';
     dot.className = 'dot dot-sync';
     document.getElementById('statusText').textContent = '☁️ Subiendo...';
     document.getElementById('syncBadge').textContent = '☁️ SUBIENDO...';
     
     try {
-        const data = {
-            encuestas: encuestas,
-            timestamp: new Date().toISOString(),
-            total: encuestas.length,
-            clave: syncKey
-        };
+        // Eliminar datos existentes con esta clave
+        await supabaseClient
+            .from('encuestas')
+            .delete()
+            .eq('clave_compartida', syncKey);
         
-        // Verificar si ya existe un bin con esta clave
-        const searchResponse = await fetch(`${JSONBIN_URL}?binName=${syncKey}`, {
-            headers: { 'X-Master-Key': MASTER_KEY }
-        });
+        // Preparar datos para insertar
+        const datosParaInsertar = encuestas.map(e => ({
+            id: e.id,
+            paciente: e.paciente || 'Anónimo',
+            fecha: e.fecha || new Date().toISOString(),
+            fecha_local: e.fechaLocal || new Date().toLocaleString(),
+            total: e.total || 0,
+            categoria: e.categoria || 'Sin categoría',
+            soporte: e.soporte || 0,
+            no_puede_consentir: e.noPuedeConsentir || false,
+            items_sin_colaboracion: e.itemsSinColaboracion || 0,
+            observaciones: e.observaciones || '',
+            puntajes: e.puntajes || {},
+            consejos: e.consejos || [],
+            hemo: e.hemo || 'si',
+            acepta: e.acepta || 'si',
+            creado_por: e.creadoPor || 'usuario',
+            clave_compartida: syncKey
+        }));
         
-        let url = JSONBIN_URL;
-        let method = 'POST';
+        // Insertar datos
+        const { error } = await supabaseClient
+            .from('encuestas')
+            .insert(datosParaInsertar);
         
-        if (searchResponse.ok) {
-            const searchData = await searchResponse.json();
-            if (searchData.record && searchData.record.binId) {
-                binId = searchData.record.binId;
-                url = `${JSONBIN_URL}/${binId}`;
-                method = 'PUT';
-            }
+        if (error) {
+            throw new Error(error.message);
         }
         
-        const response = await fetch(url, {
-            method: method,
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Master-Key': MASTER_KEY,
-                'X-Bin-Name': syncKey
-            },
-            body: JSON.stringify(data)
-        });
+        status.innerHTML = `✅ ${encuestas.length} encuestas subidas a Supabase!`;
+        status.style.color = '#00d97a';
+        dot.className = 'dot dot-online';
+        document.getElementById('statusText').textContent = '☁️ Datos en la nube';
+        document.getElementById('syncBadge').textContent = '☁️ ONLINE';
+        document.getElementById('res').innerHTML = `☁️ ${encuestas.length} encuestas subidas correctamente`;
         
-        if (response.ok) {
-            const result = await response.json();
-            if (result.record) binId = result.record.binId;
-            status.innerHTML = `✅ ${encuestas.length} encuestas subidas a la nube!`;
-            status.style.color = '#00d97a';
-            dot.className = 'dot dot-online';
-            document.getElementById('statusText').textContent = '☁️ Datos en la nube';
-            document.getElementById('syncBadge').textContent = '☁️ ONLINE';
-            document.getElementById('res').innerHTML = `☁️ ${encuestas.length} encuestas subidas correctamente`;
-        } else {
-            const error = await response.text();
-            status.innerHTML = '❌ Error al subir: ' + error;
-            status.style.color = '#ff5722';
-            dot.className = 'dot dot-offline';
-            document.getElementById('syncBadge').textContent = '☁️ ERROR';
-        }
     } catch (error) {
-        status.innerHTML = '❌ Error de red: ' + error.message;
+        status.innerHTML = '❌ Error al subir: ' + error.message;
         status.style.color = '#ff5722';
         dot.className = 'dot dot-offline';
         document.getElementById('statusText').textContent = '📡 Error de conexión';
-        document.getElementById('syncBadge').textContent = '☁️ OFFLINE';
+        document.getElementById('syncBadge').textContent = '☁️ ERROR';
     }
 }
 
-// ========== BAJAR DE LA NUBE ==========
+// ========== BAJAR DE LA NUBE (SUPABASE) ==========
 async function bajarDeNube() {
     const status = document.getElementById('syncStatus');
     const dot = document.getElementById('statusDot');
@@ -360,77 +358,63 @@ async function bajarDeNube() {
     syncKey = document.getElementById('syncKeyInput').value.trim() || 'ipk-r65-001';
     localStorage.setItem('ipk_encuesta_key', syncKey);
     
-    status.innerHTML = '⏳ Buscando datos en la nube...';
+    status.innerHTML = '⏳ Buscando datos en Supabase...';
     status.style.color = '#ffb74d';
     dot.className = 'dot dot-sync';
     document.getElementById('statusText').textContent = '📥 Buscando...';
     document.getElementById('syncBadge').textContent = '☁️ BUSCANDO...';
     
     try {
-        const searchResponse = await fetch(`${JSONBIN_URL}?binName=${syncKey}`, {
-            headers: { 'X-Master-Key': MASTER_KEY }
-        });
+        // Buscar datos por clave
+        const { data, error } = await supabaseClient
+            .from('encuestas')
+            .select('*')
+            .eq('clave_compartida', syncKey);
         
-        if (!searchResponse.ok) {
-            if (searchResponse.status === 404) {
-                status.innerHTML = '📭 No hay datos en la nube con esta clave. ¡Sube la primera encuesta!';
-                status.style.color = '#ffb74d';
-            } else {
-                const error = await searchResponse.text();
-                status.innerHTML = '❌ Error: ' + error;
-                status.style.color = '#ff5722';
-            }
-            dot.className = 'dot dot-offline';
-            document.getElementById('statusText').textContent = '📡 Sin datos';
-            document.getElementById('syncBadge').textContent = '☁️ SIN DATOS';
-            return;
+        if (error) {
+            throw new Error(error.message);
         }
         
-        const searchData = await searchResponse.json();
-        if (!searchData.record || !searchData.record.binId) {
-            status.innerHTML = '📭 No hay datos en la nube con esta clave';
-            status.style.color = '#ffb74d';
-            dot.className = 'dot dot-offline';
-            return;
-        }
-        
-        binId = searchData.record.binId;
-        
-        status.innerHTML = '⏳ Descargando datos...';
-        const response = await fetch(`${JSONBIN_URL}/${binId}/latest`, {
-            headers: { 'X-Master-Key': MASTER_KEY }
-        });
-        
-        if (response.ok) {
-            const data = await response.json();
-            const remoteData = data.record;
+        if (data && data.length > 0) {
+            // Convertir datos de Supabase a formato local
+            const nuevosDatos = data.map(row => ({
+                id: row.id,
+                paciente: row.paciente || 'Anónimo',
+                fecha: row.fecha,
+                fechaLocal: row.fecha_local || new Date(row.fecha).toLocaleString(),
+                total: row.total || 0,
+                categoria: row.categoria || 'Sin categoría',
+                soporte: row.soporte || 0,
+                noPuedeConsentir: row.no_puede_consentir || false,
+                itemsSinColaboracion: row.items_sin_colaboracion || 0,
+                observaciones: row.observaciones || '',
+                puntajes: row.puntajes || {},
+                consejos: row.consejos || [],
+                hemo: row.hemo || 'si',
+                acepta: row.acepta || 'si',
+                creadoPor: row.creado_por || 'usuario'
+            }));
             
-            if (remoteData && remoteData.encuestas && remoteData.encuestas.length > 0) {
-                // Fusionar sin duplicados
-                const idsExistentes = new Set(encuestas.map(e => e.id));
-                let nuevos = 0;
-                for (const item of remoteData.encuestas) {
-                    if (!idsExistentes.has(item.id)) {
-                        encuestas.push(item);
-                        nuevos++;
-                    }
+            // Fusionar sin duplicados
+            const idsExistentes = new Set(encuestas.map(e => e.id));
+            let nuevos = 0;
+            for (const item of nuevosDatos) {
+                if (!idsExistentes.has(item.id)) {
+                    encuestas.push(item);
+                    nuevos++;
                 }
-                guardarLocal();
-                verHistorial();
-                status.innerHTML = `✅ Descargadas ${nuevos} nuevas encuestas. Total: ${encuestas.length}`;
-                status.style.color = '#00d97a';
-                dot.className = 'dot dot-online';
-                document.getElementById('statusText').textContent = '☁️ Datos sincronizados';
-                document.getElementById('syncBadge').textContent = '☁️ ONLINE';
-                document.getElementById('res').innerHTML = `📥 ${nuevos} nuevas encuestas descargadas de la nube`;
-            } else {
-                status.innerHTML = '📭 No hay encuestas en la nube';
-                status.style.color = '#ffb74d';
-                dot.className = 'dot dot-offline';
             }
+            guardarLocal();
+            verHistorial();
+            status.innerHTML = `✅ Descargadas ${nuevos} nuevas encuestas. Total: ${encuestas.length}`;
+            status.style.color = '#00d97a';
+            dot.className = 'dot dot-online';
+            document.getElementById('statusText').textContent = '☁️ Datos sincronizados';
+            document.getElementById('syncBadge').textContent = '☁️ ONLINE';
+            document.getElementById('res').innerHTML = `📥 ${nuevos} nuevas encuestas descargadas de la nube`;
         } else {
-            status.innerHTML = '❌ Error al descargar datos';
-            status.style.color = '#ff5722';
+            status.innerHTML = '📭 No hay encuestas en la nube con esta clave';
+            status.style.color = '#ffb74d';
             dot.className = 'dot dot-offline';
         }
     } catch (error) {
@@ -442,7 +426,7 @@ async function bajarDeNube() {
     }
 }
 
-// ========== FUNCIONES DE LA ENCUESTA ==========
+// ========== EL RESTO DE LAS FUNCIONES DE LA ENCUESTA ==========
 function enviarEncuesta() {
     const resDiv = document.getElementById("res");
 
@@ -496,7 +480,6 @@ function enviarEncuesta() {
                       total >= 35 ? "🟡 INTERMEDIO" : 
                       total >= 20 ? "🔴 PREVENTIVO/FRÁGIL" : "⚫ BAJO GLOBAL";
 
-    // Generar consejos personalizados
     const consejos = generarConsejos(total, soporte, noPuedeConsentir, noColaboraCount, perfil);
 
     let observaciones = "";
@@ -527,7 +510,6 @@ function enviarEncuesta() {
     verHistorial();
     document.getElementById('paciente').value = '';
     
-    // Mostrar mensaje de que se guardó localmente
     document.getElementById('syncStatus').innerHTML = '💾 Encuesta guardada LOCALMENTE. Presiona "SUBIR" para guardar en la nube.';
     document.getElementById('syncStatus').style.color = '#8aa2e0';
 }
