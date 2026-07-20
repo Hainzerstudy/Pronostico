@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IPK-R65 Hospitalario - Sin Firebase</title>
+<title>IPK-R65 Hospitalario - Sincronizado</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <style>
@@ -294,9 +294,15 @@ button:disabled {
     box-shadow: 0 0 10px rgba(255,87,34,0.5);
 }
 
-.dot-local {
-    background: #4fc3f7;
-    box-shadow: 0 0 10px rgba(79,195,247,0.5);
+.dot-sync {
+    background: #ffb74d;
+    box-shadow: 0 0 10px rgba(255,183,77,0.5);
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
 }
 
 .stats-badge {
@@ -423,16 +429,35 @@ button:disabled {
     padding-left: 4px;
 }
 
-.storage-info {
+.sync-key-input {
     background: #0a1122;
+    border: 1px solid #2b3c5f;
+    color: #00ffd5;
     padding: 8px 12px;
     border-radius: 8px;
-    font-size: 0.7rem;
-    color: #6a8aaa;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
+    font-family: monospace;
+    font-size: 0.9rem;
+    width: 100%;
+    max-width: 300px;
+}
+
+.sync-status {
+    font-size: 0.8rem;
+    padding: 4px 12px;
+    border-radius: 12px;
+    background: #1a2744;
+}
+
+.sync-status.online {
+    color: #00d97a;
+}
+
+.sync-status.offline {
+    color: #ff5722;
+}
+
+.sync-status.syncing {
+    color: #ffb74d;
 }
 </style>
 </head>
@@ -441,33 +466,33 @@ button:disabled {
 
 <div class="container">
 <h1>🏥 IPK-R65 Hospitalario</h1>
-<div class="sub">📡 Datos guardados LOCALMENTE en el navegador</div>
+<div class="sub">📡 Datos sincronizados en la nube (JSONBin.io)</div>
 
-<!-- Status -->
+<!-- Status Bar -->
 <div class="status-bar" id="statusBar">
-    <span class="dot dot-local" id="statusDot"></span>
-    <span id="statusText">💾 Modo Local - Datos en el navegador</span>
+    <span class="dot dot-offline" id="statusDot"></span>
+    <span id="statusText">📡 Sin conexión a la nube</span>
     <span class="stats-badge" id="statsBadge">📊 0 registros</span>
-    <span class="shared-badge">💾 SIN FIREBASE</span>
+    <span class="shared-badge" id="syncBadge">☁️ SIN CONEXIÓN</span>
 </div>
 
-<!-- Almacenamiento -->
+<!-- Sincronización -->
 <div class="section" style="border-color: #4fc3f7;">
-    <h3>💾 Almacenamiento y Sincronización</h3>
-    <div class="flex-buttons">
-        <button class="info" onclick="exportarDatos()">📤 Exportar datos (JSON)</button>
-        <button class="warning" onclick="document.getElementById('importFile').click()">📥 Importar datos (JSON)</button>
-        <button class="secondary" onclick="sincronizarPestanas()">🔄 Sincronizar pestañas</button>
-        <button class="secondary" onclick="verHistorial()">📋 Ver historial</button>
-        <button class="secondary" onclick="exportarExcel()">📎 Exportar Excel</button>
-        <button class="danger" onclick="limpiarHistorial()">🗑️ Limpiar todo</button>
+    <h3>☁️ Sincronización en la nube (gratis)</h3>
+    <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+        <input type="text" id="syncKey" class="sync-key-input" placeholder="Clave de sincronización (ej: ipk-r65-001)" value="ipk-r65-datos">
+        <button class="info" onclick="generarClave()" style="min-width:120px;">🔄 Nueva clave</button>
     </div>
-    <input type="file" id="importFile" accept=".json" style="display:none" onchange="importarDatos(event)">
-    <div class="storage-info">
-        <span>💾 Datos guardados en: <strong>IndexedDB + localStorage</strong></span>
-        <span id="storageSize">📦 Tamaño: 0 KB</span>
-        <span id="recordCount">📋 Registros: 0</span>
+    <div style="margin-top:8px; font-size:0.8rem; color:#6a8aaa;">
+        📌 Todos los dispositivos con la MISMA clave comparten los datos
     </div>
+    <div class="flex-buttons" style="margin-top:10px;">
+        <button class="success" onclick="subirDatos()">☁️ Subir datos a la nube</button>
+        <button class="warning" onclick="descargarDatos()">📥 Descargar datos de la nube</button>
+        <button class="secondary" onclick="sincronizarDatos()">🔄 Sincronizar (subir + descargar)</button>
+        <button class="secondary" onclick="verificarConexion()">🔍 Verificar conexión</button>
+    </div>
+    <div id="syncStatus" style="margin-top:10px; font-size:0.85rem; color:#8aa2e0;"></div>
 </div>
 
 <!-- PACIENTE -->
@@ -591,144 +616,248 @@ button:disabled {
 </div>
 
 <script>
-// ========== ALMACENAMIENTO LOCAL CON INDEXEDDB ==========
+// ========== CONFIGURACIÓN ==========
+const JSONBIN_URL = 'https://api.jsonbin.io/v3/b';
+
+// ========== ESTADO ==========
 let historialEvaluaciones = [];
-let db = null;
-let dbReady = false;
+let binId = null;
+let syncKey = '';
 
-// ========== INICIALIZAR INDEXEDDB ==========
-function initDatabase() {
-    return new Promise((resolve, reject) => {
-        const request = indexedDB.open('IPK_R65_DB', 1);
-        
-        request.onupgradeneeded = function(event) {
-            const db = event.target.result;
-            if (!db.objectStoreNames.contains('evaluaciones')) {
-                const store = db.createObjectStore('evaluaciones', { keyPath: 'id' });
-                store.createIndex('fecha', 'fecha', { unique: false });
-                store.createIndex('paciente', 'paciente', { unique: false });
-                console.log('📦 Base de datos IndexedDB creada');
-            }
-        };
-        
-        request.onsuccess = function(event) {
-            db = event.target.result;
-            dbReady = true;
-            console.log('✅ IndexedDB conectada');
-            cargarDesdeIndexedDB().then(() => {
-                actualizarStats();
-                verHistorial();
-                resolve();
-            });
-        };
-        
-        request.onerror = function(event) {
-            console.error('❌ Error al abrir IndexedDB:', event.target.error);
-            // Fallback a localStorage
-            cargarDesdeLocalStorage();
-            resolve();
-        };
-    });
-}
-
-// ========== CARGAR DESDE INDEXEDDB ==========
-async function cargarDesdeIndexedDB() {
-    if (!dbReady) return;
+// ========== INICIALIZACIÓN ==========
+function init() {
+    // Cargar clave guardada
+    syncKey = localStorage.getItem('ipk_r65_sync_key') || 'ipk-r65-datos';
+    document.getElementById('syncKey').value = syncKey;
     
-    try {
-        const transaction = db.transaction(['evaluaciones'], 'readonly');
-        const store = transaction.objectStore('evaluaciones');
-        const request = store.getAll();
-        
-        return new Promise((resolve) => {
-            request.onsuccess = function() {
-                if (request.result && request.result.length > 0) {
-                    historialEvaluaciones = request.result;
-                    // Guardar también en localStorage como respaldo
-                    localStorage.setItem('ipk_r65_backup', JSON.stringify(historialEvaluaciones));
-                    console.log(`📋 Cargados ${historialEvaluaciones.length} registros desde IndexedDB`);
-                } else {
-                    // Intentar cargar desde localStorage como respaldo
-                    cargarDesdeLocalStorage();
-                }
-                resolve();
-            };
-            request.onerror = function() {
-                cargarDesdeLocalStorage();
-                resolve();
-            };
-        });
-    } catch (e) {
-        cargarDesdeLocalStorage();
-    }
+    // Cargar datos locales
+    cargarDatosLocales();
+    actualizarStats();
+    verHistorial();
+    
+    // Verificar si hay datos en la nube
+    setTimeout(verificarConexion, 1000);
 }
 
-// ========== CARGAR DESDE LOCALSTORAGE (FALLBACK) ==========
-function cargarDesdeLocalStorage() {
-    const guardado = localStorage.getItem('ipk_r65_backup') || localStorage.getItem('ipk_r65_consejos_ejercicios');
+// ========== GENERAR CLAVE ==========
+function generarClave() {
+    const caracteres = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    let resultado = 'ipk-';
+    for (let i = 0; i < 8; i++) {
+        resultado += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
+    }
+    document.getElementById('syncKey').value = resultado;
+    syncKey = resultado;
+    localStorage.setItem('ipk_r65_sync_key', syncKey);
+    document.getElementById('syncStatus').innerHTML = '🔄 Nueva clave generada: ' + syncKey;
+}
+
+// ========== CARGAR DATOS LOCALES ==========
+function cargarDatosLocales() {
+    const guardado = localStorage.getItem('ipk_r65_consejos_ejercicios');
     if (guardado) {
         try {
             historialEvaluaciones = JSON.parse(guardado);
             if (!Array.isArray(historialEvaluaciones)) historialEvaluaciones = [];
-            console.log(`📋 Cargados ${historialEvaluaciones.length} registros desde localStorage`);
-            // Sincronizar a IndexedDB si está disponible
-            if (dbReady && historialEvaluaciones.length > 0) {
-                sincronizarIndexedDB();
-            }
         } catch (e) {
             historialEvaluaciones = [];
         }
     }
 }
 
-// ========== GUARDAR EN INDEXEDDB ==========
-async function guardarEnIndexedDB() {
-    if (!dbReady) {
-        // Fallback a localStorage
-        localStorage.setItem('ipk_r65_backup', JSON.stringify(historialEvaluaciones));
-        localStorage.setItem('ipk_r65_consejos_ejercicios', JSON.stringify(historialEvaluaciones));
-        return;
-    }
-    
-    try {
-        const transaction = db.transaction(['evaluaciones'], 'readwrite');
-        const store = transaction.objectStore('evaluaciones');
-        
-        // Limpiar y guardar todos
-        store.clear();
-        for (const item of historialEvaluaciones) {
-            store.add(item);
-        }
-        
-        // Respaldo en localStorage
-        localStorage.setItem('ipk_r65_backup', JSON.stringify(historialEvaluaciones));
-        
-        console.log(`💾 Guardados ${historialEvaluaciones.length} registros en IndexedDB`);
-        actualizarStats();
-    } catch (e) {
-        console.error('Error al guardar en IndexedDB:', e);
-        localStorage.setItem('ipk_r65_backup', JSON.stringify(historialEvaluaciones));
-    }
-}
-
-// ========== SINCRONIZAR INDEXEDDB ==========
-async function sincronizarIndexedDB() {
-    if (!dbReady || historialEvaluaciones.length === 0) return;
-    await guardarEnIndexedDB();
+// ========== GUARDAR DATOS LOCALES ==========
+function guardarDatosLocales() {
+    localStorage.setItem('ipk_r65_consejos_ejercicios', JSON.stringify(historialEvaluaciones));
+    actualizarStats();
 }
 
 // ========== ACTUALIZAR ESTADÍSTICAS ==========
 function actualizarStats() {
     document.getElementById('statsBadge').textContent = `📊 ${historialEvaluaciones.length} registros`;
-    document.getElementById('recordCount').textContent = `📋 Registros: ${historialEvaluaciones.length}`;
-    
-    // Calcular tamaño aproximado
-    const size = new Blob([JSON.stringify(historialEvaluaciones)]).size;
-    const sizeKB = (size / 1024).toFixed(1);
-    document.getElementById('storageSize').textContent = `📦 Tamaño: ${sizeKB} KB`;
 }
 
-// ========== FUNCIONES DE EVALUACIÓN ==========
+// ========== VERIFICAR CONEXIÓN ==========
+async function verificarConexion() {
+    const statusText = document.getElementById('statusText');
+    const dot = document.getElementById('statusDot');
+    const badge = document.getElementById('syncBadge');
+    const syncStatus = document.getElementById('syncStatus');
+    
+    try {
+        syncKey = document.getElementById('syncKey').value.trim() || 'ipk-r65-datos';
+        localStorage.setItem('ipk_r65_sync_key', syncKey);
+        
+        const response = await fetch(`${JSONBIN_URL}?binName=${syncKey}`, {
+            headers: {
+                'X-Master-Key': '$2a$10$z8EJ7H8VHqL9XQm8s5M5MueZz8EJ7H8VHqL9XQm8s5M5MueZz8EJ7H8VHqL9XQ'
+            }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            binId = data.record ? data.record.binId : null;
+            dot.className = 'dot dot-online';
+            statusText.textContent = '☁️ Conectado a la nube';
+            badge.textContent = '☁️ ONLINE';
+            syncStatus.innerHTML = '✅ Conexión exitosa. Bin ID: ' + (binId || 'Nuevo');
+            return true;
+        } else {
+            dot.className = 'dot dot-offline';
+            statusText.textContent = '📡 Sin conexión a la nube';
+            badge.textContent = '☁️ OFFLINE';
+            syncStatus.innerHTML = '⚠️ No se pudo conectar. Verifica tu internet.';
+            return false;
+        }
+    } catch (error) {
+        dot.className = 'dot dot-offline';
+        statusText.textContent = '📡 Sin conexión a la nube';
+        badge.textContent = '☁️ OFFLINE';
+        syncStatus.innerHTML = '❌ Error: ' + error.message;
+        return false;
+    }
+}
+
+// ========== SUBIR DATOS ==========
+async function subirDatos() {
+    const syncStatus = document.getElementById('syncStatus');
+    const dot = document.getElementById('statusDot');
+    const btn = event?.target || document.querySelector('.success');
+    
+    if (historialEvaluaciones.length === 0) {
+        syncStatus.innerHTML = '⚠️ No hay datos para subir.';
+        return;
+    }
+    
+    syncStatus.innerHTML = '⏳ Subiendo datos a la nube...';
+    dot.className = 'dot dot-sync';
+    
+    try {
+        syncKey = document.getElementById('syncKey').value.trim() || 'ipk-r65-datos';
+        localStorage.setItem('ipk_r65_sync_key', syncKey);
+        
+        const data = {
+            evaluaciones: historialEvaluaciones,
+            timestamp: new Date().toISOString(),
+            totalRegistros: historialEvaluaciones.length,
+            syncKey: syncKey
+        };
+        
+        // Intentar actualizar bin existente o crear nuevo
+        const url = binId ? `${JSONBIN_URL}/${binId}` : JSONBIN_URL;
+        const method = binId ? 'PUT' : 'POST';
+        
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Master-Key': '$2a$10$z8EJ7H8VHqL9XQm8s5M5MueZz8EJ7H8VHqL9XQm8s5M5MueZz8EJ7H8VHqL9XQ',
+                'X-Bin-Name': syncKey
+            },
+            body: JSON.stringify(data)
+        });
+        
+        if (response.ok) {
+            const result = await response.json();
+            binId = result.record ? result.record.binId : binId;
+            syncStatus.innerHTML = '✅ Datos subidos exitosamente! 📤 ' + historialEvaluaciones.length + ' registros';
+            dot.className = 'dot dot-online';
+            document.getElementById('statusText').textContent = '☁️ Datos en la nube';
+            document.getElementById('syncBadge').textContent = '☁️ ONLINE';
+        } else {
+            const error = await response.text();
+            syncStatus.innerHTML = '❌ Error al subir: ' + error;
+            dot.className = 'dot dot-offline';
+        }
+    } catch (error) {
+        syncStatus.innerHTML = '❌ Error: ' + error.message;
+        dot.className = 'dot dot-offline';
+    }
+}
+
+// ========== DESCARGAR DATOS ==========
+async function descargarDatos() {
+    const syncStatus = document.getElementById('syncStatus');
+    const dot = document.getElementById('statusDot');
+    
+    syncStatus.innerHTML = '⏳ Descargando datos de la nube...';
+    dot.className = 'dot dot-sync';
+    
+    try {
+        syncKey = document.getElementById('syncKey').value.trim() || 'ipk-r65-datos';
+        localStorage.setItem('ipk_r65_sync_key', syncKey);
+        
+        // Buscar bin por nombre
+        const searchResponse = await fetch(`${JSONBIN_URL}?binName=${syncKey}`, {
+            headers: {
+                'X-Master-Key': '$2a$10$z8EJ7H8VHqL9XQm8s5M5MueZz8EJ7H8VHqL9XQm8s5M5MueZz8EJ7H8VHqL9XQ'
+            }
+        });
+        
+        if (!searchResponse.ok) {
+            syncStatus.innerHTML = '📭 No hay datos en la nube con esta clave.';
+            dot.className = 'dot dot-offline';
+            return;
+        }
+        
+        const searchData = await searchResponse.json();
+        if (!searchData.record || !searchData.record.binId) {
+            syncStatus.innerHTML = '📭 No hay datos en la nube con esta clave.';
+            dot.className = 'dot dot-offline';
+            return;
+        }
+        
+        binId = searchData.record.binId;
+        
+        // Obtener datos
+        const response = await fetch(`${JSONBIN_URL}/${binId}/latest`, {
+            headers: {
+                'X-Master-Key': '$2a$10$z8EJ7H8VHqL9XQm8s5M5MueZz8EJ7H8VHqL9XQm8s5M5MueZz8EJ7H8VHqL9XQ'
+            }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            const remoteData = data.record;
+            
+            if (remoteData && remoteData.evaluaciones && remoteData.evaluaciones.length > 0) {
+                // Fusionar datos (no duplicar por ID)
+                const idsExistentes = new Set(historialEvaluaciones.map(h => h.id));
+                let nuevos = 0;
+                for (const item of remoteData.evaluaciones) {
+                    if (!idsExistentes.has(item.id)) {
+                        historialEvaluaciones.push(item);
+                        nuevos++;
+                    }
+                }
+                guardarDatosLocales();
+                actualizarStats();
+                verHistorial();
+                syncStatus.innerHTML = `✅ Descargados ${nuevos} nuevos registros. Total: ${historialEvaluaciones.length}`;
+                dot.className = 'dot dot-online';
+                document.getElementById('statusText').textContent = '☁️ Datos sincronizados';
+                document.getElementById('syncBadge').textContent = '☁️ ONLINE';
+                document.getElementById('res').innerHTML = `📥 ${nuevos} nuevos registros descargados de la nube`;
+            } else {
+                syncStatus.innerHTML = '📭 No hay datos en la nube.';
+                dot.className = 'dot dot-offline';
+            }
+        } else {
+            syncStatus.innerHTML = '❌ Error al descargar datos.';
+            dot.className = 'dot dot-offline';
+        }
+    } catch (error) {
+        syncStatus.innerHTML = '❌ Error: ' + error.message;
+        dot.className = 'dot dot-offline';
+    }
+}
+
+// ========== SINCRONIZAR ==========
+async function sincronizarDatos() {
+    await subirDatos();
+    await descargarDatos();
+}
+
+// ========== CLASIFICACIÓN ==========
 function clasificarPaciente(total) {
     if (total >= 50) return { categoria: "🟢 ALTO BENEFICIO", color: "#00ffd5" };
     else if (total >= 35) return { categoria: "🟡 INTERMEDIO", color: "#ffd966" };
@@ -736,61 +865,61 @@ function clasificarPaciente(total) {
     else return { categoria: "⚫ BAJO GLOBAL", color: "#cc99ff" };
 }
 
+// ========== GENERAR CONSEJOS ==========
 function generar6Consejos(total, soporte, noPuedeConsentir, noColaboraCount, perfil) {
     const consejos = [];
     
     if (total >= 50) {
         consejos.push({
-            titulo: "🏆 ALTA INTENSIDAD - Paciente con alto potencial",
-            ayuda: "Motivar al paciente con metas desafiantes pero alcanzables. Usar refuerzos positivos y gráficos de progreso.",
-            ejercicios: "HIIT 2-3 min × 4 series. Circuito funcional: sentadillas, step, levantamiento de brazos con bandas elásticas. 5-7 sesiones/semana."
+            titulo: "🏆 ALTA INTENSIDAD",
+            ayuda: "Motivar al paciente con metas desafiantes. Usar refuerzos positivos.",
+            ejercicios: "HIIT 2-3 min × 4 series. Circuito funcional: sentadillas, step, bandas elásticas. 5-7/semana."
         });
     } else if (total >= 35) {
         consejos.push({
-            titulo: "📈 INTENSIDAD MODERADA - Buen candidato a rehabilitación",
-            ayuda: "Establecer contrato terapéutico con metas semanales. Involucrar a familiar.",
-            ejercicios: "Fortalecimiento de miembros inferiores e superiores. Marcha asistida 15-20 min. 3-4 sesiones/semana."
+            titulo: "📈 INTENSIDAD MODERADA",
+            ayuda: "Establecer contrato terapéutico con metas semanales.",
+            ejercicios: "Fortalecimiento de miembros. Marcha asistida 15-20 min. 3-4/semana."
         });
     } else if (total >= 20) {
         consejos.push({
-            titulo: "🛡️ INTENSIDAD BAJA - Enfoque preventivo",
-            ayuda: "Priorizar la seguridad y la confianza. Sesiones cortas pero frecuentes.",
-            ejercicios: "Movilizaciones pasivas y activas asistidas. Ejercicios respiratorios. Transferencias asistidas. 2-3 sesiones/semana."
+            titulo: "🛡️ INTENSIDAD BAJA",
+            ayuda: "Priorizar seguridad y confianza. Sesiones cortas pero frecuentes.",
+            ejercicios: "Movilizaciones pasivas y activas asistidas. Ejercicios respiratorios. 2-3/semana."
         });
     } else {
         consejos.push({
-            titulo: "🔍 INTENSIDAD MUY BAJA - Paciente complejo",
-            ayuda: "Enfoque multidisciplinario. Sesiones muy cortas (5-10 min) para evitar sobrecarga.",
+            titulo: "🔍 INTENSIDAD MUY BAJA",
+            ayuda: "Enfoque multidisciplinario. Sesiones muy cortas (5-10 min).",
             ejercicios: "Movilizaciones pasivas suaves. Ejercicios isométricos. Posicionamiento terapéutico."
         });
     }
     
-    // Consejos adicionales según perfil
     if (soporte >= 12) {
         consejos.push({
             titulo: "👨‍👩‍👧‍👦 RED DE APOYO SÓLIDA",
-            ayuda: "Capacitar al cuidador principal en técnicas de asistencia y transferencias seguras.",
-            ejercicios: "Transferencias cama-silla paso a paso, ejercicios de rango de movimiento asistidos."
+            ayuda: "Capacitar al cuidador principal en técnicas de asistencia.",
+            ejercicios: "Transferencias cama-silla paso a paso, ejercicios de rango de movimiento."
         });
     } else if (soporte >= 7) {
         consejos.push({
             titulo: "🤝 FORTALECER RED DE APOYO",
-            ayuda: "Coordinar con trabajo social para identificar programas de apoyo comunitario.",
+            ayuda: "Coordinar con trabajo social para identificar programas de apoyo.",
             ejercicios: "Series cortas de ejercicios de pie y sentado (3-5 repeticiones)."
         });
     } else {
         consejos.push({
             titulo: "🏠 SOPORTE INSUFICIENTE",
-            ayuda: "Derivación a asistente social. Evaluar internación transitoria o teleasistencia.",
-            ejercicios: "Ejercicios autoadministrados con guía por video o folleto ilustrado."
+            ayuda: "Derivación a asistente social. Evaluar internación transitoria.",
+            ejercicios: "Ejercicios autoadministrados con guía por video o folleto."
         });
     }
     
     if (noPuedeConsentir) {
         consejos.push({
-            titulo: "🧠 PACIENTE SIN CAPACIDAD DE CONSENTIR",
+            titulo: "🧠 SIN CAPACIDAD DE CONSENTIR",
             ayuda: "Designar un familiar como 'proxy decisor'. Sesiones cortas (10-15 min).",
-            ejercicios: "Movilizaciones suaves de hombros, codos, muñecas, cadera y tobillos. 5-8 repeticiones."
+            ejercicios: "Movilizaciones suaves de hombros, codos, muñecas, cadera y tobillos."
         });
     }
     
@@ -798,29 +927,22 @@ function generar6Consejos(total, soporte, noPuedeConsentir, noColaboraCount, per
         consejos.push({
             titulo: "🎯 BAJA MOTIVACIÓN",
             ayuda: "Usar economía de fichas. Gamificación. Reforzadores sociales.",
-            ejercicios: "Ejercicios lúdicos: lanzamiento de pelota, juegos de equilibrio, circuito con estaciones."
-        });
-    }
-    
-    if (perfil.adherenciaBaja || perfil.toleranciaBaja) {
-        consejos.push({
-            titulo: "⏱️ BAJA ADHERENCIA/TOLERANCIA",
-            ayuda: "Distribuir actividad en micro-sesiones de 5-10 minutos, 4-5 veces al día.",
-            ejercicios: "Flexiones de tobillo, elevaciones alternas de talones, flexión de rodillas. 5-10 repeticiones."
+            ejercicios: "Ejercicios lúdicos: lanzamiento de pelota, juegos de equilibrio."
         });
     }
     
     while (consejos.length < 6) {
         consejos.push({
             titulo: "📌 SEGUIMIENTO Y TELEMONITOREO",
-            ayuda: "Programar llamada semanal para reforzar adherencia y detectar complicaciones.",
-            ejercicios: "Auto-registro semanal de frecuencia e intensidad de ejercicios."
+            ayuda: "Programar llamada semanal para reforzar adherencia.",
+            ejercicios: "Auto-registro semanal de frecuencia e intensidad."
         });
     }
     
     return consejos.slice(0, 6);
 }
 
+// ========== OBTENER PUNTAJES ==========
 function obtenerPuntajesItems() {
     return {
         'Edad funcional': parseInt(document.getElementById('edad').value) || 0,
@@ -836,6 +958,7 @@ function obtenerPuntajesItems() {
     };
 }
 
+// ========== EVALUAR ==========
 function evaluar() {
     const resDiv = document.getElementById("res");
 
@@ -843,11 +966,11 @@ function evaluar() {
     const acepta = document.getElementById('acepta');
 
     if (hemo.value === "no") {
-        resDiv.innerHTML = "⛔ PACIENTE NO ESTABLE HEMODINÁMICAMENTE. No se puede evaluar hasta estabilización.";
+        resDiv.innerHTML = "⛔ PACIENTE NO ESTABLE HEMODINÁMICAMENTE.";
         return;
     }
     if (acepta.value === "no") {
-        resDiv.innerHTML = "❌ El paciente RECHAZA ACTIVAMENTE la intervención. Suspender evaluación.";
+        resDiv.innerHTML = "❌ El paciente RECHAZA ACTIVAMENTE la intervención.";
         return;
     }
 
@@ -880,8 +1003,8 @@ function evaluar() {
     const consejos = generar6Consejos(total, soporte, noPuedeConsentir, noColaboraCount, perfil);
 
     let observaciones = "";
-    if (noPuedeConsentir) observaciones += "🧠 Paciente NO PUEDE CONSENTIR. Evaluación mediante cuidador. ";
-    if (noColaboraCount >= 2) observaciones += `📌 ${noColaboraCount} ítem(s) con "No puede colaborar".`;
+    if (noPuedeConsentir) observaciones += "🧠 Paciente NO PUEDE CONSENTIR. ";
+    if (noColaboraCount >= 2) observaciones += `📌 ${noColaboraCount} ítem(s) sin colaboración.`;
 
     const data = {
         id: Date.now().toString(36) + Math.random().toString(36).substring(2, 6),
@@ -899,7 +1022,7 @@ function evaluar() {
     };
     
     historialEvaluaciones.unshift(data);
-    guardarEnIndexedDB();
+    guardarDatosLocales();
 
     mostrarResultado(data, clasificacion);
 }
@@ -908,8 +1031,8 @@ function mostrarResultado(data, clasificacion) {
     const resDiv = document.getElementById("res");
     
     let htmlResultado = `<strong style="color:${clasificacion.color}">${clasificacion.categoria}</strong><br>`;
-    htmlResultado += `🎯 <strong>Puntaje IPK-R65:</strong> ${data.total} puntos (escala 0-100)<br>`;
-    htmlResultado += `🤝 <strong>Puntaje de soporte psicosocial:</strong> ${data.soporte} pts<br>`;
+    htmlResultado += `🎯 <strong>Puntaje IPK-R65:</strong> ${data.total} puntos<br>`;
+    htmlResultado += `🤝 <strong>Soporte psicosocial:</strong> ${data.soporte} pts<br>`;
     htmlResultado += `<small>🕒 ${new Date(data.fecha).toLocaleString()}</small>`;
     htmlResultado += `<div style="font-size:0.7rem;color:#4a6a8a;margin-top:4px;">💾 Guardado localmente</div>`;
     
@@ -924,19 +1047,12 @@ function mostrarResultado(data, clasificacion) {
     }
     
     htmlResultado += `<div class="consejos-container">`;
-    htmlResultado += `<h4>💡 6 RECOMENDACIONES PERSONALIZADAS</h4>`;
+    htmlResultado += `<h4>💡 6 RECOMENDACIONES</h4>`;
     data.consejos.forEach((consejo, idx) => {
         htmlResultado += `<div class="consejo-item">
-                            <div class="consejo-titulo">
-                                <span>${idx + 1}️⃣</span>
-                                <span>${consejo.titulo}</span>
-                            </div>
-                            <div class="consejo-descripcion">
-                                <strong>🤝 Cómo ayudar:</strong> ${consejo.ayuda}
-                            </div>
-                            <div class="consejo-ejercicios">
-                                <strong>🏋️ Ejercicios:</strong> ${consejo.ejercicios}
-                            </div>
+                            <div class="consejo-titulo">${idx + 1}️⃣ ${consejo.titulo}</div>
+                            <div class="consejo-descripcion"><strong>🤝 Cómo ayudar:</strong> ${consejo.ayuda}</div>
+                            <div class="consejo-ejercicios"><strong>🏋️ Ejercicios:</strong> ${consejo.ejercicios}</div>
                           </div>`;
     });
     htmlResultado += `</div>`;
@@ -1020,108 +1136,6 @@ function verHistorial() {
     historialDiv.innerHTML = html;
 }
 
-// ========== EXPORTAR DATOS (JSON) ==========
-function exportarDatos() {
-    if (historialEvaluaciones.length === 0) {
-        alert('No hay datos para exportar.');
-        return;
-    }
-    
-    const data = {
-        version: '1.0',
-        exportado: new Date().toISOString(),
-        totalRegistros: historialEvaluaciones.length,
-        evaluaciones: historialEvaluaciones
-    };
-    
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `IPK_R65_backup_${new Date().toISOString().slice(0,10)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-}
-
-// ========== IMPORTAR DATOS (JSON) ==========
-function importarDatos(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        try {
-            const data = JSON.parse(e.target.result);
-            if (data.evaluaciones && Array.isArray(data.evaluaciones)) {
-                if (confirm(`¿Importar ${data.evaluaciones.length} registros? Los datos actuales se mantendrán.`)) {
-                    // Fusionar sin duplicados por ID
-                    const idsExistentes = new Set(historialEvaluaciones.map(h => h.id));
-                    let nuevos = 0;
-                    for (const item of data.evaluaciones) {
-                        if (!idsExistentes.has(item.id)) {
-                            historialEvaluaciones.push(item);
-                            nuevos++;
-                        }
-                    }
-                    guardarEnIndexedDB();
-                    actualizarStats();
-                    verHistorial();
-                    alert(`✅ Importados ${nuevos} registros nuevos. Total: ${historialEvaluaciones.length}`);
-                }
-            } else {
-                alert('❌ Formato de archivo inválido.');
-            }
-        } catch (err) {
-            alert('❌ Error al leer el archivo: ' + err.message);
-        }
-    };
-    reader.readAsText(file);
-    event.target.value = '';
-}
-
-// ========== SINCRONIZAR PESTAÑAS ==========
-function sincronizarPestanas() {
-    // Usar BroadcastChannel para sincronizar entre pestañas
-    try {
-        const channel = new BroadcastChannel('ipk_r65_sync');
-        channel.postMessage({ type: 'sync', data: historialEvaluaciones });
-        channel.onmessage = function(e) {
-            if (e.data.type === 'sync') {
-                historialEvaluaciones = e.data.data;
-                guardarEnIndexedDB();
-                actualizarStats();
-                verHistorial();
-                document.getElementById('res').innerHTML = '🔄 Datos sincronizados con otra pestaña';
-            }
-        };
-        // Pedir sincronización a otras pestañas
-        channel.postMessage({ type: 'request_sync' });
-        setTimeout(() => {
-            channel.close();
-        }, 5000);
-        document.getElementById('res').innerHTML = '🔄 Solicitando sincronización con otras pestañas...';
-    } catch (e) {
-        // Fallback: usar localStorage
-        localStorage.setItem('ipk_r65_sync_request', Date.now().toString());
-        document.getElementById('res').innerHTML = '🔄 Sincronización mediante localStorage (puede tomar unos segundos)';
-        // Escuchar cambios en localStorage
-        window.addEventListener('storage', function(e) {
-            if (e.key === 'ipk_r65_sync_request') {
-                // Otra pestaña pidió sincronización
-                const channel = new BroadcastChannel('ipk_r65_sync');
-                channel.postMessage({ type: 'sync', data: historialEvaluaciones });
-                channel.close();
-            }
-            if (e.key === 'ipk_r65_backup') {
-                // Otra pestaña guardó datos
-                cargarDesdeLocalStorage();
-                actualizarStats();
-                verHistorial();
-            }
-        });
-    }
-}
-
 // ========== EXPORTAR EXCEL ==========
 function exportarExcel() {
     if (historialEvaluaciones.length === 0) {
@@ -1164,11 +1178,11 @@ function exportarExcel() {
     XLSX.writeFile(wb, `IPK_R65_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.xlsx`);
 }
 
-// ========== LIMPIAR HISTORIAL ==========
+// ========== LIMPIAR ==========
 function limpiarHistorial() {
     if (confirm("¿Eliminar TODO el historial?")) {
         historialEvaluaciones = [];
-        guardarEnIndexedDB();
+        guardarDatosLocales();
         document.getElementById("historial").innerHTML = "";
         document.getElementById("res").innerHTML = "🧹 Historial eliminado.";
         actualizarStats();
@@ -1205,22 +1219,18 @@ function escapeHtml(str) {
 }
 
 // ========== INICIALIZACIÓN ==========
-document.addEventListener('DOMContentLoaded', function() {
-    initDatabase().then(() => {
-        actualizarStats();
-        verHistorial();
-        document.getElementById('statusText').textContent = '💾 Datos guardados en IndexedDB + localStorage';
-    });
-});
+document.addEventListener('DOMContentLoaded', init);
 
 // Exponer funciones globalmente
 window.evaluar = evaluar;
 window.verHistorial = verHistorial;
 window.exportarExcel = exportarExcel;
 window.limpiarHistorial = limpiarHistorial;
-window.exportarDatos = exportarDatos;
-window.importarDatos = importarDatos;
-window.sincronizarPestanas = sincronizarPestanas;
+window.subirDatos = subirDatos;
+window.descargarDatos = descargarDatos;
+window.sincronizarDatos = sincronizarDatos;
+window.verificarConexion = verificarConexion;
+window.generarClave = generarClave;
 window.toggleConsejos = toggleConsejos;
 window.toggleCard = toggleCard;
 </script>
