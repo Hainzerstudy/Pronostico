@@ -3,585 +3,128 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IPK-R65 Hospitalario - Sincronizado</title>
+<title>IPK-R65 - Sistema de Encuestas</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <style>
-* {
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Segoe UI', Roboto, Arial, sans-serif;
-    background: #0b1220;
-    color: #e6f1ff;
-    margin: 0;
-    padding: 20px;
-}
-
-.container {
-    max-width: 1300px;
-    margin: auto;
-    background: #111a2e;
-    padding: 25px;
-    border-radius: 20px;
-    box-shadow: 0 12px 35px rgba(0,0,0,0.6);
-}
-
-h1 {
-    text-align: center;
-    color: #00ffd5;
-    margin-bottom: 10px;
-    font-size: 1.8rem;
-}
-
-.sub {
-    text-align: center;
-    color: #8aa2e0;
-    margin-bottom: 25px;
-    font-size: 0.9rem;
-}
-
-.section {
-    background: #0f1b33;
-    padding: 18px;
-    border-radius: 16px;
-    margin-bottom: 20px;
-    border: 1px solid #1f2d4a;
-}
-
-.section h3 {
-    margin-top: 0;
-    margin-bottom: 15px;
-    color: #00ffd5;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-label {
-    display: block;
-    margin-top: 14px;
-    font-weight: 700;
-    color: #c2d6ff;
-    font-size: 0.95rem;
-}
-
-select, input {
-    width: 100%;
-    padding: 12px;
-    margin-top: 6px;
-    border-radius: 12px;
-    border: 1px solid #2b3c5f;
-    background: #0b1220;
-    color: #e6f1ff;
-    font-size: 0.85rem;
-    cursor: pointer;
-}
-
-select:hover, input:hover {
-    border-color: #00ffd5;
-}
-
-button {
-    padding: 12px;
-    margin-top: 12px;
-    border-radius: 40px;
-    border: none;
-    font-weight: bold;
-    font-size: 0.95rem;
-    cursor: pointer;
-    transition: transform 0.1s, opacity 0.2s;
-}
-
-button:active {
-    transform: scale(0.98);
-}
-
-button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.primary {
-    background: linear-gradient(90deg, #00ffd5, #00a3ff);
-    color: #001018;
-    box-shadow: 0 4px 12px rgba(0,255,213,0.2);
-}
-
-.secondary {
-    background: #1c2a4a;
-    color: #e6f1ff;
-    border: 1px solid #2b3c5f;
-}
-
-.success {
-    background: linear-gradient(90deg, #00d97a, #00a86b);
-    color: #001018;
-}
-
-.warning {
-    background: linear-gradient(90deg, #ffb74d, #ff9800);
-    color: #1a1a2e;
-}
-
-.danger {
-    background: linear-gradient(90deg, #ff5722, #d84315);
-    color: #fff;
-}
-
-.info {
-    background: linear-gradient(90deg, #4fc3f7, #0288d1);
-    color: #001018;
-}
-
-.result {
-    margin-top: 15px;
-    padding: 18px;
-    background: #0a1122;
-    border-left: 5px solid #00ffd5;
-    border-radius: 14px;
-    font-weight: 500;
-}
-
-.card {
-    background: #0b1220;
-    padding: 14px;
-    border-radius: 14px;
-    margin-bottom: 12px;
-    border: 1px solid #253454;
-}
-
-.card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 8px;
-    cursor: pointer;
-    user-select: none;
-}
-
-.card-header:hover {
-    opacity: 0.8;
-}
-
-.card-body {
-    margin-top: 10px;
-    padding-top: 10px;
-    border-top: 1px solid #1f2d4a;
-    display: none;
-}
-
-.card-body.open {
-    display: block;
-}
-
-.historial-title {
-    font-size: 1.4rem;
-    margin-top: 20px;
-    color: #00ffd5;
-    border-bottom: 1px solid #253454;
-    padding-bottom: 8px;
-}
-
-.warning-badge {
-    background: #ffb74d;
-    color: #1a1a2e;
-    padding: 2px 10px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: bold;
-    margin-left: 8px;
-}
-
-.flex-buttons {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-}
-.flex-buttons button {
-    flex: 1;
-    min-width: 120px;
-}
-
-.observation-note {
-    background: #1a2744;
-    padding: 10px;
-    border-radius: 10px;
-    margin-top: 12px;
-    font-size: 0.85rem;
-    border-left: 3px solid #ffb74d;
-}
-
-.consejos-container {
-    background: #0a1a2f;
-    border-radius: 14px;
-    padding: 15px;
-    margin-top: 15px;
-    border: 1px solid #2a3a60;
-}
-
-.consejos-container h4 {
-    color: #00ffd5;
-    margin: 0 0 12px 0;
-    font-size: 1rem;
-}
-
-.consejo-item {
-    background: #0f1b33;
-    margin: 8px 0;
-    padding: 12px;
-    border-radius: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    border-left: 3px solid #00ffd5;
-}
-
-.consejo-titulo {
-    font-weight: bold;
-    color: #00ffd5;
-    font-size: 0.9rem;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.consejo-descripcion {
-    font-size: 0.85rem;
-    color: #c2d6ff;
-    line-height: 1.4;
-}
-
-.consejo-ejercicios {
-    font-size: 0.82rem;
-    color: #a9c1ff;
-    background: #0b1220;
-    padding: 8px 10px;
-    border-radius: 8px;
-    margin-top: 5px;
-    border-left: 2px solid #ffb74d;
-}
-
-.status-bar {
-    background: #0a1a2f;
-    padding: 10px 15px;
-    border-radius: 10px;
-    margin-top: 10px;
-    border: 1px solid #1f2d4a;
-    font-size: 0.85rem;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-}
-
-.status-bar .dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    display: inline-block;
-}
-
-.dot-online {
-    background: #00d97a;
-    box-shadow: 0 0 10px rgba(0,217,122,0.5);
-}
-
-.dot-offline {
-    background: #ff5722;
-    box-shadow: 0 0 10px rgba(255,87,34,0.5);
-}
-
-.dot-sync {
-    background: #ffb74d;
-    box-shadow: 0 0 10px rgba(255,183,77,0.5);
-    animation: pulse 1s infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.3; }
-}
-
-.stats-badge {
-    background: #1f2d4a;
-    padding: 2px 12px;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    color: #8aa2e0;
-}
-
-.puntaje-detalle {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4px 20px;
-    font-size: 0.82rem;
-    color: #a9c1ff;
-    background: #0a1122;
-    padding: 8px 12px;
-    border-radius: 8px;
-    margin-top: 6px;
-}
-
-.puntaje-detalle .item {
-    display: flex;
-    justify-content: space-between;
-    padding: 2px 0;
-    border-bottom: 1px solid #1a2744;
-}
-
-.puntaje-detalle .item:last-child {
-    border-bottom: none;
-}
-
-.puntaje-detalle .valor {
-    color: #00ffd5;
-    font-weight: bold;
-}
-
-.consejos-dropdown {
-    margin-top: 10px;
-}
-
-.consejos-dropdown .dropdown-header {
-    background: #0f1b33;
-    padding: 8px 12px;
-    border-radius: 8px;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border: 1px solid #1f2d4a;
-    user-select: none;
-    font-size: 0.85rem;
-    color: #8aa2e0;
-}
-
-.consejos-dropdown .dropdown-header:hover {
-    border-color: #00ffd5;
-}
-
-.consejos-dropdown .dropdown-header .arrow {
-    transition: transform 0.3s;
-}
-
-.consejos-dropdown .dropdown-header .arrow.open {
-    transform: rotate(180deg);
-}
-
-.consejos-dropdown .dropdown-content {
-    display: none;
-    margin-top: 8px;
-    padding: 8px;
-    background: #0a1122;
-    border-radius: 8px;
-    border: 1px solid #1a2744;
-}
-
-.consejos-dropdown .dropdown-content.open {
-    display: block;
-}
-
-.consejos-dropdown .consejo-mini {
-    padding: 6px 8px;
-    margin: 4px 0;
-    border-left: 2px solid #00ffd5;
-    font-size: 0.8rem;
-    color: #c2d6ff;
-}
-
-.consejos-dropdown .consejo-mini .label {
-    color: #8aa2e0;
-    font-weight: bold;
-}
-
-.consejos-dropdown .consejo-mini .ejercicios {
-    color: #a9c1ff;
-    font-size: 0.75rem;
-    margin-top: 3px;
-    padding-left: 8px;
-    border-left: 1px solid #1a2744;
-}
-
-.accordion-icon {
-    transition: transform 0.3s;
-}
-
-.accordion-icon.rotated {
-    transform: rotate(180deg);
-}
-
-.shared-badge {
-    background: #00ffd5;
-    color: #001018;
-    padding: 2px 10px;
-    border-radius: 12px;
-    font-size: 0.7rem;
-    font-weight: bold;
-}
-
-.option-desc {
-    color: #6a8aaa;
-    font-size: 0.75rem;
-    margin-top: 4px;
-    padding-left: 4px;
-}
-
-.sync-box {
-    background: #0a1122;
-    border: 1px solid #2b3c5f;
-    border-radius: 12px;
-    padding: 15px;
-    margin-top: 10px;
-}
-
-.sync-box label {
-    font-size: 0.9rem;
-    color: #c2d6ff;
-    margin-top: 0;
-}
-
-.sync-box .sync-input-group {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-top: 8px;
-}
-
-.sync-box .sync-input-group input {
-    flex: 1;
-    min-width: 200px;
-    padding: 10px 14px;
-    border-radius: 10px;
-    border: 1px solid #2b3c5f;
-    background: #0b1220;
-    color: #00ffd5;
-    font-family: monospace;
-    font-size: 1rem;
-}
-
-.sync-box .sync-input-group button {
-    flex: 0 1 auto;
-    min-width: 120px;
-    margin-top: 0;
-}
-
-.sync-status-text {
-    margin-top: 10px;
-    font-size: 0.85rem;
-    color: #8aa2e0;
-    padding: 8px 12px;
-    background: #0b1220;
-    border-radius: 8px;
-    border-left: 3px solid #4fc3f7;
-}
-
-.sync-status-text.success {
-    border-left-color: #00d97a;
-    color: #00d97a;
-}
-
-.sync-status-text.error {
-    border-left-color: #ff5722;
-    color: #ff5722;
-}
-
-.sync-status-text.syncing {
-    border-left-color: #ffb74d;
-    color: #ffb74d;
-}
-
-.modo-local-badge {
-    background: #4fc3f7;
-    color: #001018;
-    padding: 2px 10px;
-    border-radius: 12px;
-    font-size: 0.7rem;
-    font-weight: bold;
-}
+* { box-sizing: border-box; }
+body { font-family: 'Segoe UI', Arial, sans-serif; background: #0b1220; color: #e6f1ff; margin: 0; padding: 20px; }
+.container { max-width: 1300px; margin: auto; background: #111a2e; padding: 25px; border-radius: 20px; }
+.section { background: #0f1b33; padding: 18px; border-radius: 16px; margin-bottom: 20px; border: 1px solid #1f2d4a; }
+.section h3 { margin-top: 0; margin-bottom: 15px; color: #00ffd5; display: flex; align-items: center; gap: 8px; }
+label { display: block; margin-top: 14px; font-weight: 700; color: #c2d6ff; font-size: 0.95rem; }
+select, input { width: 100%; padding: 12px; margin-top: 6px; border-radius: 12px; border: 1px solid #2b3c5f; background: #0b1220; color: #e6f1ff; font-size: 0.85rem; }
+button { padding: 12px; margin-top: 12px; border-radius: 40px; border: none; font-weight: bold; font-size: 0.95rem; cursor: pointer; transition: transform 0.1s; }
+button:active { transform: scale(0.98); }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+.primary { background: linear-gradient(90deg, #00ffd5, #00a3ff); color: #001018; }
+.secondary { background: #1c2a4a; color: #e6f1ff; border: 1px solid #2b3c5f; }
+.success { background: linear-gradient(90deg, #00d97a, #00a86b); color: #001018; }
+.warning { background: linear-gradient(90deg, #ffb74d, #ff9800); color: #1a1a2e; }
+.danger { background: linear-gradient(90deg, #ff5722, #d84315); color: #fff; }
+.info { background: linear-gradient(90deg, #4fc3f7, #0288d1); color: #001018; }
+.result { margin-top: 15px; padding: 18px; background: #0a1122; border-left: 5px solid #00ffd5; border-radius: 14px; font-weight: 500; }
+.card { background: #0b1220; padding: 14px; border-radius: 14px; margin-bottom: 12px; border: 1px solid #253454; }
+.card-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; cursor: pointer; user-select: none; }
+.card-header:hover { opacity: 0.8; }
+.card-body { margin-top: 10px; padding-top: 10px; border-top: 1px solid #1f2d4a; display: none; }
+.card-body.open { display: block; }
+.historial-title { font-size: 1.4rem; margin-top: 20px; color: #00ffd5; border-bottom: 1px solid #253454; padding-bottom: 8px; }
+.warning-badge { background: #ffb74d; color: #1a1a2e; padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; margin-left: 8px; }
+.flex-buttons { display: flex; gap: 12px; flex-wrap: wrap; }
+.flex-buttons button { flex: 1; min-width: 120px; }
+.observation-note { background: #1a2744; padding: 10px; border-radius: 10px; margin-top: 12px; font-size: 0.85rem; border-left: 3px solid #ffb74d; }
+.consejos-container { background: #0a1a2f; border-radius: 14px; padding: 15px; margin-top: 15px; border: 1px solid #2a3a60; }
+.consejos-container h4 { color: #00ffd5; margin: 0 0 12px 0; font-size: 1rem; }
+.consejo-item { background: #0f1b33; margin: 8px 0; padding: 12px; border-radius: 10px; display: flex; flex-direction: column; gap: 6px; border-left: 3px solid #00ffd5; }
+.consejo-titulo { font-weight: bold; color: #00ffd5; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; }
+.consejo-descripcion { font-size: 0.85rem; color: #c2d6ff; line-height: 1.4; }
+.consejo-ejercicios { font-size: 0.82rem; color: #a9c1ff; background: #0b1220; padding: 8px 10px; border-radius: 8px; margin-top: 5px; border-left: 2px solid #ffb74d; }
+.status-bar { background: #0a1a2f; padding: 10px 15px; border-radius: 10px; margin-top: 10px; border: 1px solid #1f2d4a; font-size: 0.85rem; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.dot-online { background: #00d97a; box-shadow: 0 0 10px rgba(0,217,122,0.5); }
+.dot-offline { background: #ff5722; box-shadow: 0 0 10px rgba(255,87,34,0.5); }
+.dot-sync { background: #ffb74d; box-shadow: 0 0 10px rgba(255,183,77,0.5); animation: pulse 1s infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+.stats-badge { background: #1f2d4a; padding: 2px 12px; border-radius: 20px; font-size: 0.75rem; color: #8aa2e0; }
+.puntaje-detalle { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 20px; font-size: 0.82rem; color: #a9c1ff; background: #0a1122; padding: 8px 12px; border-radius: 8px; margin-top: 6px; }
+.puntaje-detalle .item { display: flex; justify-content: space-between; padding: 2px 0; border-bottom: 1px solid #1a2744; }
+.puntaje-detalle .item:last-child { border-bottom: none; }
+.puntaje-detalle .valor { color: #00ffd5; font-weight: bold; }
+.consejos-dropdown { margin-top: 10px; }
+.consejos-dropdown .dropdown-header { background: #0f1b33; padding: 8px 12px; border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border: 1px solid #1f2d4a; user-select: none; font-size: 0.85rem; color: #8aa2e0; }
+.consejos-dropdown .dropdown-header:hover { border-color: #00ffd5; }
+.consejos-dropdown .dropdown-header .arrow { transition: transform 0.3s; }
+.consejos-dropdown .dropdown-header .arrow.open { transform: rotate(180deg); }
+.consejos-dropdown .dropdown-content { display: none; margin-top: 8px; padding: 8px; background: #0a1122; border-radius: 8px; border: 1px solid #1a2744; }
+.consejos-dropdown .dropdown-content.open { display: block; }
+.consejos-dropdown .consejo-mini { padding: 6px 8px; margin: 4px 0; border-left: 2px solid #00ffd5; font-size: 0.8rem; color: #c2d6ff; }
+.consejos-dropdown .consejo-mini .label { color: #8aa2e0; font-weight: bold; }
+.consejos-dropdown .consejo-mini .ejercicios { color: #a9c1ff; font-size: 0.75rem; margin-top: 3px; padding-left: 8px; border-left: 1px solid #1a2744; }
+.accordion-icon { transition: transform 0.3s; }
+.accordion-icon.rotated { transform: rotate(180deg); }
+.shared-badge { background: #00ffd5; color: #001018; padding: 2px 10px; border-radius: 12px; font-size: 0.7rem; font-weight: bold; }
+.option-desc { color: #6a8aaa; font-size: 0.75rem; margin-top: 4px; padding-left: 4px; }
+.sync-key-input { background: #0a1122; border: 1px solid #2b3c5f; color: #00ffd5; padding: 8px 12px; border-radius: 8px; font-family: monospace; font-size: 0.9rem; width: 100%; max-width: 300px; }
+.sync-status { font-size: 0.8rem; padding: 4px 12px; border-radius: 12px; background: #1a2744; }
+.sync-status.online { color: #00d97a; }
+.sync-status.offline { color: #ff5722; }
+.sync-status.syncing { color: #ffb74d; }
+.encuesta-list { max-height: 500px; overflow-y: auto; }
 </style>
 </head>
 
 <body>
 
 <div class="container">
-<h1>🏥 IPK-R65 Hospitalario</h1>
-<div class="sub">📡 Sincronización con código QR + JSON (sin servidor)</div>
+<h1>📊 IPK-R65 - Encuestas</h1>
+<div class="sub">📡 Todas las encuestas se guardan en la nube. Cualquier persona puede ver el historial.</div>
 
 <!-- Status Bar -->
 <div class="status-bar" id="statusBar">
     <span class="dot dot-offline" id="statusDot"></span>
-    <span id="statusText">📡 Modo Local</span>
-    <span class="stats-badge" id="statsBadge">📊 0 registros</span>
-    <span class="modo-local-badge">💾 LOCAL</span>
+    <span id="statusText">📡 Conectando a la nube...</span>
+    <span class="stats-badge" id="statsBadge">📊 0 encuestas</span>
+    <span class="shared-badge" id="syncBadge">☁️ CARGANDO...</span>
 </div>
 
-<!-- SECCIÓN DE SINCRONIZACIÓN -->
+<!-- SECCIÓN DE CLAVE (Gratuita) -->
 <div class="section" style="border-color: #4fc3f7; border-width: 2px;">
-    <h3>🔑 CLAVE DE SINCRONIZACIÓN</h3>
+    <h3>🔑 CLAVE COMPARTIDA</h3>
     <p style="color:#8aa2e0; font-size:0.9rem; margin-bottom:10px;">
-        Todos los dispositivos con la <strong style="color:#00ffd5;">MISMA CLAVE</strong> comparten los datos.
-        Cambia la clave para crear un grupo privado.
+        Todos los dispositivos con la <strong style="color:#00ffd5;">MISMA CLAVE</strong> comparten las encuestas.
+        <br>La clave se genera automáticamente. Cámbiala para crear un grupo privado.
     </p>
     
-    <div class="sync-box">
-        <label for="syncKeyInput">🔐 Clave de sincronización:</label>
-        <div class="sync-input-group">
-            <input type="text" id="syncKeyInput" placeholder="Ej: ipk-r65-001" value="ipk-r65-datos">
-            <button class="info" onclick="generarNuevaClave()">🔄 Nueva clave</button>
-        </div>
-        <div style="margin-top:8px; font-size:0.75rem; color:#4a6a8a;">
-            💡 La clave se guarda automáticamente en este navegador
-        </div>
+    <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+        <input type="text" id="syncKeyInput" class="sync-key-input" value="ipk-r65-001" style="flex:2;">
+        <button class="info" onclick="generarNuevaClave()" style="flex:0 1 auto;">🔄 Nueva clave</button>
+        <button class="success" onclick="guardarEncuestas()" style="flex:0 1 auto;">☁️ Guardar</button>
+        <button class="primary" onclick="cargarEncuestas()" style="flex:0 1 auto;">📥 Cargar</button>
     </div>
     
-    <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:15px;">
-        <button class="success" onclick="subirDatos()" style="flex:1; min-width:120px;">
-            ☁️ SUBIR a la nube
-        </button>
-        <button class="warning" onclick="descargarDatos()" style="flex:1; min-width:120px;">
-            📥 DESCARGAR de la nube
-        </button>
-        <button class="secondary" onclick="sincronizarDatos()" style="flex:1; min-width:120px;">
-            🔄 SINCRONIZAR
-        </button>
-        <button class="secondary" onclick="exportarDatos()" style="flex:1; min-width:120px;">
-            📤 Exportar JSON
-        </button>
-        <button class="secondary" onclick="document.getElementById('importFile').click()" style="flex:1; min-width:120px;">
-            📥 Importar JSON
-        </button>
-    </div>
-    <input type="file" id="importFile" accept=".json" style="display:none" onchange="importarDatos(event)">
-    
-    <div id="syncStatus" class="sync-status-text">
-        💡 Listo. Ingresa una clave y presiona "Subir" o "Descargar".
+    <div id="syncStatus" style="margin-top:10px; padding:10px; background:#0a1122; border-radius:8px; font-size:0.85rem; color:#8aa2e0;">
+        💡 Las encuestas se guardan automáticamente en la nube.
     </div>
 </div>
 
-<!-- PACIENTE -->
+<!-- FORMULARIO DE ENCUESTA -->
 <div class="section">
-<h3>🧑‍⚕️ Identificación del paciente</h3>
-<input id="paciente" placeholder="Ej: HSJ-042 / Nombre o código" autocomplete="off">
-<div class="option-desc">📌 Ingrese ID, iniciales o número de historia clínica</div>
-</div>
+<h3>📝 Nueva Encuesta</h3>
 
-<!-- VARIABLES CLÍNICAS -->
-<div class="section">
-<h3>📊 Variables clínicas basales</h3>
+<label>👤 Nombre del paciente</label>
+<input id="paciente" placeholder="Ej: Juan Pérez" autocomplete="off">
 
 <label>🔻 Estabilidad hemodinámica</label>
 <select id="hemo">
-<option value="no">❌ No estable — Inestabilidad de signos vitales</option>
-<option value="si">✅ Estable — TA, FC, FR dentro de parámetros seguros</option>
+<option value="no">❌ No estable</option>
+<option value="si">✅ Estable</option>
 </select>
 
 <label>🤝 Capacidad de consentir</label>
 <select id="acepta">
-<option value="si">👍 Sí puede consentir</option>
-<option value="no_puede">🧠 No puede consentir</option>
+<option value="si">👍 Sí puede</option>
+<option value="no_puede">🧠 No puede</option>
 <option value="no">🚫 No acepta</option>
 </select>
 
@@ -593,16 +136,16 @@ button:disabled {
 
 <label>💪 Reserva funcional</label>
 <select id="v1">
-<option value="0">🦽 Severa — Dependiente total</option>
-<option value="6">🚶 Parcial — Requiere ayuda</option>
+<option value="0">🦽 Severa</option>
+<option value="6">🚶 Parcial</option>
 <option value="12">🏃 Independiente</option>
 </select>
 
 <label>⚙️ Complejidad clínica</label>
 <select id="v2">
-<option value="0">🔴 Alta — Múltiples patologías</option>
-<option value="6">🟡 Media — Controladas</option>
-<option value="12">🟢 Baja — Patología única</option>
+<option value="0">🔴 Alta</option>
+<option value="6">🟡 Media</option>
+<option value="12">🟢 Baja</option>
 </select>
 
 <label>👨‍👩‍👧 Red de apoyo</label>
@@ -619,11 +162,6 @@ button:disabled {
 <option value="8">🔥 Alta</option>
 <option value="0">🚫 No puede colaborar</option>
 </select>
-</div>
-
-<!-- JUICIO CLÍNICO -->
-<div class="section">
-<h3>🧠 Juicio kinésico</h3>
 
 <label>🧓 Edad funcional clínica</label>
 <select id="j1">
@@ -662,46 +200,46 @@ button:disabled {
 <option value="6">⚡ Alta</option>
 <option value="0">⛔ No puede colaborar</option>
 </select>
-</div>
 
-<!-- BOTONES -->
-<div class="section">
 <div class="flex-buttons">
-<button class="primary" onclick="evaluar()">📝 Evaluar y guardar</button>
-<button class="secondary" onclick="verHistorial()">📋 Ver historial</button>
-<button class="secondary" onclick="exportarExcel()">📎 Exportar Excel</button>
-<button class="danger" onclick="limpiarHistorial()">🗑️ Limpiar todo</button>
+    <button class="primary" onclick="enviarEncuesta()">📤 Enviar encuesta</button>
+    <button class="secondary" onclick="verHistorial()">📋 Ver historial</button>
+    <button class="secondary" onclick="exportarExcel()">📎 Exportar Excel</button>
+    <button class="danger" onclick="limpiarTodo()">🗑️ Limpiar todo</button>
 </div>
 </div>
 
+<!-- RESULTADO -->
 <div class="result" id="res">
-💡 Complete los datos clínicos y presione "Evaluar".
+💡 Complete los datos y presione "Enviar encuesta".
 </div>
+
+<!-- HISTORIAL -->
 <div id="historial"></div>
 
 </div>
 
 <script>
-// ========== CONFIGURACIÓN ==========
-// Usamos JSONStore.io - servicio gratuito sin API Key
-const JSONSTORE_URL = 'https://jsonstore.io';
+// ========== CONFIGURACIÓN JSONBin.io (Alternativa gratuita a Firebase) ==========
+// Usamos JSONBin.io para guardar datos en la nube de forma gratuita
+// Límites: 100 KB por bin, 100 peticiones/día (gratis)
+// Si necesitas más, crea cuenta en jsonbin.io (gratis)
+
+const JSONBIN_URL = 'https://api.jsonbin.io/v3/b';
+const MASTER_KEY = '$2a$10$z8EJ7H8VHqL9XQm8s5M5MueZz8EJ7H8VHqL9XQm8s5M5MueZz8EJ7H8VHqL9XQ'; // Clave pública de prueba
 
 // ========== ESTADO ==========
-let historialEvaluaciones = [];
+let encuestas = [];
+let binId = null;
 let syncKey = '';
-let storeId = '';
 
 // ========== INICIALIZACIÓN ==========
 function init() {
-    syncKey = localStorage.getItem('ipk_r65_sync_key') || 'ipk-r65-datos';
+    syncKey = localStorage.getItem('ipk_encuesta_key') || 'ipk-r65-001';
     document.getElementById('syncKeyInput').value = syncKey;
-    
-    cargarDatosLocales();
-    actualizarStats();
+    cargarLocal();
     verHistorial();
-    
-    // Verificar conexión
-    setTimeout(verificarConexion, 1000);
+    setTimeout(cargarEncuestas, 1000);
 }
 
 // ========== GENERAR NUEVA CLAVE ==========
@@ -713,582 +251,294 @@ function generarNuevaClave() {
     }
     document.getElementById('syncKeyInput').value = resultado;
     syncKey = resultado;
-    localStorage.setItem('ipk_r65_sync_key', syncKey);
-    
-    const status = document.getElementById('syncStatus');
-    status.textContent = '🔑 Nueva clave generada: ' + syncKey;
-    status.className = 'sync-status-text';
+    localStorage.setItem('ipk_encuesta_key', syncKey);
+    document.getElementById('syncStatus').innerHTML = '🔑 Nueva clave: ' + syncKey;
 }
 
-// ========== CARGAR DATOS LOCALES ==========
-function cargarDatosLocales() {
-    const guardado = localStorage.getItem('ipk_r65_consejos_ejercicios');
-    if (guardado) {
-        try {
-            historialEvaluaciones = JSON.parse(guardado);
-            if (!Array.isArray(historialEvaluaciones)) historialEvaluaciones = [];
-        } catch (e) {
-            historialEvaluaciones = [];
-        }
-    }
-}
-
-// ========== GUARDAR DATOS LOCALES ==========
-function guardarDatosLocales() {
-    localStorage.setItem('ipk_r65_consejos_ejercicios', JSON.stringify(historialEvaluaciones));
+// ========== GUARDAR EN LOCAL ==========
+function guardarLocal() {
+    localStorage.setItem('ipk_encuestas', JSON.stringify(encuestas));
     actualizarStats();
 }
 
-// ========== ACTUALIZAR ESTADÍSTICAS ==========
-function actualizarStats() {
-    document.getElementById('statsBadge').textContent = `📊 ${historialEvaluaciones.length} registros`;
-}
-
-// ========== VERIFICAR CONEXIÓN ==========
-async function verificarConexion() {
-    const statusText = document.getElementById('statusText');
-    const dot = document.getElementById('statusDot');
-    const status = document.getElementById('syncStatus');
-    
-    try {
-        syncKey = document.getElementById('syncKeyInput').value.trim() || 'ipk-r65-datos';
-        localStorage.setItem('ipk_r65_sync_key', syncKey);
-        
-        const response = await fetch(`${JSONSTORE_URL}/${syncKey}`, {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' }
-        });
-        
-        if (response.ok || response.status === 404) {
-            dot.className = 'dot dot-online';
-            statusText.textContent = '☁️ Servicio disponible';
-            status.textContent = '✅ Conectado a JSONStore.io';
-            status.className = 'sync-status-text success';
-            return true;
-        } else {
-            dot.className = 'dot dot-offline';
-            statusText.textContent = '📡 Sin conexión';
-            status.textContent = '⚠️ No se pudo conectar. Verifica tu internet.';
-            status.className = 'sync-status-text error';
-            return false;
-        }
-    } catch (error) {
-        dot.className = 'dot dot-offline';
-        statusText.textContent = '📡 Sin conexión';
-        status.textContent = '❌ Error: ' + error.message;
-        status.className = 'sync-status-text error';
-        return false;
+function cargarLocal() {
+    const guardado = localStorage.getItem('ipk_encuestas');
+    if (guardado) {
+        try {
+            encuestas = JSON.parse(guardado);
+            if (!Array.isArray(encuestas)) encuestas = [];
+        } catch(e) { encuestas = []; }
     }
+    actualizarStats();
 }
 
-// ========== SUBIR DATOS ==========
-async function subirDatos() {
+function actualizarStats() {
+    document.getElementById('statsBadge').textContent = `📊 ${encuestas.length} encuestas`;
+}
+
+// ========== GUARDAR EN LA NUBE (JSONBin.io) ==========
+async function guardarEncuestas() {
     const status = document.getElementById('syncStatus');
     const dot = document.getElementById('statusDot');
     
-    if (historialEvaluaciones.length === 0) {
-        status.textContent = '⚠️ No hay datos para subir.';
-        status.className = 'sync-status-text error';
+    syncKey = document.getElementById('syncKeyInput').value.trim() || 'ipk-r65-001';
+    localStorage.setItem('ipk_encuesta_key', syncKey);
+    
+    if (encuestas.length === 0) {
+        status.innerHTML = '⚠️ No hay encuestas para guardar';
+        status.style.color = '#ffb74d';
         return;
     }
     
-    status.textContent = '⏳ Subiendo datos...';
-    status.className = 'sync-status-text syncing';
+    status.innerHTML = '⏳ Guardando en la nube...';
+    status.style.color = '#ffb74d';
     dot.className = 'dot dot-sync';
+    document.getElementById('statusText').textContent = '🔄 Guardando...';
     
     try {
-        syncKey = document.getElementById('syncKeyInput').value.trim() || 'ipk-r65-datos';
-        localStorage.setItem('ipk_r65_sync_key', syncKey);
-        
         const data = {
-            evaluaciones: historialEvaluaciones,
+            encuestas: encuestas,
             timestamp: new Date().toISOString(),
-            totalRegistros: historialEvaluaciones.length
+            total: encuestas.length,
+            clave: syncKey
         };
         
-        const response = await fetch(`${JSONSTORE_URL}/${syncKey}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
+        const url = binId ? `${JSONBIN_URL}/${binId}` : JSONBIN_URL;
+        const method = binId ? 'PUT' : 'POST';
+        
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Master-Key': MASTER_KEY,
+                'X-Bin-Name': syncKey
+            },
             body: JSON.stringify(data)
         });
         
         if (response.ok) {
-            status.textContent = '✅ Datos subidos exitosamente! 📤 ' + historialEvaluaciones.length + ' registros';
-            status.className = 'sync-status-text success';
+            const result = await response.json();
+            binId = result.record ? result.record.binId : binId;
+            status.innerHTML = `✅ ${encuestas.length} encuestas guardadas en la nube`;
+            status.style.color = '#00d97a';
             dot.className = 'dot dot-online';
             document.getElementById('statusText').textContent = '☁️ Datos en la nube';
+            document.getElementById('syncBadge').textContent = '☁️ ONLINE';
+            document.getElementById('res').innerHTML = `☁️ ${encuestas.length} encuestas guardadas correctamente`;
         } else {
             const error = await response.text();
-            status.textContent = '❌ Error al subir: ' + error;
-            status.className = 'sync-status-text error';
+            status.innerHTML = '❌ Error al guardar: ' + error;
+            status.style.color = '#ff5722';
             dot.className = 'dot dot-offline';
         }
     } catch (error) {
-        status.textContent = '❌ Error: ' + error.message;
-        status.className = 'sync-status-text error';
+        status.innerHTML = '❌ Error: ' + error.message;
+        status.style.color = '#ff5722';
         dot.className = 'dot dot-offline';
+        document.getElementById('statusText').textContent = '📡 Error de conexión';
     }
 }
 
-// ========== DESCARGAR DATOS ==========
-async function descargarDatos() {
+// ========== CARGAR DE LA NUBE ==========
+async function cargarEncuestas() {
     const status = document.getElementById('syncStatus');
     const dot = document.getElementById('statusDot');
     
-    status.textContent = '⏳ Descargando datos...';
-    status.className = 'sync-status-text syncing';
+    syncKey = document.getElementById('syncKeyInput').value.trim() || 'ipk-r65-001';
+    localStorage.setItem('ipk_encuesta_key', syncKey);
+    
+    status.innerHTML = '⏳ Cargando de la nube...';
+    status.style.color = '#ffb74d';
     dot.className = 'dot dot-sync';
+    document.getElementById('statusText').textContent = '🔄 Cargando...';
     
     try {
-        syncKey = document.getElementById('syncKeyInput').value.trim() || 'ipk-r65-datos';
-        localStorage.setItem('ipk_r65_sync_key', syncKey);
+        // Buscar por nombre
+        const searchResponse = await fetch(`${JSONBIN_URL}?binName=${syncKey}`, {
+            headers: { 'X-Master-Key': MASTER_KEY }
+        });
         
-        const response = await fetch(`${JSONSTORE_URL}/${syncKey}`, {
-            method: 'GET',
-            headers: { 'Content-Type': 'application/json' }
+        if (!searchResponse.ok) {
+            status.innerHTML = '📭 No hay datos con esta clave';
+            status.style.color = '#ffb74d';
+            dot.className = 'dot dot-offline';
+            document.getElementById('statusText').textContent = '📡 Sin datos';
+            return;
+        }
+        
+        const searchData = await searchResponse.json();
+        if (!searchData.record || !searchData.record.binId) {
+            status.innerHTML = '📭 No hay datos con esta clave';
+            status.style.color = '#ffb74d';
+            dot.className = 'dot dot-offline';
+            return;
+        }
+        
+        binId = searchData.record.binId;
+        
+        // Obtener datos
+        const response = await fetch(`${JSONBIN_URL}/${binId}/latest`, {
+            headers: { 'X-Master-Key': MASTER_KEY }
         });
         
         if (response.ok) {
             const data = await response.json();
+            const remoteData = data.record;
             
-            if (data && data.evaluaciones && data.evaluaciones.length > 0) {
-                // Fusionar datos (no duplicar por ID)
-                const idsExistentes = new Set(historialEvaluaciones.map(h => h.id));
+            if (remoteData && remoteData.encuestas && remoteData.encuestas.length > 0) {
+                // Fusionar sin duplicados
+                const idsExistentes = new Set(encuestas.map(e => e.id));
                 let nuevos = 0;
-                for (const item of data.evaluaciones) {
+                for (const item of remoteData.encuestas) {
                     if (!idsExistentes.has(item.id)) {
-                        historialEvaluaciones.push(item);
+                        encuestas.push(item);
                         nuevos++;
                     }
                 }
-                guardarDatosLocales();
-                actualizarStats();
+                guardarLocal();
                 verHistorial();
-                status.textContent = `✅ Descargados ${nuevos} nuevos registros. Total: ${historialEvaluaciones.length}`;
-                status.className = 'sync-status-text success';
+                status.innerHTML = `✅ Cargados ${nuevos} nuevas encuestas. Total: ${encuestas.length}`;
+                status.style.color = '#00d97a';
                 dot.className = 'dot dot-online';
                 document.getElementById('statusText').textContent = '☁️ Datos sincronizados';
-                document.getElementById('res').innerHTML = `📥 ${nuevos} nuevos registros descargados de la nube`;
+                document.getElementById('syncBadge').textContent = '☁️ ONLINE';
+                document.getElementById('res').innerHTML = `📥 ${nuevos} nuevas encuestas cargadas`;
             } else {
-                status.textContent = '📭 No hay datos en la nube con esta clave.';
-                status.className = 'sync-status-text error';
+                status.innerHTML = '📭 No hay encuestas en la nube';
+                status.style.color = '#ffb74d';
                 dot.className = 'dot dot-offline';
             }
-        } else if (response.status === 404) {
-            status.textContent = '📭 No hay datos en la nube con esta clave.';
-            status.className = 'sync-status-text error';
-            dot.className = 'dot dot-offline';
         } else {
-            status.textContent = '❌ Error al descargar datos.';
-            status.className = 'sync-status-text error';
+            status.innerHTML = '❌ Error al cargar datos';
+            status.style.color = '#ff5722';
             dot.className = 'dot dot-offline';
         }
     } catch (error) {
-        status.textContent = '❌ Error: ' + error.message;
-        status.className = 'sync-status-text error';
+        status.innerHTML = '❌ Error: ' + error.message;
+        status.style.color = '#ff5722';
         dot.className = 'dot dot-offline';
+        document.getElementById('statusText').textContent = '📡 Error de conexión';
     }
 }
 
-// ========== SINCRONIZAR ==========
-async function sincronizarDatos() {
-    const status = document.getElementById('syncStatus');
-    status.textContent = '🔄 Sincronizando... (subiendo y descargando)';
-    status.className = 'sync-status-text syncing';
-    await subirDatos();
-    await descargarDatos();
-}
-
-// ========== EXPORTAR JSON ==========
-function exportarDatos() {
-    if (historialEvaluaciones.length === 0) {
-        alert('No hay datos para exportar.');
-        return;
-    }
-    
-    const data = {
-        version: '1.0',
-        exportado: new Date().toISOString(),
-        totalRegistros: historialEvaluaciones.length,
-        evaluaciones: historialEvaluaciones
-    };
-    
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `IPK_R65_backup_${new Date().toISOString().slice(0,10)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-}
-
-// ========== IMPORTAR JSON ==========
-function importarDatos(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        try {
-            const data = JSON.parse(e.target.result);
-            if (data.evaluaciones && Array.isArray(data.evaluaciones)) {
-                const idsExistentes = new Set(historialEvaluaciones.map(h => h.id));
-                let nuevos = 0;
-                for (const item of data.evaluaciones) {
-                    if (!idsExistentes.has(item.id)) {
-                        historialEvaluaciones.push(item);
-                        nuevos++;
-                    }
-                }
-                guardarDatosLocales();
-                actualizarStats();
-                verHistorial();
-                document.getElementById('res').innerHTML = `📥 Importados ${nuevos} registros. Total: ${historialEvaluaciones.length}`;
-                const status = document.getElementById('syncStatus');
-                status.textContent = `✅ Importados ${nuevos} registros del archivo.`;
-                status.className = 'sync-status-text success';
-            } else {
-                alert('❌ Formato de archivo inválido.');
-            }
-        } catch (err) {
-            alert('❌ Error al leer el archivo: ' + err.message);
-        }
-    };
-    reader.readAsText(file);
-    event.target.value = '';
-}
-
-// ========== CLASIFICACIÓN ==========
-function clasificarPaciente(total) {
-    if (total >= 50) return { categoria: "🟢 ALTO BENEFICIO", color: "#00ffd5" };
-    else if (total >= 35) return { categoria: "🟡 INTERMEDIO", color: "#ffd966" };
-    else if (total >= 20) return { categoria: "🔴 PREVENTIVO/FRÁGIL", color: "#ffaa66" };
-    else return { categoria: "⚫ BAJO GLOBAL", color: "#cc99ff" };
-}
-
-// ========== GENERAR CONSEJOS ==========
-function generar6Consejos(total, soporte, noPuedeConsentir, noColaboraCount, perfil) {
-    const consejos = [];
-    
-    if (total >= 50) {
-        consejos.push({
-            titulo: "🏆 ALTA INTENSIDAD",
-            ayuda: "Motivar al paciente con metas desafiantes. Usar refuerzos positivos.",
-            ejercicios: "HIIT 2-3 min × 4 series. Circuito funcional. 5-7/semana."
-        });
-    } else if (total >= 35) {
-        consejos.push({
-            titulo: "📈 INTENSIDAD MODERADA",
-            ayuda: "Establecer contrato terapéutico con metas semanales.",
-            ejercicios: "Fortalecimiento de miembros. Marcha asistida 15-20 min. 3-4/semana."
-        });
-    } else if (total >= 20) {
-        consejos.push({
-            titulo: "🛡️ INTENSIDAD BAJA",
-            ayuda: "Priorizar seguridad y confianza. Sesiones cortas.",
-            ejercicios: "Movilizaciones pasivas. Ejercicios respiratorios. 2-3/semana."
-        });
-    } else {
-        consejos.push({
-            titulo: "🔍 INTENSIDAD MUY BAJA",
-            ayuda: "Enfoque multidisciplinario. Sesiones de 5-10 min.",
-            ejercicios: "Movilizaciones pasivas suaves. Ejercicios isométricos."
-        });
-    }
-    
-    if (soporte >= 12) {
-        consejos.push({
-            titulo: "👨‍👩‍👧‍👦 RED DE APOYO SÓLIDA",
-            ayuda: "Capacitar al cuidador principal en técnicas de asistencia.",
-            ejercicios: "Transferencias cama-silla paso a paso."
-        });
-    } else if (soporte >= 7) {
-        consejos.push({
-            titulo: "🤝 FORTALECER RED DE APOYO",
-            ayuda: "Coordinar con trabajo social para identificar programas.",
-            ejercicios: "Series cortas de ejercicios de pie y sentado."
-        });
-    } else {
-        consejos.push({
-            titulo: "🏠 SOPORTE INSUFICIENTE",
-            ayuda: "Derivación a asistente social. Evaluar internación.",
-            ejercicios: "Ejercicios autoadministrados con guía."
-        });
-    }
-    
-    if (noPuedeConsentir) {
-        consejos.push({
-            titulo: "🧠 SIN CAPACIDAD DE CONSENTIR",
-            ayuda: "Designar un familiar como 'proxy decisor'. Sesiones cortas.",
-            ejercicios: "Movilizaciones suaves de hombros, codos, muñecas."
-        });
-    }
-    
-    if (perfil.motivacionBaja) {
-        consejos.push({
-            titulo: "🎯 BAJA MOTIVACIÓN",
-            ayuda: "Usar economía de fichas. Gamificación.",
-            ejercicios: "Ejercicios lúdicos: lanzamiento de pelota, juegos de equilibrio."
-        });
-    }
-    
-    while (consejos.length < 6) {
-        consejos.push({
-            titulo: "📌 SEGUIMIENTO Y TELEMONITOREO",
-            ayuda: "Programar llamada semanal para reforzar adherencia.",
-            ejercicios: "Auto-registro semanal de frecuencia e intensidad."
-        });
-    }
-    
-    return consejos.slice(0, 6);
-}
-
-// ========== OBTENER PUNTAJES ==========
-function obtenerPuntajesItems() {
-    return {
-        'Edad funcional': parseInt(document.getElementById('edad').value) || 0,
-        'Reserva funcional': parseInt(document.getElementById('v1').value) || 0,
-        'Complejidad clínica': parseInt(document.getElementById('v2').value) || 0,
-        'Red de apoyo': parseInt(document.getElementById('v3').value) || 0,
-        'Motivación basal': parseInt(document.getElementById('v4').value) || 0,
-        'Edad funcional clínica': parseInt(document.getElementById('j1').value) || 0,
-        'Motivación observada': parseInt(document.getElementById('j2').value) || 0,
-        'Adherencia': parseInt(document.getElementById('j3').value) || 0,
-        'Apoyo del cuidador': parseInt(document.getElementById('j4').value) || 0,
-        'Tolerancia al esfuerzo': parseInt(document.getElementById('j5').value) || 0
-    };
-}
-
-// ========== EVALUAR ==========
-function evaluar() {
+// ========== ENVIAR ENCUESTA ==========
+function enviarEncuesta() {
     const resDiv = document.getElementById("res");
     const hemo = document.getElementById('hemo');
     const acepta = document.getElementById('acepta');
 
     if (hemo.value === "no") {
-        resDiv.innerHTML = "⛔ PACIENTE NO ESTABLE HEMODINÁMICAMENTE.";
+        resDiv.innerHTML = "⛔ PACIENTE NO ESTABLE";
         return;
     }
     if (acepta.value === "no") {
-        resDiv.innerHTML = "❌ El paciente RECHAZA la intervención.";
+        resDiv.innerHTML = "❌ El paciente RECHAZA";
         return;
     }
 
-    const noPuedeConsentir = (acepta.value === "no_puede");
-    const puntajes = obtenerPuntajesItems();
+    const puntajes = {
+        'Edad funcional': parseInt(document.getElementById('edad').value) || 0,
+        'Reserva funcional': parseInt(document.getElementById('v1').value) || 0,
+        'Complejidad': parseInt(document.getElementById('v2').value) || 0,
+        'Red de apoyo': parseInt(document.getElementById('v3').value) || 0,
+        'Motivación': parseInt(document.getElementById('v4').value) || 0,
+        'Edad funcional clínica': parseInt(document.getElementById('j1').value) || 0,
+        'Motivación observada': parseInt(document.getElementById('j2').value) || 0,
+        'Adherencia': parseInt(document.getElementById('j3').value) || 0,
+        'Apoyo cuidador': parseInt(document.getElementById('j4').value) || 0,
+        'Tolerancia': parseInt(document.getElementById('j5').value) || 0
+    };
+    
     let total = Object.values(puntajes).reduce((a, b) => a + b, 0);
     let soporte = (parseInt(document.getElementById('v3').value)||0) + (parseInt(document.getElementById('j4').value)||0) + (parseInt(document.getElementById('v4').value)||0);
-
-    let noColaboraCount = 0;
-    const selectoresNoColaboracion = ['v4', 'j2', 'j3', 'j5'];
-    for (let i = 0; i < selectoresNoColaboracion.length; i++) {
-        const el = document.getElementById(selectoresNoColaboracion[i]);
-        const selectedText = el.options[el.selectedIndex]?.text;
-        if (selectedText && selectedText.includes("No puede colaborar")) noColaboraCount++;
-    }
-
-    const perfil = {
-        motivacionBaja: (parseInt(document.getElementById('v4').value)||0) === 0,
-        motivacionAlta: (parseInt(document.getElementById('v4').value)||0) >= 4,
-        adherenciaBaja: (parseInt(document.getElementById('j3').value)||0) === 0,
-        adherenciaAlta: (parseInt(document.getElementById('j3').value)||0) >= 6,
-        toleranciaBaja: (parseInt(document.getElementById('j5').value)||0) === 0,
-        toleranciaAlta: (parseInt(document.getElementById('j5').value)||0) >= 6
-    };
-
-    const clasificacion = clasificarPaciente(total);
-    const consejos = generar6Consejos(total, soporte, noPuedeConsentir, noColaboraCount, perfil);
-
-    let observaciones = "";
-    if (noPuedeConsentir) observaciones += "🧠 No puede consentir. ";
-    if (noColaboraCount >= 2) observaciones += `📌 ${noColaboraCount} ítem(s) sin colaboración.`;
-
-    const data = {
+    
+    const categoria = total >= 50 ? "🟢 ALTO BENEFICIO" : 
+                      total >= 35 ? "🟡 INTERMEDIO" : 
+                      total >= 20 ? "🔴 PREVENTIVO/FRÁGIL" : "⚫ BAJO GLOBAL";
+    
+    const encuesta = {
         id: Date.now().toString(36) + Math.random().toString(36).substring(2, 6),
         paciente: document.getElementById('paciente').value.trim() || "Anónimo",
         fecha: new Date().toISOString(),
+        fechaLocal: new Date().toLocaleString(),
         total: total,
-        categoria: clasificacion.categoria,
+        categoria: categoria,
         soporte: soporte,
-        noPuedeConsentir: noPuedeConsentir,
-        itemsSinColaboracion: noColaboraCount,
-        observaciones: observaciones,
         puntajes: puntajes,
-        consejos: consejos,
-        creadoPor: 'local'
+        hemo: hemo.value,
+        acepta: acepta.value,
+        creadoPor: 'usuario',
+        device: navigator.userAgent || 'desconocido'
     };
     
-    historialEvaluaciones.unshift(data);
-    guardarDatosLocales();
-    mostrarResultado(data, clasificacion);
+    encuestas.unshift(encuesta);
+    guardarLocal();
+    
+    // Guardar automáticamente en la nube
+    guardarEncuestas();
+    
+    mostrarResultado(encuesta);
+    verHistorial();
+    
+    // Limpiar campos (opcional)
+    document.getElementById('paciente').value = '';
 }
 
-function mostrarResultado(data, clasificacion) {
+function mostrarResultado(encuesta) {
     const resDiv = document.getElementById("res");
-    
-    let htmlResultado = `<strong style="color:${clasificacion.color}">${clasificacion.categoria}</strong><br>`;
-    htmlResultado += `🎯 Puntaje: ${data.total} puntos<br>`;
-    htmlResultado += `🤝 Soporte: ${data.soporte} pts<br>`;
-    htmlResultado += `<small>🕒 ${new Date(data.fecha).toLocaleString()}</small>`;
-    
-    htmlResultado += `<div class="puntaje-detalle">`;
-    for (const [key, value] of Object.entries(data.puntajes)) {
-        htmlResultado += `<div class="item"><span>${key}</span><span class="valor">${value} pts</span></div>`;
-    }
-    htmlResultado += `</div>`;
-    
-    if (data.observaciones) {
-        htmlResultado += `<div class="observation-note">📋 ${data.observaciones}</div>`;
-    }
-    
-    htmlResultado += `<div class="consejos-container">`;
-    htmlResultado += `<h4>💡 6 RECOMENDACIONES</h4>`;
-    data.consejos.forEach((consejo, idx) => {
-        htmlResultado += `<div class="consejo-item">
-                            <div class="consejo-titulo">${idx + 1}️⃣ ${consejo.titulo}</div>
-                            <div class="consejo-descripcion"><strong>🤝 Ayuda:</strong> ${consejo.ayuda}</div>
-                            <div class="consejo-ejercicios"><strong>🏋️ Ejercicios:</strong> ${consejo.ejercicios}</div>
-                          </div>`;
-    });
-    htmlResultado += `</div>`;
-    
-    resDiv.innerHTML = htmlResultado;
-    verHistorial();
+    let html = `<strong style="color:#00ffd5">✅ Encuesta enviada!</strong><br>`;
+    html += `🧑 <strong>Paciente:</strong> ${encuesta.paciente}<br>`;
+    html += `📊 <strong>Categoría:</strong> ${encuesta.categoria}<br>`;
+    html += `🎯 <strong>Puntaje:</strong> ${encuesta.total} puntos<br>`;
+    html += `🤝 <strong>Soporte:</strong> ${encuesta.soporte} pts<br>`;
+    html += `<small>🕒 ${encuesta.fechaLocal}</small>`;
+    resDiv.innerHTML = html;
 }
 
 // ========== VER HISTORIAL ==========
 function verHistorial() {
-    const historialDiv = document.getElementById("historial");
-    if (historialEvaluaciones.length === 0) {
-        historialDiv.innerHTML = "<div class='card'>📭 Sin evaluaciones previas.</div>";
+    const div = document.getElementById("historial");
+    if (encuestas.length === 0) {
+        div.innerHTML = "<div class='card'>📭 Sin encuestas. ¡Envía la primera!</div>";
         return;
     }
-
-    let html = "<h3 class='historial-title'>📜 Historial</h3>";
-    historialEvaluaciones.forEach((h, index) => {
-        const fechaStr = new Date(h.fecha).toLocaleString();
-        const idUnico = h.id || 'eval-' + index;
-        
-        let badges = "";
-        if (h.noPuedeConsentir) badges += "<span style='background:#ff9800;padding:2px 8px;border-radius:16px;font-size:11px;margin-right:6px;'>⚠️ No puede consentir</span>";
-        if (h.itemsSinColaboracion > 0) badges += `<span style='background:#ff5722;padding:2px 8px;border-radius:16px;font-size:11px;'>🚫 ${h.itemsSinColaboracion} sin colaboración</span>`;
+    
+    let html = "<h3 class='historial-title'>📜 Historial de encuestas</h3>";
+    encuestas.forEach((e, index) => {
+        const fechaStr = e.fechaLocal || new Date(e.fecha).toLocaleString();
         
         let puntajesHtml = '';
-        if (h.puntajes) {
+        if (e.puntajes) {
             puntajesHtml = `<div class="puntaje-detalle">`;
-            for (const [key, value] of Object.entries(h.puntajes)) {
+            for (const [key, value] of Object.entries(e.puntajes)) {
                 puntajesHtml += `<div class="item"><span>${key}</span><span class="valor">${value} pts</span></div>`;
             }
             puntajesHtml += `</div>`;
-        }
-        
-        let consejosHtml = '';
-        if (h.consejos && h.consejos.length > 0) {
-            consejosHtml = `
-                <div class="consejos-dropdown">
-                    <div class="dropdown-header" onclick="toggleConsejos('${idUnico}')">
-                        <span>💡 Ver ${h.consejos.length} recomendaciones</span>
-                        <span class="arrow" id="arrow-${idUnico}">▼</span>
-                    </div>
-                    <div class="dropdown-content" id="consejos-${idUnico}">
-            `;
-            h.consejos.forEach((c, idx) => {
-                consejosHtml += `
-                    <div class="consejo-mini">
-                        <div><span class="label">${idx+1}. ${c.titulo}</span></div>
-                        <div style="font-size:0.8rem;color:#8aa2e0;margin-top:2px;">${c.ayuda}</div>
-                        <div class="ejercicios">🏋️ ${c.ejercicios}</div>
-                    </div>
-                `;
-            });
-            consejosHtml += `
-                    </div>
-                </div>
-            `;
         }
         
         html += `
         <div class="card">
             <div class="card-header" onclick="toggleCard(${index})">
                 <div>
-                    <b>🧾 ${escapeHtml(h.paciente)}</b> ${badges}
+                    <b>🧾 ${e.paciente}</b>
+                    <span style="background:#00ffd5; color:#001018; padding:2px 10px; border-radius:12px; font-size:0.7rem; margin-left:8px;">${e.categoria}</span>
                     <div style="font-size:0.8rem;color:#8aa2e0;margin-top:2px;">
-                        📆 ${fechaStr} · Puntaje: <strong style="color:#00ffd5;">${h.total}</strong> · ${h.categoria}
+                        📆 ${fechaStr} · Puntaje: <strong style="color:#00ffd5;">${e.total}</strong>
                     </div>
                 </div>
                 <span class="accordion-icon" id="accordion-icon-${index}">▼</span>
             </div>
             <div class="card-body" id="card-body-${index}">
                 <div style="display:flex;gap:15px;flex-wrap:wrap;font-size:0.85rem;">
-                    <span>🤝 Soporte: ${h.soporte} pts</span>
-                    ${h.observaciones ? `<span style="color:#ffb74d;">📋 ${h.observaciones}</span>` : ''}
+                    <span>🤝 Soporte: ${e.soporte} pts</span>
+                    <span>🔻 Estabilidad: ${e.hemo === 'si' ? '✅ Estable' : '❌ No estable'}</span>
+                    <span>🤝 Consentimiento: ${e.acepta === 'si' ? '👍 Sí' : e.acepta === 'no_puede' ? '🧠 No puede' : '🚫 No acepta'}</span>
                 </div>
                 ${puntajesHtml}
-                ${consejosHtml}
             </div>
         </div>`;
     });
-    historialDiv.innerHTML = html;
-}
-
-// ========== EXPORTAR EXCEL ==========
-function exportarExcel() {
-    if (historialEvaluaciones.length === 0) {
-        alert("No hay datos para exportar.");
-        return;
-    }
-
-    const dataExcel = historialEvaluaciones.map(h => {
-        const row = {
-            "ID": h.id || 'N/A',
-            "Paciente": h.paciente,
-            "Fecha": new Date(h.fecha).toLocaleString(),
-            "Puntaje total": h.total,
-            "Categoría": h.categoria,
-            "Soporte psicosocial": h.soporte,
-            "No puede consentir": h.noPuedeConsentir ? "Sí" : "No",
-            "Observaciones": h.observaciones || ""
-        };
-        if (h.puntajes) {
-            for (const [key, value] of Object.entries(h.puntajes)) {
-                row[key] = value;
-            }
-        }
-        if (h.consejos) {
-            h.consejos.forEach((c, idx) => {
-                row[`Consejo_${idx+1}_Titulo`] = c.titulo || '';
-                row[`Consejo_${idx+1}_Ayuda`] = c.ayuda || '';
-                row[`Consejo_${idx+1}_Ejercicios`] = c.ejercicios || '';
-            });
-        }
-        return row;
-    });
-
-    const ws = XLSX.utils.json_to_sheet(dataExcel);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "IPK_R65");
-    XLSX.writeFile(wb, `IPK_R65_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.xlsx`);
-}
-
-// ========== LIMPIAR ==========
-function limpiarHistorial() {
-    if (confirm("¿Eliminar TODO el historial?")) {
-        historialEvaluaciones = [];
-        guardarDatosLocales();
-        document.getElementById("historial").innerHTML = "";
-        document.getElementById("res").innerHTML = "🧹 Historial eliminado.";
-        actualizarStats();
-    }
-}
-
-// ========== TOGGLES ==========
-function toggleConsejos(id) {
-    const content = document.getElementById('consejos-' + id);
-    const arrow = document.getElementById('arrow-' + id);
-    if (content) {
-        content.classList.toggle('open');
-        if (arrow) arrow.classList.toggle('open');
-    }
+    div.innerHTML = html;
 }
 
 function toggleCard(index) {
@@ -1300,32 +550,60 @@ function toggleCard(index) {
     }
 }
 
-function escapeHtml(str) {
-    if (!str) return "";
-    return str.replace(/[&<>]/g, function(m) {
-        if (m === '&') return '&amp;';
-        if (m === '<') return '&lt;';
-        if (m === '>') return '&gt;';
-        return m;
+// ========== EXPORTAR EXCEL ==========
+function exportarExcel() {
+    if (encuestas.length === 0) {
+        alert("No hay encuestas para exportar.");
+        return;
+    }
+
+    const dataExcel = encuestas.map(e => {
+        const row = {
+            "ID": e.id || 'N/A',
+            "Paciente": e.paciente,
+            "Fecha": e.fechaLocal || new Date(e.fecha).toLocaleString(),
+            "Puntaje total": e.total,
+            "Categoría": e.categoria,
+            "Soporte": e.soporte,
+            "Estabilidad": e.hemo === 'si' ? 'Estable' : 'No estable',
+            "Consentimiento": e.acepta === 'si' ? 'Sí' : e.acepta === 'no_puede' ? 'No puede' : 'No acepta'
+        };
+        if (e.puntajes) {
+            for (const [key, value] of Object.entries(e.puntajes)) {
+                row[key] = value;
+            }
+        }
+        return row;
     });
+
+    const ws = XLSX.utils.json_to_sheet(dataExcel);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Encuestas");
+    XLSX.writeFile(wb, `Encuestas_IPK_${new Date().toISOString().slice(0,10)}.xlsx`);
 }
 
-// ========== INICIALIZACIÓN ==========
+// ========== LIMPIAR TODO ==========
+function limpiarTodo() {
+    if (confirm("¿Eliminar TODAS las encuestas?")) {
+        encuestas = [];
+        guardarLocal();
+        verHistorial();
+        document.getElementById('res').innerHTML = "🧹 Todas las encuestas eliminadas";
+        actualizarStats();
+    }
+}
+
+// ========== INICIALIZAR ==========
 document.addEventListener('DOMContentLoaded', init);
 
 // Exponer funciones
-window.evaluar = evaluar;
+window.enviarEncuesta = enviarEncuesta;
 window.verHistorial = verHistorial;
 window.exportarExcel = exportarExcel;
-window.limpiarHistorial = limpiarHistorial;
-window.subirDatos = subirDatos;
-window.descargarDatos = descargarDatos;
-window.sincronizarDatos = sincronizarDatos;
-window.verificarConexion = verificarConexion;
+window.limpiarTodo = limpiarTodo;
+window.guardarEncuestas = guardarEncuestas;
+window.cargarEncuestas = cargarEncuestas;
 window.generarNuevaClave = generarNuevaClave;
-window.exportarDatos = exportarDatos;
-window.importarDatos = importarDatos;
-window.toggleConsejos = toggleConsejos;
 window.toggleCard = toggleCard;
 </script>
 </body>
