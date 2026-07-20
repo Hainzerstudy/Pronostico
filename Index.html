@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>📊 IPK-R65 - Encuestas Completas</title>
+<title>📊 IPK-R65 - Encuestas en la Nube</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <style>
@@ -53,39 +53,50 @@ button:active { transform: scale(0.98); }
 .consejo-titulo { font-weight: bold; color: #00ffd5; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; }
 .consejo-descripcion { font-size: 0.85rem; color: #c2d6ff; line-height: 1.4; }
 .consejo-ejercicios { font-size: 0.82rem; color: #a9c1ff; background: #0b1220; padding: 8px 10px; border-radius: 8px; margin-top: 5px; border-left: 2px solid #ffb74d; }
+.consejos-dropdown { margin-top: 10px; }
+.consejos-dropdown .dropdown-header { background: #0f1b33; padding: 8px 12px; border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border: 1px solid #1f2d4a; user-select: none; font-size: 0.85rem; color: #8aa2e0; }
+.consejos-dropdown .dropdown-header:hover { border-color: #00ffd5; }
+.consejos-dropdown .dropdown-header .arrow { transition: transform 0.3s; }
+.consejos-dropdown .dropdown-header .arrow.open { transform: rotate(180deg); }
+.consejos-dropdown .dropdown-content { display: none; margin-top: 8px; padding: 8px; background: #0a1122; border-radius: 8px; border: 1px solid #1a2744; }
+.consejos-dropdown .dropdown-content.open { display: block; }
+.consejos-dropdown .consejo-mini { padding: 6px 8px; margin: 4px 0; border-left: 2px solid #00ffd5; font-size: 0.8rem; color: #c2d6ff; }
+.consejos-dropdown .consejo-mini .label { color: #8aa2e0; font-weight: bold; }
+.consejos-dropdown .consejo-mini .ejercicios { color: #a9c1ff; font-size: 0.75rem; margin-top: 3px; padding-left: 8px; border-left: 1px solid #1a2744; }
+.accordion-icon { transition: transform 0.3s; }
+.accordion-icon.rotated { transform: rotate(180deg); }
 </style>
 </head>
 
 <body>
 
 <div class="container">
-<h1>📊 IPK-R65 - Encuestas Completas</h1>
-<div class="sub">📡 Todas las encuestas se guardan en la nube. Cualquier persona con la misma clave ve el historial.</div>
+<h1>📊 IPK-R65 - Encuestas en la Nube</h1>
+<div class="sub">📡 Datos guardados en la nube (JSONBin.io) y en tu navegador</div>
 
 <div class="status-bar" id="statusBar">
     <span class="dot dot-offline" id="statusDot"></span>
-    <span id="statusText">📡 Conectando...</span>
+    <span id="statusText">📡 Conectando a la nube...</span>
     <span class="stats-badge" id="statsBadge">📊 0 encuestas</span>
-    <span class="shared-badge" id="syncBadge">☁️ SIN CONEXIÓN</span>
+    <span class="shared-badge" id="syncBadge">☁️ LOCAL</span>
 </div>
 
-<!-- SECCIÓN DE CLAVE -->
+<!-- CONFIGURACIÓN DE NUBE -->
 <div class="section" style="border-color: #4fc3f7; border-width: 2px;">
-    <h3>🔑 CLAVE COMPARTIDA</h3>
+    <h3>☁️ SINCRONIZACIÓN EN LA NUBE</h3>
     <p style="color:#8aa2e0; font-size:0.9rem;">
         Todos los dispositivos con la <strong style="color:#00ffd5;">MISMA CLAVE</strong> comparten las encuestas.
-        <br>Cambia la clave para crear un grupo privado.
     </p>
     
     <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
         <input type="text" id="syncKeyInput" class="sync-key-input" value="ipk-r65-001" style="flex:2;">
         <button class="info" onclick="generarNuevaClave()" style="flex:0 1 auto;">🔄 Nueva clave</button>
-        <button class="success" onclick="guardarEncuestas()" style="flex:0 1 auto;">☁️ Guardar</button>
-        <button class="primary" onclick="cargarEncuestas()" style="flex:0 1 auto;">📥 Cargar</button>
+        <button class="success" onclick="subirANube()" style="flex:0 1 auto;">☁️ SUBIR a nube</button>
+        <button class="primary" onclick="bajarDeNube()" style="flex:0 1 auto;">📥 BAJAR de nube</button>
     </div>
     
     <div id="syncStatus" style="margin-top:10px; padding:10px; background:#0a1122; border-radius:8px; font-size:0.85rem; color:#8aa2e0;">
-        💡 Las encuestas se guardan automáticamente al enviarlas.
+        💡 Presiona "SUBIR" para guardar en la nube o "BAJAR" para recuperar datos de otro dispositivo.
     </div>
 </div>
 
@@ -208,10 +219,10 @@ button:active { transform: scale(0.98); }
 </div>
 
 <script>
-// ========== 🔑 TU CLAVE DE API JSONBin.io ==========
-const MASTER_KEY = '$2a$10$17whFpxRFd7OC.ViXjGZ9OBAp16ThI/XlegAJnZHgMIuwCdAuVRvS';
+// ========== 🔑 CLAVE DE API JSONBin.io (YA CONFIGURADA) ==========
+const MASTER_KEY = '$2a$10$V27DjTCNJfc3MNgKjcoWhurwCRHyinftLXzI58nLJo7D.oPK2dNx2';
 
-// ========== EL RESTO DEL CÓDIGO ==========
+// ========== VARIABLES GLOBALES ==========
 const JSONBIN_URL = 'https://api.jsonbin.io/v3/b';
 let encuestas = [];
 let binId = null;
@@ -223,7 +234,9 @@ function init() {
     document.getElementById('syncKeyInput').value = syncKey;
     cargarLocal();
     verHistorial();
-    setTimeout(cargarEncuestas, 1000);
+    document.getElementById('statusText').textContent = '💾 Modo local - Presiona "SUBIR" para guardar en la nube';
+    document.getElementById('syncBadge').textContent = '💾 LOCAL';
+    document.getElementById('statusDot').className = 'dot dot-online';
 }
 
 function generarNuevaClave() {
@@ -235,7 +248,7 @@ function generarNuevaClave() {
     document.getElementById('syncKeyInput').value = resultado;
     syncKey = resultado;
     localStorage.setItem('ipk_encuesta_key', syncKey);
-    document.getElementById('syncStatus').innerHTML = '🔑 Nueva clave: ' + syncKey;
+    document.getElementById('syncStatus').innerHTML = '🔑 Nueva clave generada: ' + syncKey;
     document.getElementById('syncStatus').style.color = '#00ffd5';
 }
 
@@ -259,8 +272,8 @@ function actualizarStats() {
     document.getElementById('statsBadge').textContent = `📊 ${encuestas.length} encuestas`;
 }
 
-// ========== GUARDAR EN LA NUBE ==========
-async function guardarEncuestas() {
+// ========== SUBIR A LA NUBE ==========
+async function subirANube() {
     const status = document.getElementById('syncStatus');
     const dot = document.getElementById('statusDot');
     
@@ -268,16 +281,16 @@ async function guardarEncuestas() {
     localStorage.setItem('ipk_encuesta_key', syncKey);
     
     if (encuestas.length === 0) {
-        status.innerHTML = '⚠️ No hay encuestas para guardar';
+        status.innerHTML = '⚠️ No hay encuestas para subir. Crea una primero.';
         status.style.color = '#ffb74d';
         return;
     }
     
-    status.innerHTML = '⏳ Guardando en la nube...';
+    status.innerHTML = '⏳ Subiendo a la nube...';
     status.style.color = '#ffb74d';
     dot.className = 'dot dot-sync';
-    document.getElementById('statusText').textContent = '🔄 Guardando...';
-    document.getElementById('syncBadge').textContent = '☁️ GUARDANDO...';
+    document.getElementById('statusText').textContent = '☁️ Subiendo...';
+    document.getElementById('syncBadge').textContent = '☁️ SUBIENDO...';
     
     try {
         const data = {
@@ -287,8 +300,22 @@ async function guardarEncuestas() {
             clave: syncKey
         };
         
-        const url = binId ? `${JSONBIN_URL}/${binId}` : JSONBIN_URL;
-        const method = binId ? 'PUT' : 'POST';
+        // Verificar si ya existe un bin con esta clave
+        const searchResponse = await fetch(`${JSONBIN_URL}?binName=${syncKey}`, {
+            headers: { 'X-Master-Key': MASTER_KEY }
+        });
+        
+        let url = JSONBIN_URL;
+        let method = 'POST';
+        
+        if (searchResponse.ok) {
+            const searchData = await searchResponse.json();
+            if (searchData.record && searchData.record.binId) {
+                binId = searchData.record.binId;
+                url = `${JSONBIN_URL}/${binId}`;
+                method = 'PUT';
+            }
+        }
         
         const response = await fetch(url, {
             method: method,
@@ -302,16 +329,16 @@ async function guardarEncuestas() {
         
         if (response.ok) {
             const result = await response.json();
-            binId = result.record ? result.record.binId : binId;
-            status.innerHTML = `✅ ${encuestas.length} encuestas guardadas en la nube`;
+            if (result.record) binId = result.record.binId;
+            status.innerHTML = `✅ ${encuestas.length} encuestas subidas a la nube!`;
             status.style.color = '#00d97a';
             dot.className = 'dot dot-online';
             document.getElementById('statusText').textContent = '☁️ Datos en la nube';
             document.getElementById('syncBadge').textContent = '☁️ ONLINE';
-            document.getElementById('res').innerHTML = `☁️ ${encuestas.length} encuestas guardadas correctamente`;
+            document.getElementById('res').innerHTML = `☁️ ${encuestas.length} encuestas subidas correctamente`;
         } else {
             const error = await response.text();
-            status.innerHTML = '❌ Error al guardar: ' + error;
+            status.innerHTML = '❌ Error al subir: ' + error;
             status.style.color = '#ff5722';
             dot.className = 'dot dot-offline';
             document.getElementById('syncBadge').textContent = '☁️ ERROR';
@@ -325,19 +352,19 @@ async function guardarEncuestas() {
     }
 }
 
-// ========== CARGAR DE LA NUBE ==========
-async function cargarEncuestas() {
+// ========== BAJAR DE LA NUBE ==========
+async function bajarDeNube() {
     const status = document.getElementById('syncStatus');
     const dot = document.getElementById('statusDot');
     
     syncKey = document.getElementById('syncKeyInput').value.trim() || 'ipk-r65-001';
     localStorage.setItem('ipk_encuesta_key', syncKey);
     
-    status.innerHTML = '⏳ Cargando de la nube...';
+    status.innerHTML = '⏳ Buscando datos en la nube...';
     status.style.color = '#ffb74d';
     dot.className = 'dot dot-sync';
-    document.getElementById('statusText').textContent = '🔄 Cargando...';
-    document.getElementById('syncBadge').textContent = '☁️ CARGANDO...';
+    document.getElementById('statusText').textContent = '📥 Buscando...';
+    document.getElementById('syncBadge').textContent = '☁️ BUSCANDO...';
     
     try {
         const searchResponse = await fetch(`${JSONBIN_URL}?binName=${syncKey}`, {
@@ -346,7 +373,7 @@ async function cargarEncuestas() {
         
         if (!searchResponse.ok) {
             if (searchResponse.status === 404) {
-                status.innerHTML = '📭 No hay datos con esta clave. ¡Crea la primera encuesta!';
+                status.innerHTML = '📭 No hay datos en la nube con esta clave. ¡Sube la primera encuesta!';
                 status.style.color = '#ffb74d';
             } else {
                 const error = await searchResponse.text();
@@ -361,7 +388,7 @@ async function cargarEncuestas() {
         
         const searchData = await searchResponse.json();
         if (!searchData.record || !searchData.record.binId) {
-            status.innerHTML = '📭 No hay datos con esta clave';
+            status.innerHTML = '📭 No hay datos en la nube con esta clave';
             status.style.color = '#ffb74d';
             dot.className = 'dot dot-offline';
             return;
@@ -369,6 +396,7 @@ async function cargarEncuestas() {
         
         binId = searchData.record.binId;
         
+        status.innerHTML = '⏳ Descargando datos...';
         const response = await fetch(`${JSONBIN_URL}/${binId}/latest`, {
             headers: { 'X-Master-Key': MASTER_KEY }
         });
@@ -378,6 +406,7 @@ async function cargarEncuestas() {
             const remoteData = data.record;
             
             if (remoteData && remoteData.encuestas && remoteData.encuestas.length > 0) {
+                // Fusionar sin duplicados
                 const idsExistentes = new Set(encuestas.map(e => e.id));
                 let nuevos = 0;
                 for (const item of remoteData.encuestas) {
@@ -388,19 +417,19 @@ async function cargarEncuestas() {
                 }
                 guardarLocal();
                 verHistorial();
-                status.innerHTML = `✅ Cargadas ${nuevos} nuevas encuestas. Total: ${encuestas.length}`;
+                status.innerHTML = `✅ Descargadas ${nuevos} nuevas encuestas. Total: ${encuestas.length}`;
                 status.style.color = '#00d97a';
                 dot.className = 'dot dot-online';
                 document.getElementById('statusText').textContent = '☁️ Datos sincronizados';
                 document.getElementById('syncBadge').textContent = '☁️ ONLINE';
-                document.getElementById('res').innerHTML = `📥 ${nuevos} nuevas encuestas cargadas`;
+                document.getElementById('res').innerHTML = `📥 ${nuevos} nuevas encuestas descargadas de la nube`;
             } else {
                 status.innerHTML = '📭 No hay encuestas en la nube';
                 status.style.color = '#ffb74d';
                 dot.className = 'dot dot-offline';
             }
         } else {
-            status.innerHTML = '❌ Error al cargar datos';
+            status.innerHTML = '❌ Error al descargar datos';
             status.style.color = '#ff5722';
             dot.className = 'dot dot-offline';
         }
@@ -413,7 +442,7 @@ async function cargarEncuestas() {
     }
 }
 
-// ========== ENVIAR ENCUESTA ==========
+// ========== FUNCIONES DE LA ENCUESTA ==========
 function enviarEncuesta() {
     const resDiv = document.getElementById("res");
 
@@ -494,9 +523,13 @@ function enviarEncuesta() {
     
     encuestas.unshift(encuesta);
     guardarLocal();
-    guardarEncuestas();
     mostrarResultado(encuesta);
     verHistorial();
+    document.getElementById('paciente').value = '';
+    
+    // Mostrar mensaje de que se guardó localmente
+    document.getElementById('syncStatus').innerHTML = '💾 Encuesta guardada LOCALMENTE. Presiona "SUBIR" para guardar en la nube.';
+    document.getElementById('syncStatus').style.color = '#8aa2e0';
 }
 
 function generarConsejos(total, soporte, noPuedeConsentir, noColaboraCount, perfil) {
@@ -602,7 +635,6 @@ function generarConsejos(total, soporte, noPuedeConsentir, noColaboraCount, perf
         });
     }
     
-    // Asegurar que haya al menos 6 consejos
     while (consejos.length < 6) {
         consejos.push({
             titulo: "📌 TELEMONITOREO Y SEGUIMIENTO",
@@ -616,7 +648,6 @@ function generarConsejos(total, soporte, noPuedeConsentir, noColaboraCount, perf
 
 function mostrarResultado(data) {
     const resDiv = document.getElementById("res");
-    
     const color = data.total >= 50 ? "#00ffd5" : data.total >= 35 ? "#ffd966" : data.total >= 20 ? "#ffaa66" : "#cc99ff";
     
     let html = `<strong style="color:${color}">${data.categoria}</strong><br>`;
@@ -686,19 +717,19 @@ function verHistorial() {
         let consejosHtml = '';
         if (e.consejos && e.consejos.length > 0) {
             consejosHtml = `
-                <div class="consejos-dropdown" style="margin-top:10px;">
-                    <div class="dropdown-header" style="background:#0f1b33;padding:8px 12px;border-radius:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;border:1px solid #1f2d4a;user-select:none;font-size:0.85rem;color:#8aa2e0;" onclick="toggleConsejos('${idUnico}')">
+                <div class="consejos-dropdown">
+                    <div class="dropdown-header" onclick="toggleConsejos('${idUnico}')">
                         <span>💡 Ver ${e.consejos.length} recomendaciones</span>
-                        <span class="arrow" id="arrow-${idUnico}" style="transition:transform 0.3s;">▼</span>
+                        <span class="arrow" id="arrow-${idUnico}">▼</span>
                     </div>
-                    <div class="dropdown-content" id="consejos-${idUnico}" style="display:none;margin-top:8px;padding:8px;background:#0a1122;border-radius:8px;border:1px solid #1a2744;">
+                    <div class="dropdown-content" id="consejos-${idUnico}">
             `;
             e.consejos.forEach((c, idx) => {
                 consejosHtml += `
-                    <div class="consejo-mini" style="padding:6px 8px;margin:4px 0;border-left:2px solid #00ffd5;font-size:0.8rem;color:#c2d6ff;">
-                        <div><span class="label" style="color:#8aa2e0;font-weight:bold;">${idx+1}. ${c.titulo}</span></div>
+                    <div class="consejo-mini">
+                        <div><span class="label">${idx+1}. ${c.titulo}</span></div>
                         <div style="font-size:0.8rem;color:#8aa2e0;margin-top:2px;">${c.ayuda}</div>
-                        <div class="ejercicios" style="color:#a9c1ff;font-size:0.75rem;margin-top:3px;padding-left:8px;border-left:1px solid #1a2744;">🏋️ ${c.ejercicios}</div>
+                        <div class="ejercicios">🏋️ ${c.ejercicios}</div>
                     </div>
                 `;
             });
@@ -718,7 +749,7 @@ function verHistorial() {
                         ${e.creadoPor ? `<span style="font-size:0.65rem;color:#4a6a8a;"> · 👤 ${escapeHtml(e.creadoPor)}</span>` : ''}
                     </div>
                 </div>
-                <span class="accordion-icon" id="accordion-icon-${index}" style="transition:transform 0.3s;">▼</span>
+                <span class="accordion-icon" id="accordion-icon-${index}">▼</span>
             </div>
             <div class="card-body" id="card-body-${index}">
                 <div style="display:flex;gap:15px;flex-wrap:wrap;font-size:0.85rem;">
@@ -739,7 +770,7 @@ function toggleConsejos(id) {
     const content = document.getElementById('consejos-' + id);
     const arrow = document.getElementById('arrow-' + id);
     if (content) {
-        content.style.display = content.style.display === 'block' ? 'none' : 'block';
+        content.classList.toggle('open');
         if (arrow) arrow.classList.toggle('open');
     }
 }
@@ -799,6 +830,8 @@ function limpiarTodo() {
         verHistorial();
         document.getElementById('res').innerHTML = "🧹 Todas las encuestas eliminadas";
         actualizarStats();
+        document.getElementById('syncStatus').innerHTML = '🧹 Datos locales eliminados';
+        document.getElementById('syncStatus').style.color = '#ffb74d';
     }
 }
 
@@ -818,8 +851,8 @@ window.enviarEncuesta = enviarEncuesta;
 window.verHistorial = verHistorial;
 window.exportarExcel = exportarExcel;
 window.limpiarTodo = limpiarTodo;
-window.guardarEncuestas = guardarEncuestas;
-window.cargarEncuestas = cargarEncuestas;
+window.subirANube = subirANube;
+window.bajarDeNube = bajarDeNube;
 window.generarNuevaClave = generarNuevaClave;
 window.toggleCard = toggleCard;
 window.toggleConsejos = toggleConsejos;
