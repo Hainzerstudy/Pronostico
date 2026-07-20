@@ -429,34 +429,68 @@ button:disabled {
     padding-left: 4px;
 }
 
-.sync-key-input {
+/* Estilos para la clave de sincronización */
+.sync-box {
     background: #0a1122;
     border: 1px solid #2b3c5f;
-    color: #00ffd5;
-    padding: 8px 12px;
-    border-radius: 8px;
-    font-family: monospace;
-    font-size: 0.9rem;
-    width: 100%;
-    max-width: 300px;
-}
-
-.sync-status {
-    font-size: 0.8rem;
-    padding: 4px 12px;
     border-radius: 12px;
-    background: #1a2744;
+    padding: 15px;
+    margin-top: 10px;
 }
 
-.sync-status.online {
+.sync-box label {
+    font-size: 0.9rem;
+    color: #c2d6ff;
+    margin-top: 0;
+}
+
+.sync-box .sync-input-group {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+}
+
+.sync-box .sync-input-group input {
+    flex: 1;
+    min-width: 200px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid #2b3c5f;
+    background: #0b1220;
+    color: #00ffd5;
+    font-family: monospace;
+    font-size: 1rem;
+}
+
+.sync-box .sync-input-group button {
+    flex: 0 1 auto;
+    min-width: 120px;
+    margin-top: 0;
+}
+
+.sync-status-text {
+    margin-top: 10px;
+    font-size: 0.85rem;
+    color: #8aa2e0;
+    padding: 8px 12px;
+    background: #0b1220;
+    border-radius: 8px;
+    border-left: 3px solid #4fc3f7;
+}
+
+.sync-status-text.success {
+    border-left-color: #00d97a;
     color: #00d97a;
 }
 
-.sync-status.offline {
+.sync-status-text.error {
+    border-left-color: #ff5722;
     color: #ff5722;
 }
 
-.sync-status.syncing {
+.sync-status-text.syncing {
+    border-left-color: #ffb74d;
     color: #ffb74d;
 }
 </style>
@@ -476,23 +510,43 @@ button:disabled {
     <span class="shared-badge" id="syncBadge">☁️ SIN CONEXIÓN</span>
 </div>
 
-<!-- Sincronización -->
-<div class="section" style="border-color: #4fc3f7;">
-    <h3>☁️ Sincronización en la nube (gratis)</h3>
-    <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
-        <input type="text" id="syncKey" class="sync-key-input" placeholder="Clave de sincronización (ej: ipk-r65-001)" value="ipk-r65-datos">
-        <button class="info" onclick="generarClave()" style="min-width:120px;">🔄 Nueva clave</button>
+<!-- SECCIÓN DE SINCRONIZACIÓN - CLAVE VISIBLE -->
+<div class="section" style="border-color: #4fc3f7; border-width: 2px;">
+    <h3>🔑 CLAVE DE SINCRONIZACIÓN</h3>
+    <p style="color:#8aa2e0; font-size:0.9rem; margin-bottom:10px;">
+        Todos los dispositivos con la <strong style="color:#00ffd5;">MISMA CLAVE</strong> comparten los datos.
+        Cambia la clave para crear un grupo privado.
+    </p>
+    
+    <div class="sync-box">
+        <label for="syncKeyInput">🔐 Clave de sincronización:</label>
+        <div class="sync-input-group">
+            <input type="text" id="syncKeyInput" placeholder="Ej: ipk-r65-001" value="ipk-r65-datos">
+            <button class="info" onclick="generarNuevaClave()">🔄 Nueva clave</button>
+        </div>
+        <div style="margin-top:8px; font-size:0.75rem; color:#4a6a8a;">
+            💡 La clave se guarda automáticamente en este navegador
+        </div>
     </div>
-    <div style="margin-top:8px; font-size:0.8rem; color:#6a8aaa;">
-        📌 Todos los dispositivos con la MISMA clave comparten los datos
+    
+    <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:15px;">
+        <button class="success" onclick="subirDatos()" style="flex:1; min-width:120px;">
+            ☁️ SUBIR a la nube
+        </button>
+        <button class="warning" onclick="descargarDatos()" style="flex:1; min-width:120px;">
+            📥 DESCARGAR de la nube
+        </button>
+        <button class="secondary" onclick="sincronizarDatos()" style="flex:1; min-width:120px;">
+            🔄 SINCRONIZAR
+        </button>
+        <button class="secondary" onclick="verificarConexion()" style="flex:1; min-width:120px;">
+            🔍 Verificar
+        </button>
     </div>
-    <div class="flex-buttons" style="margin-top:10px;">
-        <button class="success" onclick="subirDatos()">☁️ Subir datos a la nube</button>
-        <button class="warning" onclick="descargarDatos()">📥 Descargar datos de la nube</button>
-        <button class="secondary" onclick="sincronizarDatos()">🔄 Sincronizar (subir + descargar)</button>
-        <button class="secondary" onclick="verificarConexion()">🔍 Verificar conexión</button>
+    
+    <div id="syncStatus" class="sync-status-text">
+        💡 Listo para sincronizar. Ingresa una clave y presiona "Subir" o "Descargar".
     </div>
-    <div id="syncStatus" style="margin-top:10px; font-size:0.85rem; color:#8aa2e0;"></div>
 </div>
 
 <!-- PACIENTE -->
@@ -502,103 +556,103 @@ button:disabled {
 <div class="option-desc">📌 Ingrese ID, iniciales o número de historia clínica</div>
 </div>
 
-<!-- VARIABLES CLÍNICAS OBJETIVAS -->
+<!-- VARIABLES CLÍNICAS -->
 <div class="section">
 <h3>📊 Variables clínicas basales</h3>
 
 <label>🔻 Estabilidad hemodinámica</label>
 <select id="hemo">
-<option value="no">❌ No estable — Inestabilidad de signos vitales (TA, FC, FR alterados), requiere monitoreo continuo, no movilizar</option>
-<option value="si">✅ Estable — TA, FC, FR dentro de parámetros seguros para el reposo y la movilización progresiva</option>
+<option value="no">❌ No estable — Inestabilidad de signos vitales</option>
+<option value="si">✅ Estable — TA, FC, FR dentro de parámetros seguros</option>
 </select>
 
-<label>🤝 Capacidad de consentir / Colaboración <span class="warning-badge">Informativo, no bloquea</span></label>
+<label>🤝 Capacidad de consentir</label>
 <select id="acepta">
-<option value="si">👍 Sí puede consentir — Comprende la información, acepta voluntariamente participar en el plan kinésico</option>
-<option value="no_puede">🧠 No puede consentir — Deterioro cognitivo severo, sedación profunda, trastorno de conciencia (se evalúa con cuidador/familiar)</option>
-<option value="no">🚫 No acepta — Rechaza activamente la intervención kinésica por decisión propia informada</option>
+<option value="si">👍 Sí puede consentir</option>
+<option value="no_puede">🧠 No puede consentir</option>
+<option value="no">🚫 No acepta</option>
 </select>
 
-<label>📅 Edad funcional (riesgo biológico)</label>
+<label>📅 Edad funcional</label>
 <select id="edad">
-<option value="0">👴 ≥75 años — Mayor fragilidad asociada, mayor riesgo de sarcopenia, comorbilidades y menor reserva funcional</option>
-<option value="5">🧑 &lt;75 años — Menor riesgo etario, generalmente mejor reserva fisiológica y capacidad de recuperación</option>
+<option value="0">👴 ≥75 años</option>
+<option value="5">🧑 &lt;75 años</option>
 </select>
 
-<label>💪 Reserva funcional (previo a enfermedad aguda)</label>
+<label>💪 Reserva funcional</label>
 <select id="v1">
-<option value="0">🦽 Severa — Dependiente para actividades básicas de la vida diaria (ABVD), postrado en cama o silla de ruedas, requiere asistencia total</option>
-<option value="6">🚶 Parcial — Requiere ayuda para algunas actividades como baño, vestimenta o transferencias, deambula con asistencia</option>
-<option value="12">🏃 Independiente — Se moviliza sin asistencia, realiza ABVD solo, vida activa previa a la hospitalización</option>
+<option value="0">🦽 Severa — Dependiente total</option>
+<option value="6">🚶 Parcial — Requiere ayuda</option>
+<option value="12">🏃 Independiente</option>
 </select>
 
-<label>⚙️ Complejidad clínica (comorbilidades/gravedad)</label>
+<label>⚙️ Complejidad clínica</label>
 <select id="v2">
-<option value="0">🔴 Alta — Múltiples patologías descompensadas (Ej: ICC+EPOC+IRC), alto riesgo de eventos adversos, manejo complejo</option>
-<option value="6">🟡 Media — Comorbilidades controladas con tratamiento, estabilidad clínica relativa, riesgo moderado</option>
-<option value="12">🟢 Baja — Patología única o sin repercusión sistémica importante, buen estado general basal</option>
+<option value="0">🔴 Alta — Múltiples patologías</option>
+<option value="6">🟡 Media — Controladas</option>
+<option value="12">🟢 Baja — Patología única</option>
 </select>
 
-<label>👨‍👩‍👧 Red de apoyo (familiar/cuidador)</label>
+<label>👨‍👩‍👧 Red de apoyo</label>
 <select id="v3">
-<option value="0">🏚️ Sin apoyo — Vive solo, sin cuidador formal o informal, dificultad para seguimiento ambulatorio</option>
-<option value="4">🤝 Parcial — Familiar o cuidador que ayuda de forma intermitente, pero con limitaciones de tiempo o capacitación</option>
-<option value="8">🏠 Fuerte — Cuidador presente y entrenado, soporte emocional y logístico continuo, vivienda adaptada</option>
+<option value="0">🏚️ Sin apoyo</option>
+<option value="4">🤝 Parcial</option>
+<option value="8">🏠 Fuerte</option>
 </select>
 
-<label>🎯 Motivación basal (disposición para rehabilitación)</label>
+<label>🎯 Motivación basal</label>
 <select id="v4">
-<option value="0">😞 Baja — Poco o nulo interés en participar de actividades terapéuticas, actitud pasiva o negativa</option>
-<option value="4">🔄 Variable — A veces colabora, otras no, depende del estímulo o del momento del día</option>
-<option value="8">🔥 Alta — Participa activamente, busca información, muestra entusiasmo por mejorar su condición</option>
-<option value="0">🚫 No puede colaborar — Por déficit neurológico severo, sedación, alteración de conciencia o barrera cognitiva</option>
+<option value="0">😞 Baja</option>
+<option value="4">🔄 Variable</option>
+<option value="8">🔥 Alta</option>
+<option value="0">🚫 No puede colaborar</option>
 </select>
 </div>
 
 <!-- JUICIO CLÍNICO -->
 <div class="section">
-<h3>🧠 Juicio kinésico (evaluador profesional)</h3>
+<h3>🧠 Juicio kinésico</h3>
 
-<label>🧓 Edad funcional clínica (percepción del kinesiólogo)</label>
+<label>🧓 Edad funcional clínica</label>
 <select id="j1">
-<option value="0">📉 Baja — El paciente se comporta como muy anciano/frágil, con limitaciones superiores a lo esperado por edad cronológica</option>
-<option value="3">📊 Media — Acorde a su edad cronológica, desempeño funcional esperable</option>
-<option value="6">📈 Alta — Vitalidad y desempeño funcional superior a lo esperado para su edad</option>
+<option value="0">📉 Baja</option>
+<option value="3">📊 Media</option>
+<option value="6">📈 Alta</option>
 </select>
 
-<label>💡 Motivación observada en sesión (conducta durante evaluación)</label>
+<label>💡 Motivación observada</label>
 <select id="j2">
-<option value="0">🪨 Nula — Total pasividad, sin iniciativa, no responde a estímulos verbales o táctiles</option>
-<option value="3">⚡ Parcial — Reacciona ante estímulos pero no busca activamente participar, requiere constante redirección</option>
-<option value="6">✨ Alta — Entusiasmo evidente, participa voluntariamente, realiza preguntas, busca superarse</option>
-<option value="0">❌ No puede colaborar — Alteración de conciencia, déficit cognitivo severo o condición que impide expresión de motivación</option>
+<option value="0">🪨 Nula</option>
+<option value="3">⚡ Parcial</option>
+<option value="6">✨ Alta</option>
+<option value="0">❌ No puede colaborar</option>
 </select>
 
-<label>🔄 Adherencia a indicaciones (capacidad de seguir órdenes)</label>
+<label>🔄 Adherencia</label>
 <select id="j3">
-<option value="0">⚠️ Baja — No sigue instrucciones, olvida ejercicios, requiere supervisión constante y repetitiva</option>
-<option value="3">📋 Media — Sigue instrucciones con ayuda o recordatorios visuales/verbales, requiere supervisión ocasional</option>
-<option value="6">🧠 Alta — Realiza correctamente los ejercicios sin supervisión, comprende y recuerda las indicaciones</option>
-<option value="0">🚫 No puede colaborar — Imposibilidad por condición clínica (afasia, demencia avanzada, sedación)</option>
+<option value="0">⚠️ Baja</option>
+<option value="3">📋 Media</option>
+<option value="6">🧠 Alta</option>
+<option value="0">🚫 No puede colaborar</option>
 </select>
 
-<label>🤲 Apoyo del cuidador (desde perspectiva kinésica)</label>
+<label>🤲 Apoyo del cuidador</label>
 <select id="j4">
-<option value="0">❌ Ausente — No hay cuidador identificado o no se involucra en el proceso terapéutico</option>
-<option value="3">🕒 Irregular — Apoyo esporádico, poco compromiso con las indicaciones, dificultad para continuidad en domicilio</option>
-<option value="6">✅ Constante — Cuidador presente y entrenado activamente, participa en sesiones, refuerza aprendizajes</option>
+<option value="0">❌ Ausente</option>
+<option value="3">🕒 Irregular</option>
+<option value="6">✅ Constante</option>
 </select>
 
-<label>🏋️ Tolerancia al esfuerzo (respuesta durante actividad física)</label>
+<label>🏋️ Tolerancia al esfuerzo</label>
 <select id="j5">
-<option value="0">🪫 Baja — Fatiga extrema, desaturación (SpO2 &lt;88%), disnea intensa, no completa series de ejercicios</option>
-<option value="3">⚖️ Moderada — Se fatiga pero completa ejercicios con pausas, ligera disnea, recuperación en &lt;5 min</option>
-<option value="6">⚡ Alta — Buen desempeño cardiorrespiratorio, sin desaturación, fatiga mínima, completa series sin dificultad</option>
-<option value="0">⛔ No puede colaborar — Paciente no puede realizar esfuerzo dirigido por inestabilidad, dolor severo o indicación médica</option>
+<option value="0">🪫 Baja</option>
+<option value="3">⚖️ Moderada</option>
+<option value="6">⚡ Alta</option>
+<option value="0">⛔ No puede colaborar</option>
 </select>
 </div>
 
-<!-- BOTONES PRINCIPALES -->
+<!-- BOTONES -->
 <div class="section">
 <div class="flex-buttons">
 <button class="primary" onclick="evaluar()">📝 Evaluar y guardar</button>
@@ -628,28 +682,31 @@ let syncKey = '';
 function init() {
     // Cargar clave guardada
     syncKey = localStorage.getItem('ipk_r65_sync_key') || 'ipk-r65-datos';
-    document.getElementById('syncKey').value = syncKey;
+    document.getElementById('syncKeyInput').value = syncKey;
     
     // Cargar datos locales
     cargarDatosLocales();
     actualizarStats();
     verHistorial();
     
-    // Verificar si hay datos en la nube
-    setTimeout(verificarConexion, 1000);
+    // Verificar conexión automáticamente
+    setTimeout(verificarConexion, 1500);
 }
 
-// ========== GENERAR CLAVE ==========
-function generarClave() {
+// ========== GENERAR NUEVA CLAVE ==========
+function generarNuevaClave() {
     const caracteres = 'abcdefghijklmnopqrstuvwxyz0123456789';
     let resultado = 'ipk-';
     for (let i = 0; i < 8; i++) {
         resultado += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
     }
-    document.getElementById('syncKey').value = resultado;
+    document.getElementById('syncKeyInput').value = resultado;
     syncKey = resultado;
     localStorage.setItem('ipk_r65_sync_key', syncKey);
-    document.getElementById('syncStatus').innerHTML = '🔄 Nueva clave generada: ' + syncKey;
+    
+    const status = document.getElementById('syncStatus');
+    status.textContent = '🔑 Nueva clave generada: ' + syncKey;
+    status.className = 'sync-status-text';
 }
 
 // ========== CARGAR DATOS LOCALES ==========
@@ -681,10 +738,10 @@ async function verificarConexion() {
     const statusText = document.getElementById('statusText');
     const dot = document.getElementById('statusDot');
     const badge = document.getElementById('syncBadge');
-    const syncStatus = document.getElementById('syncStatus');
+    const status = document.getElementById('syncStatus');
     
     try {
-        syncKey = document.getElementById('syncKey').value.trim() || 'ipk-r65-datos';
+        syncKey = document.getElementById('syncKeyInput').value.trim() || 'ipk-r65-datos';
         localStorage.setItem('ipk_r65_sync_key', syncKey);
         
         const response = await fetch(`${JSONBIN_URL}?binName=${syncKey}`, {
@@ -699,40 +756,44 @@ async function verificarConexion() {
             dot.className = 'dot dot-online';
             statusText.textContent = '☁️ Conectado a la nube';
             badge.textContent = '☁️ ONLINE';
-            syncStatus.innerHTML = '✅ Conexión exitosa. Bin ID: ' + (binId || 'Nuevo');
+            status.textContent = '✅ Conectado a JSONBin.io - Bin ID: ' + (binId || 'Nuevo');
+            status.className = 'sync-status-text success';
             return true;
         } else {
             dot.className = 'dot dot-offline';
-            statusText.textContent = '📡 Sin conexión a la nube';
+            statusText.textContent = '📡 Sin conexión';
             badge.textContent = '☁️ OFFLINE';
-            syncStatus.innerHTML = '⚠️ No se pudo conectar. Verifica tu internet.';
+            status.textContent = '⚠️ No se pudo conectar. Verifica tu internet.';
+            status.className = 'sync-status-text error';
             return false;
         }
     } catch (error) {
         dot.className = 'dot dot-offline';
-        statusText.textContent = '📡 Sin conexión a la nube';
+        statusText.textContent = '📡 Sin conexión';
         badge.textContent = '☁️ OFFLINE';
-        syncStatus.innerHTML = '❌ Error: ' + error.message;
+        status.textContent = '❌ Error: ' + error.message;
+        status.className = 'sync-status-text error';
         return false;
     }
 }
 
 // ========== SUBIR DATOS ==========
 async function subirDatos() {
-    const syncStatus = document.getElementById('syncStatus');
+    const status = document.getElementById('syncStatus');
     const dot = document.getElementById('statusDot');
-    const btn = event?.target || document.querySelector('.success');
     
     if (historialEvaluaciones.length === 0) {
-        syncStatus.innerHTML = '⚠️ No hay datos para subir.';
+        status.textContent = '⚠️ No hay datos para subir.';
+        status.className = 'sync-status-text error';
         return;
     }
     
-    syncStatus.innerHTML = '⏳ Subiendo datos a la nube...';
+    status.textContent = '⏳ Subiendo datos a la nube...';
+    status.className = 'sync-status-text syncing';
     dot.className = 'dot dot-sync';
     
     try {
-        syncKey = document.getElementById('syncKey').value.trim() || 'ipk-r65-datos';
+        syncKey = document.getElementById('syncKeyInput').value.trim() || 'ipk-r65-datos';
         localStorage.setItem('ipk_r65_sync_key', syncKey);
         
         const data = {
@@ -742,7 +803,6 @@ async function subirDatos() {
             syncKey: syncKey
         };
         
-        // Intentar actualizar bin existente o crear nuevo
         const url = binId ? `${JSONBIN_URL}/${binId}` : JSONBIN_URL;
         const method = binId ? 'PUT' : 'POST';
         
@@ -759,31 +819,35 @@ async function subirDatos() {
         if (response.ok) {
             const result = await response.json();
             binId = result.record ? result.record.binId : binId;
-            syncStatus.innerHTML = '✅ Datos subidos exitosamente! 📤 ' + historialEvaluaciones.length + ' registros';
+            status.textContent = '✅ Datos subidos exitosamente! 📤 ' + historialEvaluaciones.length + ' registros';
+            status.className = 'sync-status-text success';
             dot.className = 'dot dot-online';
             document.getElementById('statusText').textContent = '☁️ Datos en la nube';
             document.getElementById('syncBadge').textContent = '☁️ ONLINE';
         } else {
             const error = await response.text();
-            syncStatus.innerHTML = '❌ Error al subir: ' + error;
+            status.textContent = '❌ Error al subir: ' + error;
+            status.className = 'sync-status-text error';
             dot.className = 'dot dot-offline';
         }
     } catch (error) {
-        syncStatus.innerHTML = '❌ Error: ' + error.message;
+        status.textContent = '❌ Error: ' + error.message;
+        status.className = 'sync-status-text error';
         dot.className = 'dot dot-offline';
     }
 }
 
 // ========== DESCARGAR DATOS ==========
 async function descargarDatos() {
-    const syncStatus = document.getElementById('syncStatus');
+    const status = document.getElementById('syncStatus');
     const dot = document.getElementById('statusDot');
     
-    syncStatus.innerHTML = '⏳ Descargando datos de la nube...';
+    status.textContent = '⏳ Descargando datos de la nube...';
+    status.className = 'sync-status-text syncing';
     dot.className = 'dot dot-sync';
     
     try {
-        syncKey = document.getElementById('syncKey').value.trim() || 'ipk-r65-datos';
+        syncKey = document.getElementById('syncKeyInput').value.trim() || 'ipk-r65-datos';
         localStorage.setItem('ipk_r65_sync_key', syncKey);
         
         // Buscar bin por nombre
@@ -794,14 +858,16 @@ async function descargarDatos() {
         });
         
         if (!searchResponse.ok) {
-            syncStatus.innerHTML = '📭 No hay datos en la nube con esta clave.';
+            status.textContent = '📭 No hay datos en la nube con esta clave.';
+            status.className = 'sync-status-text error';
             dot.className = 'dot dot-offline';
             return;
         }
         
         const searchData = await searchResponse.json();
         if (!searchData.record || !searchData.record.binId) {
-            syncStatus.innerHTML = '📭 No hay datos en la nube con esta clave.';
+            status.textContent = '📭 No hay datos en la nube con esta clave.';
+            status.className = 'sync-status-text error';
             dot.className = 'dot dot-offline';
             return;
         }
@@ -832,27 +898,34 @@ async function descargarDatos() {
                 guardarDatosLocales();
                 actualizarStats();
                 verHistorial();
-                syncStatus.innerHTML = `✅ Descargados ${nuevos} nuevos registros. Total: ${historialEvaluaciones.length}`;
+                status.textContent = `✅ Descargados ${nuevos} nuevos registros. Total: ${historialEvaluaciones.length}`;
+                status.className = 'sync-status-text success';
                 dot.className = 'dot dot-online';
                 document.getElementById('statusText').textContent = '☁️ Datos sincronizados';
                 document.getElementById('syncBadge').textContent = '☁️ ONLINE';
                 document.getElementById('res').innerHTML = `📥 ${nuevos} nuevos registros descargados de la nube`;
             } else {
-                syncStatus.innerHTML = '📭 No hay datos en la nube.';
+                status.textContent = '📭 No hay datos en la nube.';
+                status.className = 'sync-status-text error';
                 dot.className = 'dot dot-offline';
             }
         } else {
-            syncStatus.innerHTML = '❌ Error al descargar datos.';
+            status.textContent = '❌ Error al descargar datos.';
+            status.className = 'sync-status-text error';
             dot.className = 'dot dot-offline';
         }
     } catch (error) {
-        syncStatus.innerHTML = '❌ Error: ' + error.message;
+        status.textContent = '❌ Error: ' + error.message;
+        status.className = 'sync-status-text error';
         dot.className = 'dot dot-offline';
     }
 }
 
 // ========== SINCRONIZAR ==========
 async function sincronizarDatos() {
+    const status = document.getElementById('syncStatus');
+    status.textContent = '🔄 Sincronizando... (subiendo y descargando)';
+    status.className = 'sync-status-text syncing';
     await subirDatos();
     await descargarDatos();
 }
@@ -873,7 +946,7 @@ function generar6Consejos(total, soporte, noPuedeConsentir, noColaboraCount, per
         consejos.push({
             titulo: "🏆 ALTA INTENSIDAD",
             ayuda: "Motivar al paciente con metas desafiantes. Usar refuerzos positivos.",
-            ejercicios: "HIIT 2-3 min × 4 series. Circuito funcional: sentadillas, step, bandas elásticas. 5-7/semana."
+            ejercicios: "HIIT 2-3 min × 4 series. Circuito funcional. 5-7/semana."
         });
     } else if (total >= 35) {
         consejos.push({
@@ -884,14 +957,14 @@ function generar6Consejos(total, soporte, noPuedeConsentir, noColaboraCount, per
     } else if (total >= 20) {
         consejos.push({
             titulo: "🛡️ INTENSIDAD BAJA",
-            ayuda: "Priorizar seguridad y confianza. Sesiones cortas pero frecuentes.",
-            ejercicios: "Movilizaciones pasivas y activas asistidas. Ejercicios respiratorios. 2-3/semana."
+            ayuda: "Priorizar seguridad y confianza. Sesiones cortas.",
+            ejercicios: "Movilizaciones pasivas. Ejercicios respiratorios. 2-3/semana."
         });
     } else {
         consejos.push({
             titulo: "🔍 INTENSIDAD MUY BAJA",
-            ayuda: "Enfoque multidisciplinario. Sesiones muy cortas (5-10 min).",
-            ejercicios: "Movilizaciones pasivas suaves. Ejercicios isométricos. Posicionamiento terapéutico."
+            ayuda: "Enfoque multidisciplinario. Sesiones de 5-10 min.",
+            ejercicios: "Movilizaciones pasivas suaves. Ejercicios isométricos."
         });
     }
     
@@ -899,34 +972,34 @@ function generar6Consejos(total, soporte, noPuedeConsentir, noColaboraCount, per
         consejos.push({
             titulo: "👨‍👩‍👧‍👦 RED DE APOYO SÓLIDA",
             ayuda: "Capacitar al cuidador principal en técnicas de asistencia.",
-            ejercicios: "Transferencias cama-silla paso a paso, ejercicios de rango de movimiento."
+            ejercicios: "Transferencias cama-silla paso a paso."
         });
     } else if (soporte >= 7) {
         consejos.push({
             titulo: "🤝 FORTALECER RED DE APOYO",
-            ayuda: "Coordinar con trabajo social para identificar programas de apoyo.",
-            ejercicios: "Series cortas de ejercicios de pie y sentado (3-5 repeticiones)."
+            ayuda: "Coordinar con trabajo social para identificar programas.",
+            ejercicios: "Series cortas de ejercicios de pie y sentado."
         });
     } else {
         consejos.push({
             titulo: "🏠 SOPORTE INSUFICIENTE",
-            ayuda: "Derivación a asistente social. Evaluar internación transitoria.",
-            ejercicios: "Ejercicios autoadministrados con guía por video o folleto."
+            ayuda: "Derivación a asistente social. Evaluar internación.",
+            ejercicios: "Ejercicios autoadministrados con guía."
         });
     }
     
     if (noPuedeConsentir) {
         consejos.push({
             titulo: "🧠 SIN CAPACIDAD DE CONSENTIR",
-            ayuda: "Designar un familiar como 'proxy decisor'. Sesiones cortas (10-15 min).",
-            ejercicios: "Movilizaciones suaves de hombros, codos, muñecas, cadera y tobillos."
+            ayuda: "Designar un familiar como 'proxy decisor'. Sesiones cortas.",
+            ejercicios: "Movilizaciones suaves de hombros, codos, muñecas."
         });
     }
     
     if (perfil.motivacionBaja) {
         consejos.push({
             titulo: "🎯 BAJA MOTIVACIÓN",
-            ayuda: "Usar economía de fichas. Gamificación. Reforzadores sociales.",
+            ayuda: "Usar economía de fichas. Gamificación.",
             ejercicios: "Ejercicios lúdicos: lanzamiento de pelota, juegos de equilibrio."
         });
     }
@@ -961,7 +1034,6 @@ function obtenerPuntajesItems() {
 // ========== EVALUAR ==========
 function evaluar() {
     const resDiv = document.getElementById("res");
-
     const hemo = document.getElementById('hemo');
     const acepta = document.getElementById('acepta');
 
@@ -970,13 +1042,12 @@ function evaluar() {
         return;
     }
     if (acepta.value === "no") {
-        resDiv.innerHTML = "❌ El paciente RECHAZA ACTIVAMENTE la intervención.";
+        resDiv.innerHTML = "❌ El paciente RECHAZA la intervención.";
         return;
     }
 
     const noPuedeConsentir = (acepta.value === "no_puede");
     const puntajes = obtenerPuntajesItems();
-
     let total = Object.values(puntajes).reduce((a, b) => a + b, 0);
     let soporte = (parseInt(document.getElementById('v3').value)||0) + (parseInt(document.getElementById('j4').value)||0) + (parseInt(document.getElementById('v4').value)||0);
 
@@ -985,9 +1056,7 @@ function evaluar() {
     for (let i = 0; i < selectoresNoColaboracion.length; i++) {
         const el = document.getElementById(selectoresNoColaboracion[i]);
         const selectedText = el.options[el.selectedIndex]?.text;
-        if (selectedText && selectedText.includes("No puede colaborar")) {
-            noColaboraCount++;
-        }
+        if (selectedText && selectedText.includes("No puede colaborar")) noColaboraCount++;
     }
 
     const perfil = {
@@ -1003,7 +1072,7 @@ function evaluar() {
     const consejos = generar6Consejos(total, soporte, noPuedeConsentir, noColaboraCount, perfil);
 
     let observaciones = "";
-    if (noPuedeConsentir) observaciones += "🧠 Paciente NO PUEDE CONSENTIR. ";
+    if (noPuedeConsentir) observaciones += "🧠 No puede consentir. ";
     if (noColaboraCount >= 2) observaciones += `📌 ${noColaboraCount} ítem(s) sin colaboración.`;
 
     const data = {
@@ -1023,7 +1092,6 @@ function evaluar() {
     
     historialEvaluaciones.unshift(data);
     guardarDatosLocales();
-
     mostrarResultado(data, clasificacion);
 }
 
@@ -1031,10 +1099,9 @@ function mostrarResultado(data, clasificacion) {
     const resDiv = document.getElementById("res");
     
     let htmlResultado = `<strong style="color:${clasificacion.color}">${clasificacion.categoria}</strong><br>`;
-    htmlResultado += `🎯 <strong>Puntaje IPK-R65:</strong> ${data.total} puntos<br>`;
-    htmlResultado += `🤝 <strong>Soporte psicosocial:</strong> ${data.soporte} pts<br>`;
+    htmlResultado += `🎯 Puntaje: ${data.total} puntos<br>`;
+    htmlResultado += `🤝 Soporte: ${data.soporte} pts<br>`;
     htmlResultado += `<small>🕒 ${new Date(data.fecha).toLocaleString()}</small>`;
-    htmlResultado += `<div style="font-size:0.7rem;color:#4a6a8a;margin-top:4px;">💾 Guardado localmente</div>`;
     
     htmlResultado += `<div class="puntaje-detalle">`;
     for (const [key, value] of Object.entries(data.puntajes)) {
@@ -1051,7 +1118,7 @@ function mostrarResultado(data, clasificacion) {
     data.consejos.forEach((consejo, idx) => {
         htmlResultado += `<div class="consejo-item">
                             <div class="consejo-titulo">${idx + 1}️⃣ ${consejo.titulo}</div>
-                            <div class="consejo-descripcion"><strong>🤝 Cómo ayudar:</strong> ${consejo.ayuda}</div>
+                            <div class="consejo-descripcion"><strong>🤝 Ayuda:</strong> ${consejo.ayuda}</div>
                             <div class="consejo-ejercicios"><strong>🏋️ Ejercicios:</strong> ${consejo.ejercicios}</div>
                           </div>`;
     });
@@ -1069,7 +1136,7 @@ function verHistorial() {
         return;
     }
 
-    let html = "<h3 class='historial-title'>📜 Historial clínico</h3>";
+    let html = "<h3 class='historial-title'>📜 Historial</h3>";
     historialEvaluaciones.forEach((h, index) => {
         const fechaStr = new Date(h.fecha).toLocaleString();
         const idUnico = h.id || 'eval-' + index;
@@ -1154,13 +1221,11 @@ function exportarExcel() {
             "No puede consentir": h.noPuedeConsentir ? "Sí" : "No",
             "Observaciones": h.observaciones || ""
         };
-        
         if (h.puntajes) {
             for (const [key, value] of Object.entries(h.puntajes)) {
                 row[key] = value;
             }
         }
-        
         if (h.consejos) {
             h.consejos.forEach((c, idx) => {
                 row[`Consejo_${idx+1}_Titulo`] = c.titulo || '';
@@ -1168,7 +1233,6 @@ function exportarExcel() {
                 row[`Consejo_${idx+1}_Ejercicios`] = c.ejercicios || '';
             });
         }
-        
         return row;
     });
 
@@ -1221,7 +1285,7 @@ function escapeHtml(str) {
 // ========== INICIALIZACIÓN ==========
 document.addEventListener('DOMContentLoaded', init);
 
-// Exponer funciones globalmente
+// Exponer funciones
 window.evaluar = evaluar;
 window.verHistorial = verHistorial;
 window.exportarExcel = exportarExcel;
@@ -1230,7 +1294,7 @@ window.subirDatos = subirDatos;
 window.descargarDatos = descargarDatos;
 window.sincronizarDatos = sincronizarDatos;
 window.verificarConexion = verificarConexion;
-window.generarClave = generarClave;
+window.generarNuevaClave = generarNuevaClave;
 window.toggleConsejos = toggleConsejos;
 window.toggleCard = toggleCard;
 </script>
