@@ -14,7 +14,7 @@ body { font-family: 'Segoe UI', Arial, sans-serif; background: #0b1220; color: #
 .section h3 { margin-top: 0; margin-bottom: 15px; color: #00ffd5; display: flex; align-items: center; gap: 8px; }
 label { display: block; margin-top: 14px; font-weight: 700; color: #c2d6ff; font-size: 0.95rem; }
 select, input { width: 100%; padding: 12px; margin-top: 6px; border-radius: 12px; border: 1px solid #2b3c5f; background: #0b1220; color: #e6f1ff; font-size: 0.85rem; }
-select option { padding: 8px; }
+select option { padding: 8px; white-space: normal; }
 button { padding: 12px; margin-top: 12px; border-radius: 40px; border: none; font-weight: bold; font-size: 0.95rem; cursor: pointer; transition: transform 0.1s; }
 button:active { transform: scale(0.98); }
 .primary { background: linear-gradient(90deg, #00ffd5, #00a3ff); color: #001018; }
@@ -102,50 +102,50 @@ button:active { transform: scale(0.98); }
 
 <label>🔻 Estabilidad hemodinámica</label>
 <select id="hemo">
-<option value="no">❌ No estable — Inestabilidad de signos vitales (TA, FC, FR alterados), requiere monitoreo continuo, no movilizar</option>
-<option value="si">✅ Estable — TA, FC, FR dentro de parámetros seguros para el reposo y la movilización progresiva</option>
+    <option value="no">❌ No estable — Inestabilidad de signos vitales (TA, FC, FR alterados), requiere monitoreo continuo, no movilizar</option>
+    <option value="si">✅ Estable — TA, FC, FR dentro de parámetros seguros para el reposo y la movilización progresiva</option>
 </select>
 
 <label>🤝 Capacidad de consentir / Colaboración <span class="warning-badge">Informativo, no bloquea</span></label>
 <select id="acepta">
-<option value="si">👍 Sí puede consentir — Comprende la información, acepta voluntariamente participar en el plan kinésico</option>
-<option value="no_puede">🧠 No puede consentir — Deterioro cognitivo severo, sedación profunda, trastorno de conciencia (se evalúa con cuidador/familiar)</option>
-<option value="no">🚫 No acepta — Rechaza activamente la intervención kinésica por decisión propia informada</option>
+    <option value="si">👍 Sí puede consentir — Comprende la información, acepta voluntariamente participar en el plan kinésico</option>
+    <option value="no_puede">🧠 No puede consentir — Deterioro cognitivo severo, sedación profunda, trastorno de conciencia (se evalúa con cuidador/familiar)</option>
+    <option value="no">🚫 No acepta — Rechaza activamente la intervención kinésica por decisión propia informada</option>
 </select>
 
 <label>📅 Edad funcional (riesgo biológico)</label>
 <select id="edad">
-<option value="0">👴 ≥75 años — Mayor fragilidad asociada, mayor riesgo de sarcopenia, comorbilidades y menor reserva funcional</option>
-<option value="5">🧑 &lt;75 años — Menor riesgo etario, generalmente mejor reserva fisiológica y capacidad de recuperación</option>
+    <option value="0">👴 ≥75 años — Mayor fragilidad asociada, mayor riesgo de sarcopenia, comorbilidades y menor reserva funcional</option>
+    <option value="5">🧑 &lt;75 años — Menor riesgo etario, generalmente mejor reserva fisiológica y capacidad de recuperación</option>
 </select>
 
 <label>💪 Reserva funcional (previo a enfermedad aguda)</label>
 <select id="v1">
-<option value="0">🦽 Severa — Dependiente para actividades básicas de la vida diaria (ABVD), postrado en cama o silla de ruedas, requiere asistencia total</option>
-<option value="6">🚶 Parcial — Requiere ayuda para algunas actividades como baño, vestimenta o transferencias, deambula con asistencia</option>
-<option value="12">🏃 Independiente — Se moviliza sin asistencia, realiza ABVD solo, vida activa previa a la hospitalización</option>
+    <option value="0">🦽 Severa — Dependiente para actividades básicas de la vida diaria (ABVD), postrado en cama o silla de ruedas, requiere asistencia total</option>
+    <option value="6">🚶 Parcial — Requiere ayuda para algunas actividades como baño, vestimenta o transferencias, deambula con asistencia</option>
+    <option value="12">🏃 Independiente — Se moviliza sin asistencia, realiza ABVD solo, vida activa previa a la hospitalización</option>
 </select>
 
 <label>⚙️ Complejidad clínica (comorbilidades/gravedad)</label>
 <select id="v2">
-<option value="0">🔴 Alta — Múltiples patologías descompensadas (Ej: ICC+EPOC+IRC), alto riesgo de eventos adversos, manejo complejo</option>
-<option value="6">🟡 Media — Comorbilidades controladas con tratamiento, estabilidad clínica relativa, riesgo moderado</option>
-<option value="12">🟢 Baja — Patología única o sin repercusión sistémica importante, buen estado general basal</option>
+    <option value="0">🔴 Alta — Múltiples patologías descompensadas (Ej: ICC+EPOC+IRC), alto riesgo de eventos adversos, manejo complejo</option>
+    <option value="6">🟡 Media — Comorbilidades controladas con tratamiento, estabilidad clínica relativa, riesgo moderado</option>
+    <option value="12">🟢 Baja — Patología única o sin repercusión sistémica importante, buen estado general basal</option>
 </select>
 
 <label>👨‍👩‍👧 Red de apoyo (familiar/cuidador)</label>
 <select id="v3">
-<option value="0">🏚️ Sin apoyo — Vive solo, sin cuidador formal o informal, dificultad para seguimiento ambulatorio</option>
-<option value="4">🤝 Parcial — Familiar o cuidador que ayuda de forma intermitente, pero con limitaciones de tiempo o capacitación</option>
-<option value="8">🏠 Fuerte — Cuidador presente y entrenado, soporte emocional y logístico continuo, vivienda adaptada</option>
+    <option value="0">🏚️ Sin apoyo — Vive solo, sin cuidador formal o informal, dificultad para seguimiento ambulatorio</option>
+    <option value="4">🤝 Parcial — Familiar o cuidador que ayuda de forma intermitente, pero con limitaciones de tiempo o capacitación</option>
+    <option value="8">🏠 Fuerte — Cuidador presente y entrenado, soporte emocional y logístico continuo, vivienda adaptada</option>
 </select>
 
 <label>🎯 Motivación basal (disposición para rehabilitación)</label>
 <select id="v4">
-<option value="0">😞 Baja — Poco o nulo interés en participar de actividades terapéuticas, actitud pasiva o negativa</option>
-<option value="4">🔄 Variable — A veces colabora, otras no, depende del estímulo o del momento del día</option>
-<option value="8">🔥 Alta — Participa activamente, busca información, muestra entusiasmo por mejorar su condición</option>
-<option value="0">🚫 No puede colaborar — Por déficit neurológico severo, sedación, alteración de conciencia o barrera cognitiva</option>
+    <option value="0">😞 Baja — Poco o nulo interés en participar de actividades terapéuticas, actitud pasiva o negativa</option>
+    <option value="4">🔄 Variable — A veces colabora, otras no, depende del estímulo o del momento del día</option>
+    <option value="8">🔥 Alta — Participa activamente, busca información, muestra entusiasmo por mejorar su condición</option>
+    <option value="0">🚫 No puede colaborar — Por déficit neurológico severo, sedación, alteración de conciencia o barrera cognitiva</option>
 </select>
 </div>
 
@@ -155,40 +155,40 @@ button:active { transform: scale(0.98); }
 
 <label>🧓 Edad funcional clínica (percepción del kinesiólogo)</label>
 <select id="j1">
-<option value="0">📉 Baja — El paciente se comporta como muy anciano/frágil, con limitaciones superiores a lo esperado por edad cronológica</option>
-<option value="3">📊 Media — Acorde a su edad cronológica, desempeño funcional esperable</option>
-<option value="6">📈 Alta — Vitalidad y desempeño funcional superior a lo esperado para su edad</option>
+    <option value="0">📉 Baja — El paciente se comporta como muy anciano/frágil, con limitaciones superiores a lo esperado por edad cronológica</option>
+    <option value="3">📊 Media — Acorde a su edad cronológica, desempeño funcional esperable</option>
+    <option value="6">📈 Alta — Vitalidad y desempeño funcional superior a lo esperado para su edad</option>
 </select>
 
 <label>💡 Motivación observada en sesión (conducta durante evaluación)</label>
 <select id="j2">
-<option value="0">🪨 Nula — Total pasividad, sin iniciativa, no responde a estímulos verbales o táctiles</option>
-<option value="3">⚡ Parcial — Reacciona ante estímulos pero no busca activamente participar, requiere constante redirección</option>
-<option value="6">✨ Alta — Entusiasmo evidente, participa voluntariamente, realiza preguntas, busca superarse</option>
-<option value="0">❌ No puede colaborar — Alteración de conciencia, déficit cognitivo severo o condición que impide expresión de motivación</option>
+    <option value="0">🪨 Nula — Total pasividad, sin iniciativa, no responde a estímulos verbales o táctiles</option>
+    <option value="3">⚡ Parcial — Reacciona ante estímulos pero no busca activamente participar, requiere constante redirección</option>
+    <option value="6">✨ Alta — Entusiasmo evidente, participa voluntariamente, realiza preguntas, busca superarse</option>
+    <option value="0">❌ No puede colaborar — Alteración de conciencia, déficit cognitivo severo o condición que impide expresión de motivación</option>
 </select>
 
 <label>🔄 Adherencia a indicaciones (capacidad de seguir órdenes)</label>
 <select id="j3">
-<option value="0">⚠️ Baja — No sigue instrucciones, olvida ejercicios, requiere supervisión constante y repetitiva</option>
-<option value="3">📋 Media — Sigue instrucciones con ayuda o recordatorios visuales/verbales, requiere supervisión ocasional</option>
-<option value="6">🧠 Alta — Realiza correctamente los ejercicios sin supervisión, comprende y recuerda las indicaciones</option>
-<option value="0">🚫 No puede colaborar — Imposibilidad por condición clínica (afasia, demencia avanzada, sedación)</option>
+    <option value="0">⚠️ Baja — No sigue instrucciones, olvida ejercicios, requiere supervisión constante y repetitiva</option>
+    <option value="3">📋 Media — Sigue instrucciones con ayuda o recordatorios visuales/verbales, requiere supervisión ocasional</option>
+    <option value="6">🧠 Alta — Realiza correctamente los ejercicios sin supervisión, comprende y recuerda las indicaciones</option>
+    <option value="0">🚫 No puede colaborar — Imposibilidad por condición clínica (afasia, demencia avanzada, sedación)</option>
 </select>
 
 <label>🤲 Apoyo del cuidador (desde perspectiva kinésica)</label>
 <select id="j4">
-<option value="0">❌ Ausente — No hay cuidador identificado o no se involucra en el proceso terapéutico</option>
-<option value="3">🕒 Irregular — Apoyo esporádico, poco compromiso con las indicaciones, dificultad para continuidad en domicilio</option>
-<option value="6">✅ Constante — Cuidador presente y entrenado activamente, participa en sesiones, refuerza aprendizajes</option>
+    <option value="0">❌ Ausente — No hay cuidador identificado o no se involucra en el proceso terapéutico</option>
+    <option value="3">🕒 Irregular — Apoyo esporádico, poco compromiso con las indicaciones, dificultad para continuidad en domicilio</option>
+    <option value="6">✅ Constante — Cuidador presente y entrenado activamente, participa en sesiones, refuerza aprendizajes</option>
 </select>
 
 <label>🏋️ Tolerancia al esfuerzo (respuesta durante actividad física)</label>
 <select id="j5">
-<option value="0">🪫 Baja — Fatiga extrema, desaturación (SpO2 &lt;88%), disnea intensa, no completa series de ejercicios</option>
-<option value="3">⚖️ Moderada — Se fatiga pero completa ejercicios con pausas, ligera disnea, recuperación en &lt;5 min</option>
-<option value="6">⚡ Alta — Buen desempeño cardiorrespiratorio, sin desaturación, fatiga mínima, completa series sin dificultad</option>
-<option value="0">⛔ No puede colaborar — Paciente no puede realizar esfuerzo dirigido por inestabilidad, dolor severo o indicación médica</option>
+    <option value="0">🪫 Baja — Fatiga extrema, desaturación (SpO2 &lt;88%), disnea intensa, no completa series de ejercicios</option>
+    <option value="3">⚖️ Moderada — Se fatiga pero completa ejercicios con pausas, ligera disnea, recuperación en &lt;5 min</option>
+    <option value="6">⚡ Alta — Buen desempeño cardiorrespiratorio, sin desaturación, fatiga mínima, completa series sin dificultad</option>
+    <option value="0">⛔ No puede colaborar — Paciente no puede realizar esfuerzo dirigido por inestabilidad, dolor severo o indicación médica</option>
 </select>
 </div>
 
