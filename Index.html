@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>IPK-R65 - Sistema de Encuestas</title>
+<title>IPK-R65 - Encuestas Compartidas</title>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
 <style>
@@ -66,11 +66,6 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .shared-badge { background: #00ffd5; color: #001018; padding: 2px 10px; border-radius: 12px; font-size: 0.7rem; font-weight: bold; }
 .option-desc { color: #6a8aaa; font-size: 0.75rem; margin-top: 4px; padding-left: 4px; }
 .sync-key-input { background: #0a1122; border: 1px solid #2b3c5f; color: #00ffd5; padding: 8px 12px; border-radius: 8px; font-family: monospace; font-size: 0.9rem; width: 100%; max-width: 300px; }
-.sync-status { font-size: 0.8rem; padding: 4px 12px; border-radius: 12px; background: #1a2744; }
-.sync-status.online { color: #00d97a; }
-.sync-status.offline { color: #ff5722; }
-.sync-status.syncing { color: #ffb74d; }
-.encuesta-list { max-height: 500px; overflow-y: auto; }
 </style>
 </head>
 
@@ -78,22 +73,21 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 
 <div class="container">
 <h1>📊 IPK-R65 - Encuestas</h1>
-<div class="sub">📡 Todas las encuestas se guardan en la nube. Cualquier persona puede ver el historial.</div>
+<div class="sub">📡 Todas las encuestas se guardan en la nube. Cualquier persona con la misma clave ve el historial.</div>
 
 <!-- Status Bar -->
 <div class="status-bar" id="statusBar">
     <span class="dot dot-offline" id="statusDot"></span>
-    <span id="statusText">📡 Conectando a la nube...</span>
+    <span id="statusText">📡 Conectando...</span>
     <span class="stats-badge" id="statsBadge">📊 0 encuestas</span>
-    <span class="shared-badge" id="syncBadge">☁️ CARGANDO...</span>
+    <span class="shared-badge" id="syncBadge">☁️ SIN CONEXIÓN</span>
 </div>
 
-<!-- SECCIÓN DE CLAVE (Gratuita) -->
+<!-- SECCIÓN DE CLAVE -->
 <div class="section" style="border-color: #4fc3f7; border-width: 2px;">
     <h3>🔑 CLAVE COMPARTIDA</h3>
-    <p style="color:#8aa2e0; font-size:0.9rem; margin-bottom:10px;">
+    <p style="color:#8aa2e0; font-size:0.9rem;">
         Todos los dispositivos con la <strong style="color:#00ffd5;">MISMA CLAVE</strong> comparten las encuestas.
-        <br>La clave se genera automáticamente. Cámbiala para crear un grupo privado.
     </p>
     
     <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
@@ -104,7 +98,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
     </div>
     
     <div id="syncStatus" style="margin-top:10px; padding:10px; background:#0a1122; border-radius:8px; font-size:0.85rem; color:#8aa2e0;">
-        💡 Las encuestas se guardan automáticamente en la nube.
+        💡 Las encuestas se guardan automáticamente al enviarlas.
     </div>
 </div>
 
@@ -160,7 +154,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 <option value="0">😞 Baja</option>
 <option value="4">🔄 Variable</option>
 <option value="8">🔥 Alta</option>
-<option value="0">🚫 No puede colaborar</option>
+<option value="0">🚫 No puede</option>
 </select>
 
 <label>🧓 Edad funcional clínica</label>
@@ -175,7 +169,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 <option value="0">🪨 Nula</option>
 <option value="3">⚡ Parcial</option>
 <option value="6">✨ Alta</option>
-<option value="0">❌ No puede colaborar</option>
+<option value="0">❌ No puede</option>
 </select>
 
 <label>🔄 Adherencia</label>
@@ -183,7 +177,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 <option value="0">⚠️ Baja</option>
 <option value="3">📋 Media</option>
 <option value="6">🧠 Alta</option>
-<option value="0">🚫 No puede colaborar</option>
+<option value="0">🚫 No puede</option>
 </select>
 
 <label>🤲 Apoyo del cuidador</label>
@@ -198,7 +192,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 <option value="0">🪫 Baja</option>
 <option value="3">⚖️ Moderada</option>
 <option value="6">⚡ Alta</option>
-<option value="0">⛔ No puede colaborar</option>
+<option value="0">⛔ No puede</option>
 </select>
 
 <div class="flex-buttons">
@@ -220,15 +214,15 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 </div>
 
 <script>
-// ========== CONFIGURACIÓN JSONBin.io (Alternativa gratuita a Firebase) ==========
-// Usamos JSONBin.io para guardar datos en la nube de forma gratuita
-// Límites: 100 KB por bin, 100 peticiones/día (gratis)
-// Si necesitas más, crea cuenta en jsonbin.io (gratis)
+// ========== 🔑 CONFIGURACIÓN - PON AQUÍ TU CLAVE ==========
+// 1. Ve a https://jsonbin.io y crea una cuenta (gratis)
+// 2. Ve a "API Keys" y crea una nueva clave
+// 3. COPIA LA CLAVE y pégala aquí:
 
+const MASTER_KEY = 'REEMPLAZA_CON_TU_CLAVE_AQUI';
+
+// ========== EL RESTO DEL CÓDIGO ==========
 const JSONBIN_URL = 'https://api.jsonbin.io/v3/b';
-const MASTER_KEY = '$2a$10$z8EJ7H8VHqL9XQm8s5M5MueZz8EJ7H8VHqL9XQm8s5M5MueZz8EJ7H8VHqL9XQ'; // Clave pública de prueba
-
-// ========== ESTADO ==========
 let encuestas = [];
 let binId = null;
 let syncKey = '';
@@ -239,7 +233,14 @@ function init() {
     document.getElementById('syncKeyInput').value = syncKey;
     cargarLocal();
     verHistorial();
-    setTimeout(cargarEncuestas, 1000);
+    
+    // Verificar que la clave esté configurada
+    if (MASTER_KEY === '$2a$10$I8lVlm9VJcwZl6zJ8K6U1u.UeN7fM9jH6LE3MADSRXM367tXEhhly') {
+        document.getElementById('syncStatus').innerHTML = '⚠️ <strong>CONFIGURACIÓN REQUERIDA:</strong> Ve a https://jsonbin.io, crea una cuenta, ve a "API Keys", crea una clave y pégala en la variable MASTER_KEY en el código (línea ~200)';
+        document.getElementById('syncStatus').style.color = '#ffb74d';
+    } else {
+        setTimeout(cargarEncuestas, 1000);
+    }
 }
 
 // ========== GENERAR NUEVA CLAVE ==========
@@ -253,6 +254,7 @@ function generarNuevaClave() {
     syncKey = resultado;
     localStorage.setItem('ipk_encuesta_key', syncKey);
     document.getElementById('syncStatus').innerHTML = '🔑 Nueva clave: ' + syncKey;
+    document.getElementById('syncStatus').style.color = '#00ffd5';
 }
 
 // ========== GUARDAR EN LOCAL ==========
@@ -276,8 +278,15 @@ function actualizarStats() {
     document.getElementById('statsBadge').textContent = `📊 ${encuestas.length} encuestas`;
 }
 
-// ========== GUARDAR EN LA NUBE (JSONBin.io) ==========
+// ========== GUARDAR EN LA NUBE ==========
 async function guardarEncuestas() {
+    // Verificar clave configurada
+    if (MASTER_KEY === 'REEMPLAZA_CON_TU_CLAVE_AQUI') {
+        document.getElementById('syncStatus').innerHTML = '⚠️ Configura tu clave en el código (variable MASTER_KEY)';
+        document.getElementById('syncStatus').style.color = '#ff5722';
+        return;
+    }
+    
     const status = document.getElementById('syncStatus');
     const dot = document.getElementById('statusDot');
     
@@ -294,6 +303,7 @@ async function guardarEncuestas() {
     status.style.color = '#ffb74d';
     dot.className = 'dot dot-sync';
     document.getElementById('statusText').textContent = '🔄 Guardando...';
+    document.getElementById('syncBadge').textContent = '☁️ GUARDANDO...';
     
     try {
         const data = {
@@ -330,17 +340,30 @@ async function guardarEncuestas() {
             status.innerHTML = '❌ Error al guardar: ' + error;
             status.style.color = '#ff5722';
             dot.className = 'dot dot-offline';
+            document.getElementById('syncBadge').textContent = '☁️ ERROR';
+            
+            // Si el error es de clave, mostrar mensaje claro
+            if (error.includes('Master-Key')) {
+                status.innerHTML = '❌ Clave API inválida. Ve a https://jsonbin.io, crea una cuenta y obtén tu clave.';
+            }
         }
     } catch (error) {
-        status.innerHTML = '❌ Error: ' + error.message;
+        status.innerHTML = '❌ Error de red: ' + error.message;
         status.style.color = '#ff5722';
         dot.className = 'dot dot-offline';
         document.getElementById('statusText').textContent = '📡 Error de conexión';
+        document.getElementById('syncBadge').textContent = '☁️ OFFLINE';
     }
 }
 
 // ========== CARGAR DE LA NUBE ==========
 async function cargarEncuestas() {
+    if (MASTER_KEY === 'REEMPLAZA_CON_TU_CLAVE_AQUI') {
+        document.getElementById('syncStatus').innerHTML = '⚠️ Configura tu clave en el código (variable MASTER_KEY)';
+        document.getElementById('syncStatus').style.color = '#ff5722';
+        return;
+    }
+    
     const status = document.getElementById('syncStatus');
     const dot = document.getElementById('statusDot');
     
@@ -351,6 +374,7 @@ async function cargarEncuestas() {
     status.style.color = '#ffb74d';
     dot.className = 'dot dot-sync';
     document.getElementById('statusText').textContent = '🔄 Cargando...';
+    document.getElementById('syncBadge').textContent = '☁️ CARGANDO...';
     
     try {
         // Buscar por nombre
@@ -359,10 +383,17 @@ async function cargarEncuestas() {
         });
         
         if (!searchResponse.ok) {
-            status.innerHTML = '📭 No hay datos con esta clave';
-            status.style.color = '#ffb74d';
+            if (searchResponse.status === 404) {
+                status.innerHTML = '📭 No hay datos con esta clave. ¡Crea la primera encuesta!';
+                status.style.color = '#ffb74d';
+            } else {
+                const error = await searchResponse.text();
+                status.innerHTML = '❌ Error: ' + error;
+                status.style.color = '#ff5722';
+            }
             dot.className = 'dot dot-offline';
             document.getElementById('statusText').textContent = '📡 Sin datos';
+            document.getElementById('syncBadge').textContent = '☁️ SIN DATOS';
             return;
         }
         
@@ -397,7 +428,7 @@ async function cargarEncuestas() {
                 }
                 guardarLocal();
                 verHistorial();
-                status.innerHTML = `✅ Cargados ${nuevos} nuevas encuestas. Total: ${encuestas.length}`;
+                status.innerHTML = `✅ Cargadas ${nuevos} nuevas encuestas. Total: ${encuestas.length}`;
                 status.style.color = '#00d97a';
                 dot.className = 'dot dot-online';
                 document.getElementById('statusText').textContent = '☁️ Datos sincronizados';
@@ -418,6 +449,7 @@ async function cargarEncuestas() {
         status.style.color = '#ff5722';
         dot.className = 'dot dot-offline';
         document.getElementById('statusText').textContent = '📡 Error de conexión';
+        document.getElementById('syncBadge').textContent = '☁️ OFFLINE';
     }
 }
 
@@ -466,9 +498,7 @@ function enviarEncuesta() {
         soporte: soporte,
         puntajes: puntajes,
         hemo: hemo.value,
-        acepta: acepta.value,
-        creadoPor: 'usuario',
-        device: navigator.userAgent || 'desconocido'
+        acepta: acepta.value
     };
     
     encuestas.unshift(encuesta);
@@ -480,7 +510,7 @@ function enviarEncuesta() {
     mostrarResultado(encuesta);
     verHistorial();
     
-    // Limpiar campos (opcional)
+    // Limpiar campos
     document.getElementById('paciente').value = '';
 }
 
